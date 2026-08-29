@@ -2,7 +2,9 @@
 
 ## 현재 상태
 
-프로젝트는 아직 애플리케이션을 생성하지 않은 초기 단계다. 테스트 runner, lint 도구와 구체적인 프레임워크는 `TBD`이며 bootstrap 또는 기능 task에서 후보와 호환성을 비교해 정한다.
+`apps/web`에는 TypeScript 7 typecheck와 Biome lint가 구성되어 있으며 루트에서 `pnpm typecheck`, `pnpm lint`, `pnpm build`로 실행한다. Next.js와 NestJS의 unit/API test runner는 아직 `TBD`다.
+
+Biome를 선택한 이유와 Next.js 16.3·TypeScript 7·typescript-eslint 사이의 현재 호환성 제약은 `tasks/001-bootstrap-monorepo.md`에 기록한다. 호환성 변화에 따라 Next.js 전용 lint 규칙을 다시 검토한다.
 
 지금 확정하는 것은 특정 도구가 아니라 **변경의 위험에 맞는 여러 검증 계층을 함께 고려한다**는 원칙이다.
 
@@ -41,7 +43,6 @@
 
 ## 향후 결정할 사항
 
-- typecheck와 lint 명령 및 workspace 실행 방식
 - Next.js와 NestJS의 unit/API test runner
 - PostgreSQL integration test 격리 방식
 - test fixture, factory와 seed 데이터의 책임

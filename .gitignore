@@ -6,8 +6,10 @@ node_modules/
 .next/
 out/
 dist/
+build/
 .swc/
 *.tsbuildinfo
+next-env.d.ts
 
 # Test and tool output
 coverage/
@@ -24,6 +26,7 @@ yarn-error.log*
 .env.*
 !.env.example
 !.env.*.example
+*.pem
 
 # Deployment and local infrastructure state
 .vercel/

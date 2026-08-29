@@ -2,11 +2,11 @@
 
 ## 문서 상태
 
-- **Current:** 저장소에는 문서와 작업 규칙만 있으며 실행 가능한 애플리케이션은 없다.
-- **Proposed:** 아래 구조는 구현 전 검토할 초기 목표이며 확정된 배포 또는 패키지 구조가 아니다.
+- **Current:** pnpm workspace와 `apps/web` Next.js 애플리케이션이 있으며 `/` 화면까지 실행된다.
+- **Proposed:** NestJS 이후의 구조는 구현 전 검토할 초기 목표이며 확정된 배포 구조가 아니다.
 - **TBD:** 구체적인 도구나 책임 경계를 추가 조사해야 한다.
 
-## Proposed 논리 구조
+## 논리 구조
 
 ```text
 Browser
@@ -28,7 +28,32 @@ Toss Payments
 
 ### Next.js 16
 
-**Proposed:** 사용자 화면과 웹 요청 진입점을 담당한다. 상품·장바구니·주문·결제 결과 화면을 제공하고 NestJS API와 통신한다. 어떤 기능을 Server Component, Server Action 또는 브라우저 코드에서 처리할지는 기능별 task에서 결정한다.
+**Current:** `apps/web`에 Next.js 16.3.3 App Router가 생성되었고 `/`에서 PhytoWorks의 NITRO·이미징 모듈 맥락을 반영한 학습용 목록을 렌더링한다. 현재 페이지는 기본 Server Component이며 API나 DB 데이터는 사용하지 않는다.
+
+**Proposed:** 이후 상품·장바구니·주문·결제 결과 화면을 제공하고 NestJS API와 통신한다. 어떤 기능을 Server Component, Server Action 또는 브라우저 코드에서 처리할지는 기능별 task에서 결정한다.
+
+### Web route와 component 경계
+
+**Current:** 직접 작성된 route는 `/` 하나다. `apps/web/app`에는 `layout.tsx`와 `page.tsx`만 있으며 공통 navigation, 별도 component directory, project CSS와 client state가 없다. Next.js가 생성한 `/_not-found`, `/_global-error`는 framework fallback이다.
+
+**Proposed:** 최소 Shop route는 다음과 같다.
+
+```text
+/
+├─ products
+│  └─ [productId]
+├─ cart
+├─ checkout
+├─ payment
+│  ├─ success
+│  └─ fail
+└─ orders
+   └─ [orderId]
+```
+
+정적 layout, Product 목록과 설명은 Server Component를 우선한다. Cart 조작, toast, Wishlist와 image gallery처럼 browser state와 event가 필요한 작은 leaf만 Client Component 후보로 둔다. 실제 data fetching, cache와 mutation 경계는 API 구현 task에서 확정한다.
+
+IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 기준으로 하며 이 route는 아직 구현되지 않은 `Proposed` 구조다.
 
 ### NestJS
 
@@ -49,9 +74,11 @@ Toss Payments
 
 ## 요청이 통과하는 경로
 
+현재 구현된 경로는 `Browser → Next.js app/page.tsx → Browser`다. 개발 서버는 `/` 요청을 `apps/web/app/page.tsx`의 React 컴포넌트와 연결한다.
+
 상품 조회의 초기 후보 흐름은 `Browser → Next.js → NestJS → PostgreSQL → NestJS → Next.js → Browser`다. 결제는 여기에 Toss Payments 인증과 NestJS의 서버 승인 요청이 추가된다. 캐싱, 직접 서버 렌더링 데이터 접근 또는 API 경계 변경은 아직 확정하지 않았다.
 
-## Proposed monorepo 구조
+## Monorepo 구조
 
 ```text
 apps/
@@ -64,13 +91,13 @@ packages/
 └─ config/
 ```
 
-- `apps/web/` — **Proposed:** Next.js 사용자 애플리케이션
+- `apps/web/` — **Current:** Next.js 사용자 애플리케이션
 - `apps/api/` — **Proposed:** NestJS API 애플리케이션
 - `packages/contracts/` — **Proposed:** web과 API가 합의해야 하는 타입 또는 schema의 공유 위치. 무엇을 공유할지는 `TBD`다.
 - `packages/database/` — **Proposed:** schema, migration 또는 DB 접근 코드의 후보 위치. ORM을 선택하기 전에는 생성하지 않는다.
 - `packages/config/` — **Proposed:** TypeScript, lint 등 반복 설정의 공유 후보 위치. 모든 설정을 무조건 공통화하지 않는다.
 
-이 구조는 아직 디렉터리로 생성하지 않았다. 첫 bootstrap task에서 대안과 도구 제약을 비교한 뒤 확정한다.
+`apps/*`와 `packages/*`를 pnpm workspace 범위로 사용하기로 ADR-001에서 결정했다. 현재는 필요한 `apps/web`만 생성했으며 나머지 디렉터리는 각 구현 task에서 책임을 확정한 뒤 만든다.
 
 ## 주요 TBD
 

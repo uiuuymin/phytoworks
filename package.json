@@ -1,0 +1,12 @@
+{
+  "name": "phytoworks",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.24.0",
+  "scripts": {
+    "dev": "pnpm --filter @phytoworks/web dev",
+    "build": "pnpm --filter @phytoworks/web build",
+    "lint": "pnpm --filter @phytoworks/web lint",
+    "typecheck": "pnpm --filter @phytoworks/web typecheck"
+  }
+}

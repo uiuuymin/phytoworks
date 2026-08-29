@@ -97,6 +97,7 @@
 
 - `docs/context/`: 프로젝트 전체 맥락과 문서 탐색 경로
 - `docs/domain/`: 서비스 개념, 용어와 비즈니스 규칙
+- `docs/design/`: Information Architecture, UX/UI, responsive와 interaction 원칙
 - `docs/adr/`: 중요한 기술·설계 결정과 그 근거
 - `tasks/`: 개별 작업의 상태, 선택지, 변경, 검증과 시행착오
 - `docs/retrospectives/`: 여러 작업을 거치며 배운 개발 방식의 개선점

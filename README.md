@@ -1,6 +1,6 @@
 # PhytoWorks Shop
 
-식물·농업 관련 상품을 판매하는 데모 쇼핑몰을 만들면서 웹서비스 기술 스택과 AI-assisted development workflow를 학습하는 프로젝트입니다. 결과물을 빠르게 완성하는 것보다 기술을 연결하고, 선택 이유와 시행착오를 기록하며, 사람이 직접 검토하는 과정을 중요하게 봅니다.
+PhytoWorks의 식물 연구·육종용 생육 시스템, 이미징 모듈과 분석 서비스에서 맥락을 가져온 학습용 B2B 쇼핑몰입니다. 웹서비스 기술 스택과 AI-assisted development workflow를 익히는 것이 목적이며, 화면의 가격과 판매 조건은 실제 회사 정책이 아닌 Demo로 구분합니다.
 
 ## 학습 목표
 
@@ -26,17 +26,36 @@
 
 ## 현재 상태
 
-현재는 **문서와 LLM Wiki 기반을 구축한 초기 단계**입니다. Next.js/NestJS 애플리케이션, workspace, 데이터베이스, Docker, 결제와 배포 설정은 아직 생성하지 않았습니다. 따라서 현재 실행 명령도 없습니다.
+현재는 **pnpm workspace와 Next.js web을 bootstrap한 단계**입니다. `apps/web`의 `/` 화면은 실행 가능하지만 NestJS, 데이터베이스, Docker, 결제와 배포 설정은 아직 생성하지 않았습니다.
+
+```bash
+pnpm install
+pnpm dev
+```
+
+브라우저에서 <http://localhost:3000>을 엽니다. PowerShell 실행 정책이 npm의 `pnpm.ps1`을 차단하는 Windows 환경에서는 같은 명령을 `pnpm.cmd dev`로 실행할 수 있습니다.
 
 ## 저장소 구조
 
 ```text
+apps/web/             Next.js 사용자 애플리케이션
 docs/context/          프로젝트 맥락과 Wiki 진입점
 docs/domain/           서비스 용어와 비즈니스 규칙
+docs/design/           IA, UX/UI, responsive와 interaction 전략
 docs/adr/              중요한 기술·설계 결정
 docs/development/      개발, worktree와 테스트 workflow
 docs/retrospectives/   여러 작업에서 얻은 과정 개선점
 tasks/                 개별 작업의 계획과 실행 기록
+package.json           workspace 공통 명령
+pnpm-workspace.yaml    workspace package 범위와 pnpm 설정
+```
+
+## 검증 명령
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm build
 ```
 
 ## 개발 workflow 요약
@@ -44,4 +63,6 @@ tasks/                 개별 작업의 계획과 실행 기록
 각 기능은 Orca에서 별도의 Git worktree를 만든 뒤, 관련 문서 확인 → 현재 상태 조사 → task와 계획 작성 → 구현 → 테스트 → VS Code 및 diff 검토 → 지식 문서 업데이트 → commit → 검토 후 `main` 병합 순서로 진행합니다.
 
 - LLM Wiki 시작 위치: [`docs/context/index.md`](docs/context/index.md)
+- 회사·제품 기준 자료: [`docs/context/company-reference.md`](docs/context/company-reference.md)
+- Shop IA·UI 전략: [`docs/design/shop-ux-strategy.md`](docs/design/shop-ux-strategy.md)
 - AI agent 최상위 규칙: [`AGENTS.md`](AGENTS.md)

@@ -5,6 +5,7 @@
 ## 프로젝트 전체를 이해할 때
 
 - [`project-overview.md`](./project-overview.md) — 프로젝트 목적, 목표 기술, 예정 기능과 현재 단계를 처음 파악할 때 읽는다.
+- [`company-reference.md`](./company-reference.md) — 실제 PhytoWorks의 사업·제품 맥락과 학습용 Demo의 경계를 확인할 때 읽는다.
 - [`architecture-overview.md`](./architecture-overview.md) — 현재 상태와 Proposed 시스템 경계·데이터 흐름을 파악할 때 읽는다.
 - [`../domain/glossary.md`](../domain/glossary.md) — 프로젝트에서 사용하는 주요 domain 용어와 후보 상태값을 확인할 때 읽는다.
 
@@ -12,6 +13,13 @@
 
 - [`../domain/product.md`](../domain/product.md) — Product의 의미, 가격·재고·활성 상태 규칙을 다룰 때 읽는다.
 - [`../domain/glossary.md`](../domain/glossary.md) — 상품과 연관된 공통 용어의 의미를 맞출 때 읽는다.
+
+## IA와 UX/UI 작업 시
+
+- [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md) — Current·Proposed IA, responsive, interaction, 최소 design system, component 후보와 구현 순서를 확인할 때 읽는다.
+- [`company-reference.md`](./company-reference.md) — 공식 PhytoWorks의 사업·브랜드 맥락과 Demo·brand asset 사용 경계를 확인할 때 읽는다.
+- [`architecture-overview.md`](./architecture-overview.md) — 현재 route와 Next.js·NestJS·DB 책임 경계를 함께 확인할 때 읽는다.
+- [`../domain/product.md`](../domain/product.md), [`../domain/cart.md`](../domain/cart.md) — 판매 방식별 CTA와 Cart 진입 규칙을 확인할 때 읽는다.
 
 ## 장바구니 작업 시
 

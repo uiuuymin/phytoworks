@@ -6,6 +6,8 @@ Cart는 고객이 주문을 만들기 전에 구매할 Product와 수량을 임�
 
 현재 Cart 모델은 **Proposed**다.
 
+Cart에는 `DIRECT_PURCHASE`로 명시된 Demo Product만 담을 수 있다. `QUOTE_REQUIRED` Product는 견적 문의 대상으로 남기며 CartItem을 만들지 않는 것을 **Proposed** 규칙으로 둔다. Product의 판매 방식과 CTA 경계는 [`product.md`](./product.md)와 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 함께 확인한다.
+
 ## CartItem
 
 CartItem은 하나의 Product와 고객이 원하는 수량을 연결한다.

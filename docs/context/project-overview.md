@@ -4,24 +4,33 @@
 
 - **프로젝트명:** PhytoWorks Shop
 - **목적:** 웹서비스 개발 기술 스택과 AI-assisted development workflow 학습
-- **결과물:** 식물·농업 관련 상품을 판매하는 데모 쇼핑몰
+- **결과물:** PhytoWorks의 연구·육종 장비와 분석 서비스 맥락을 반영한 학습용 B2B 데모 쇼핑몰
 - **우선순위:** 결과물의 완성도나 출시 속도보다 기술을 이해하고, 선택 이유·검증 결과·시행착오를 기록하는 과정을 우선한다.
+
+## 회사 맥락과 Demo 경계
+
+- **Confirmed:** 공식 사이트는 NITRO 생육·표현형 분석 시스템, 환경 제어, 멀티모달 이미징, 클라우드 모니터링과 AI 분석을 소개한다.
+- **Confirmed:** 공식 사이트의 구매 전환은 온라인 결제가 아니라 카탈로그 다운로드와 문의 중심이다.
+- **Proposed:** 쇼핑몰 Product는 생육 시스템, 이미징 모듈, 환경·관수 옵션과 분석 서비스로 구성한다.
+- **Demo:** 구현을 위해 추가하는 가격, 재고와 직접 구매 가능 여부는 실제 PhytoWorks 정책이 아니다.
+
+근거와 미확정 범위는 [`company-reference.md`](./company-reference.md)를 기준으로 한다.
 
 ## 목표 기술 스택
 
-아래 항목은 프로젝트가 학습 대상으로 정한 **목표 기술**이다. 아직 애플리케이션이 생성되지 않았으므로 실제 설치 버전과 세부 구성은 구현 task에서 확인하고 기록해야 한다.
+아래 항목은 프로젝트가 학습 대상으로 정한 **목표 기술**과 현재 구현 상태다. 설치되지 않은 항목의 버전과 세부 구성은 관련 구현 task에서 확인하고 기록해야 한다.
 
 | 영역 | 목표 기술 | 현재 상태 |
 | --- | --- | --- |
-| 언어 | TypeScript 7 | Proposed — 미설치 |
-| 웹 | Next.js 16 | Proposed — 미생성 |
+| 언어 | TypeScript 7 | Current — 7.0.2 |
+| 웹 | Next.js 16 | Current — 16.3.3, `apps/web` |
 | API | NestJS | Proposed — 미생성 |
-| monorepo | pnpm workspace | Proposed — 미생성 |
+| monorepo | pnpm workspace | Current — pnpm 11.24.0 |
 | 데이터베이스 | PostgreSQL | Proposed — 미설치·미설계 |
 | 개발 환경 | Docker | Proposed — 미구성 |
 | 결제 | Toss Payments 테스트 연동 | Proposed — 미연동 |
 | 배포 | Vercel | Proposed — 미설정 |
-| 작업 방식 | Git, Git worktree, Orca, Codex, LLM Wiki | 문서 기반 초기 규칙 수립 중 |
+| 작업 방식 | Git, Git worktree, Orca, Codex, LLM Wiki | Current — bootstrap worktree에서 적용 중 |
 
 ## 구현 예정 기능
 
@@ -38,9 +47,21 @@
 
 기능 구현 순서와 세부 완료 조건은 각 task에서 정한다.
 
+## 목표 Shop 화면 구조
+
+**Proposed:** 최소 사용자 흐름은 `Home → Products → Product Detail → Cart → Checkout → Payment result → Order status`다. 모든 후보 화면을 넣지 않고 다음 경계를 사용한다.
+
+- Home, Product List와 Product Detail은 기능 개발 전에 UI foundation과 함께 먼저 구축한다.
+- Cart부터는 정적 mock을 먼저 완성하지 않고 NestJS·PostgreSQL의 저장·검증 규칙과 함께 vertical slice로 구현한다.
+- Wishlist와 Orders 목록은 Customer 식별 방식이 정해질 때까지 미룬다.
+- 인증·권한이 필요한 Admin은 현재 범위에서 제외한다.
+- `QUOTE_REQUIRED` Product는 공식 문의 경로로 보내고 `DIRECT_PURCHASE` Demo Product만 Cart로 연결한다.
+
+Current IA, 전체 Proposed route, responsive와 interaction 기준은 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 원본으로 한다.
+
 ## 프로젝트 범위
 
-이 프로젝트는 학습용 demo다. 실제 고객을 대상으로 한 운영용 결제, 실물 상품 배송·정산, 운영 수준의 모든 쇼핑몰 기능과 기존 쇼핑몰의 그대로 된 복제는 현재 범위에 포함하지 않는다. 참고 이미지나 자료를 사용할 경우 출처와 사용 가능 여부를 기록한다.
+이 프로젝트는 학습용 demo다. 실제 고객을 대상으로 한 운영용 결제, 실물 장비 배송·설치·정산, 운영 수준의 모든 B2B 판매 기능과 공식 사이트의 그대로 된 복제는 현재 범위에 포함하지 않는다. 표시 가격과 판매 조건은 Demo임을 밝히고, 참고 이미지나 자료를 사용할 경우 출처와 사용 가능 여부를 기록한다.
 
 장기적으로는 Next.js와 NestJS의 연결, PostgreSQL의 주문·결제 상태 보존, Toss Payments 테스트 흐름, Vercel에서 확인 가능한 결과와 주요 결정·시행착오 기록을 함께 갖춘 상태를 목표로 한다.
 
@@ -52,23 +73,28 @@
 - **보안 기본기:** 실제 credential을 저장소나 브라우저 코드에 넣지 않는다.
 - **검증 가능성:** 기능마다 자동 검증과 필요한 수동 확인 방법을 기록한다.
 - **작은 변경:** 하나의 task와 worktree가 하나의 명확한 목표를 다루도록 한다.
+- **Responsive baseline — Proposed:** 각 화면은 Mobile, Tablet과 Desktop에서 정보 구조와 interaction을 함께 검증한다.
+- **접근성 baseline — Proposed:** semantic HTML, keyboard, visible focus, 상태 feedback과 reduced motion을 기능별 완료 조건에 포함한다.
 
-구체적인 성능, 가용성, 접근성, 브라우저 지원과 운영 수준의 보안 목표는 `TBD`다.
+구체적인 성능 budget, 접근성 적합 수준, 지원 browser 범위, 가용성과 운영 수준의 보안 목표는 `TBD`다.
 
 ## 현재 프로젝트 단계
 
-현재는 **Stage 0: 지식 관리 기반 구축** 단계다. 다음 항목만 준비한다.
+현재는 **Stage 1: web bootstrap** 단계다. 다음 항목이 구현되었다.
 
-- 에이전트 작업 규칙
-- LLM Wiki 문서 구조
-- domain, ADR, task와 retrospective 기록 체계
-- 개발 및 테스트 workflow의 초기 기준
+- pnpm workspace 루트와 단일 lockfile
+- Next.js 16 App Router 기반 `apps/web`
+- TypeScript 7 typecheck와 Biome lint
+- 루트의 `dev`, `lint`, `typecheck`, `build` 명령
+- 브라우저에서 확인 가능한 `/` 학습 화면
 
-Next.js/NestJS 애플리케이션, pnpm workspace, PostgreSQL, Docker, Toss Payments와 Vercel 설정은 아직 존재하지 않는다.
+현재 `/`는 정적 Product 목록을 browser 기본 style로 렌더링한다. 공통 navigation, Product Detail, Cart, Checkout, Payment result, Order status, project CSS와 responsive breakpoint는 아직 구현되지 않았다.
+
+NestJS API, PostgreSQL, Docker, Toss Payments와 Vercel 설정은 아직 존재하지 않는다. 현재 요청 경로는 `Browser → Next.js`까지만 연결되어 있다.
 
 ## 아직 결정되지 않은 사항
 
-- `TBD` — 정확한 패키지 버전과 업데이트 정책
+- `TBD` — Next.js, TypeScript와 pnpm의 장기 업데이트 정책
 - `TBD` — ORM 또는 데이터 접근 방법과 migration 전략
 - `TBD` — API 방식과 web/API 간 계약 관리 방법
 - `TBD` — 고객 식별 및 인증 범위
