@@ -2,7 +2,7 @@
 
 ## 문서 상태
 
-- **Current:** pnpm workspace와 `apps/web` Next.js 애플리케이션이 있으며 `/` 화면까지 실행된다.
+- **Current:** pnpm workspace와 `apps/web` Next.js 애플리케이션이 있으며 Home, Product Catalog와 Product Detail이 실행된다.
 - **Proposed:** NestJS 이후의 구조는 구현 전 검토할 초기 목표이며 확정된 배포 구조가 아니다.
 - **TBD:** 구체적인 도구나 책임 경계를 추가 조사해야 한다.
 
@@ -28,13 +28,13 @@ Toss Payments
 
 ### Next.js 16
 
-**Current:** `apps/web`에 Next.js 16.3.3 App Router가 생성되었고 `/`와 `/products`를 정적 page로 렌더링한다. Home, Product 목록과 card는 Server Component이며 API나 DB data를 사용하지 않는다. 공통 SiteHeader만 현재 route와 mobile navigation 상태를 확인해야 하므로 Client Component다.
+**Current:** `apps/web`에 Next.js 16.3.3 App Router가 생성되었고 `/`, `/products`와 Product Detail 세 건을 정적으로 렌더링한다. Home, Product 목록, card와 detail은 Server Component이며 API나 DB data를 사용하지 않는다. 공통 SiteHeader만 현재 route와 mobile navigation 상태를 확인해야 하므로 Client Component다.
 
 **Proposed:** 이후 상품·장바구니·주문·결제 결과 화면을 제공하고 NestJS API와 통신한다. 어떤 기능을 Server Component, Server Action 또는 브라우저 코드에서 처리할지는 기능별 task에서 결정한다.
 
 ### Web route와 component 경계
 
-**Current:** 직접 작성된 route는 `/`와 `/products`다. Root layout은 공통 SiteHeader를 렌더링하고 SiteHeader는 Home·Products link, `Shop Demo` label, 현재 route와 mobile disclosure state를 소유한다. Home은 Shop 소개와 Catalog 진입을, `/products`는 정적 Product 탐색을 담당한다. 두 route에는 Demo 경계를 반복해서 설명하는 notice가 없다. `components/layout`, `components/ui`, `components/commerce`에 역할별 component가 있고 각 component와 route는 CSS Module을 사용한다. Native CSS foundation은 계속 semantic token, global typography, responsive container, focus와 reduced motion만 제공한다. Next.js가 생성한 `/_not-found`, `/_global-error`는 framework fallback이다.
+**Current:** 직접 작성된 route는 `/`, `/products`와 `/products/[productId]`다. Root layout은 공통 SiteHeader를 렌더링하고 SiteHeader는 Home·Products link, `Shop Demo` label, 현재 route와 mobile disclosure state를 소유한다. Home은 Shop 소개와 Catalog 진입을, `/products`는 정적 Product 탐색을, Product Detail은 정적 data 조회, 설명, placeholder와 판매 방식 표현을 담당한다. 세 Product ID는 `generateStaticParams`로 정적 생성하며 알려지지 않은 ID는 page의 `notFound()`와 Product 전용 not-found 화면으로 처리한다. 각 route에는 Demo 경계를 반복해서 설명하는 notice가 없다. `components/layout`, `components/ui`, `components/commerce`에 역할별 component가 있고 각 component와 route는 CSS Module을 사용한다. Native CSS foundation은 계속 semantic token, global typography, responsive container, focus와 reduced motion만 제공한다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이다.
 
 **Proposed:** 최소 Shop route는 다음과 같다.
 
@@ -74,7 +74,7 @@ IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](.
 
 ## 요청이 통과하는 경로
 
-현재 구현된 Product 탐색 경로는 `Browser → Next.js SiteHeader·page Server Component → 정적 Catalog data → Browser`다. `/` 요청은 Home에, `/products` 요청은 ProductGrid와 ProductCard에 연결된다. Mobile navigation toggle은 SiteHeader의 browser state 안에서만 처리되며 Product data는 계속 server rendering 경계에 남는다.
+현재 구현된 Product 탐색 경로는 `Browser → Next.js SiteHeader·page Server Component → 정적 Product data → Browser`다. `/` 요청은 Home에, `/products` 요청은 ProductGrid와 ProductCard에, `/products/[productId]` 요청은 Product 상세 page와 전용 commerce component에 연결된다. Mobile navigation toggle은 SiteHeader의 browser state 안에서만 처리되며 Product data와 상세 조회는 계속 server rendering 경계에 남는다. Product Detail은 가격, 재고, Cart state와 API를 사용하지 않는다.
 
 상품 조회의 초기 후보 흐름은 `Browser → Next.js → NestJS → PostgreSQL → NestJS → Next.js → Browser`다. 결제는 여기에 Toss Payments 인증과 NestJS의 서버 승인 요청이 추가된다. 캐싱, 직접 서버 렌더링 데이터 접근 또는 API 경계 변경은 아직 확정하지 않았다.
 

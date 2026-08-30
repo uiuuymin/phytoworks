@@ -13,7 +13,7 @@
 
 ## Current IA
 
-직접 작성된 route는 `/`와 `/products`다. Next.js가 생성한 `/_not-found`, `/_global-error`는 framework fallback이며 프로젝트가 설계한 사용자 화면으로 세지 않는다.
+직접 작성된 route는 `/`, `/products`와 `/products/[productId]`다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이며 프로젝트가 설계한 사용자 화면으로 세지 않는다.
 
 ```text
 Root layout
@@ -25,10 +25,15 @@ Root layout
 │  └─ Catalog CTA
 └─ /products Product Catalog
    ├─ Catalog 설명
-   └─ responsive ProductGrid
-      ├─ NITRO Plant Growth System
-      ├─ Thermal Imaging Module
-      └─ Chlorophyll Fluorescence Module
+   ├─ responsive ProductGrid
+   │  ├─ NITRO Plant Growth System
+   │  ├─ Thermal Imaging Module
+   │  └─ Chlorophyll Fluorescence Module
+   └─ /products/[productId] Product Detail
+      ├─ ProductMediaPlaceholder
+      ├─ 제품 설명과 주요 기능
+      ├─ ProductPurchasePanel
+      └─ Product 전용 not-found
 ```
 
 ### Current 사용자 흐름
@@ -37,14 +42,17 @@ Root layout
 Home
 → Products
 → 정적 Product 세 건 비교
+→ Product Detail
+→ NITRO는 공식 견적 문의
 ```
 
 - 공통 SiteHeader, Home·Products navigation, 현재 route 표시와 mobile disclosure가 있다. Footer는 아직 없다.
-- Product Detail, Cart, Checkout, Payment result, Order status route는 없다.
-- Product는 `apps/web/data/products.ts`의 정적 TypeScript 배열이며 API와 DB를 사용하지 않는다. SiteHeader의 mobile disclosure만 client state를 사용한다.
+- Product Detail은 있으며 Cart, Checkout, Payment result와 Order status route는 없다.
+- Product는 `apps/web/data/products.ts`의 정적 TypeScript 배열이며 API와 DB를 사용하지 않는다. 세 Product Detail은 `generateStaticParams`로 생성하며 SiteHeader의 mobile disclosure만 client state를 사용한다.
 - Home의 LinkButton과 SiteHeader로 내부 route를 이동한다. 학습용 Shop이라는 맥락은 SiteHeader의 `Shop Demo` label에서 한 번만 알린다.
-- Native CSS foundation 위에 component·route별 CSS Module, 1열·2열·3열 ProductGrid와 responsive SiteHeader가 구현되었다.
-- 현재 semantic markup은 `lang="ko"`, SiteHeader, navigation list, skip link, `main`, heading hierarchy, `section`, `article`, Product list와 `aria-labelledby`·`aria-current`를 사용한다.
+- Native CSS foundation 위에 component·route별 CSS Module, 1열·2열·3열 ProductGrid, responsive SiteHeader와 1열·2열 Product Detail이 구현되었다.
+- ProductCard는 `상세 보기` link로 각 detail에 연결한다. NITRO의 `QUOTE_REQUIRED`만 공식 문의 link를 제공하고, `DIRECT_PURCHASE`는 Cart가 없는 동안 구매 방법만 표시한다.
+- 현재 semantic markup은 `lang="ko"`, SiteHeader, navigation과 breadcrumb list, skip link, `main`, heading hierarchy, `section`, `article`, Product list와 `aria-labelledby`·`aria-current`를 사용한다.
 
 ## Current UX/UI 문제
 
@@ -52,17 +60,16 @@ Home
 
 | 문제 | 사용자 영향 |
 | --- | --- |
-| Product Detail 접근이 없음 | 상품을 비교한 다음 더 알아보거나 구매 판단을 이어갈 수 없다. |
-| `견적 문의`, `온라인 구매`가 정보 표시임 | 구매 방법은 비교할 수 있지만 Product Detail과 다음 행동은 아직 없다. |
+| `DIRECT_PURCHASE` 구매 행동이 없음 | Product Detail에서 구매 방법은 확인할 수 있지만 Cart가 없어 구매를 시작할 수 없다. |
 | Cart부터 Payment까지의 흐름이 없음 | 쇼핑몰의 핵심 학습 흐름을 시작할 수 없다. |
-| 가격, 직접 구매 대상과 Product URL 규칙이 미확정임 | card, detail과 CTA의 안정적인 정보 계약을 만들 수 없다. |
+| 가격과 직접 구매 조건이 미확정임 | Cart, 주문과 결제에 사용할 신뢰 가능한 금액 및 판매 계약을 만들 수 없다. |
 
 ### Important
 
 | 문제 | 사용자 영향 |
 | --- | --- |
-| Product image와 상세 사양이 없음 | card에서 용도와 판매 방식은 비교할 수 있지만 실제 장비 형태와 기술 차이를 충분히 판단하기 어렵다. |
-| Product Detail 이후의 responsive 규칙이 구현되지 않음 | Catalog는 검증되었지만 gallery, Cart와 Checkout의 구조 변화는 아직 없다. |
+| 실제 Product image와 상세 사양이 없음 | 자체 placeholder와 확인된 주요 기능은 제공하지만 실제 장비 형태와 구체적인 기술 차이를 충분히 판단하기 어렵다. |
+| Cart 이후의 responsive 규칙이 구현되지 않음 | Product Detail까지 검증되었지만 Cart와 Checkout의 구조 변화는 아직 없다. |
 | Loading, Empty, Error pattern이 없음 | API 연결 후 상태별 임시 구현이 분산될 수 있다. |
 
 ### Nice-to-have
@@ -261,14 +268,18 @@ Motion은 상태 변화와 공간 관계를 설명할 때만 사용한다. 단�
 - `prefers-reduced-motion: reduce`에서는 motion duration token이 `0.01ms`로 줄고 smooth scrolling을 사용하지 않는다.
 - 375px viewport와 200% text 확대에서 horizontal overflow가 없음을 browser에서 확인했다.
 
-### Current Catalog component와 responsive 동작
+### Current Catalog와 Product Detail component 및 responsive 동작
 
 - SiteHeader는 Home·Products navigation, `aria-current`, skip link와 mobile disclosure를 제공한다. 현재 route와 disclosure state가 필요하므로 새 component 중 유일한 Client Component다.
 - Button은 현재 문서의 동작, LinkButton은 내부 route 이동을 담당하며 `primary`와 `secondary` variant만 사용한다.
 - Home은 Product 목록을 중복하지 않고 간결한 Shop 소개와 `/products` 진입만 제공한다.
 - `/products`는 정적 Catalog data 세 건을 ProductGrid와 ProductCard Server Component로 렌더링한다.
-- Home과 `/products`에는 프로젝트 성격을 해설하는 별도 notice를 두지 않으며 ProductCard의 구매 방법은 `견적 문의`와 `온라인 구매`로 간결하게 표시한다.
+- ProductCard의 `상세 보기` link는 세 `/products/[productId]` route로 연결된다. 각 detail은 ProductMediaPlaceholder와 ProductPurchasePanel을 포함한 Server Component 구조다.
+- Home, `/products`와 Product Detail에는 프로젝트 성격을 해설하는 별도 notice를 두지 않으며 ProductCard와 detail의 구매 방법은 `견적 문의`와 `온라인 구매`로 간결하게 표시한다.
+- NITRO detail은 공식 문의 외부 link를 제공한다. 두 `DIRECT_PURCHASE` detail은 Cart가 없는 동안 구매 CTA, disabled button과 준비 중 안내를 표시하지 않는다.
+- 실제 Product image 대신 image role과 가짜 alt text가 없는 자체 placeholder를 사용한다. 알려지지 않은 ID는 Product 전용 not-found와 Catalog 복귀 link로 처리한다.
 - ProductGrid는 375px에서 1열, 768px에서 2열, 1280px에서 3열이며 각 viewport와 200% text 확대에서 horizontal overflow가 없다.
+- Product Detail은 375px에서 한 열, 768px에서 균등한 2열, 1280px에서 약 7:5의 2열을 사용한다. 세 viewport와 375px의 200% text 확대에서 horizontal overflow가 없다.
 - Mobile menu와 navigation link, Home CTA의 조작 영역은 44px 이상이며 Enter·Space·Escape, skip link focus와 visible focus를 browser에서 확인했다.
 
 ### Current와 Proposed 위치
@@ -281,13 +292,20 @@ apps/web/
 │  ├─ page.module.css
 │  └─ products/
 │     ├─ page.tsx
-│     └─ page.module.css
+│     ├─ page.module.css
+│     └─ [productId]/
+│        ├─ page.tsx
+│        ├─ page.module.css
+│        ├─ not-found.tsx
+│        └─ not-found.module.css
 ├─ components/
 │  ├─ layout/
 │  │  └─ SiteHeader
 │  ├─ commerce/
 │  │  ├─ ProductCard
-│  │  └─ ProductGrid
+│  │  ├─ ProductGrid
+│  │  ├─ ProductMediaPlaceholder
+│  │  └─ ProductPurchasePanel
 │  └─ ui/
 │     ├─ Button
 │     └─ LinkButton
@@ -297,21 +315,23 @@ apps/web/
 
 - `app/globals.css`: **Current** — token, reset, global typography, focus와 responsive container
 - `components/layout/`: **Current** — SiteHeader. SiteFooter와 별도 Container component는 아직 없다.
-- `components/commerce/`: **Current** — ProductCard와 ProductGrid. Cart·Checkout component는 아직 없다.
+- `components/commerce/`: **Current** — ProductCard, ProductGrid, ProductMediaPlaceholder와 ProductPurchasePanel. Cart·Checkout component는 아직 없다.
 - `components/ui/`: **Current** — Button과 LinkButton. Badge와 상태 표현은 아직 없다.
-- `data/products.ts`: **Current** — API·DB 이전 단계의 정적 Catalog data와 UI용 type
+- `data/products.ts`: **Current** — API·DB 이전 단계의 정적 Catalog 및 Product Detail data와 UI용 type
 
 현재 단순 구조를 `src/`로 옮기는 대규모 refactor는 이 foundation task에 포함하지 않는다.
 
 ## 공통 Component 후보
 
-### Current Catalog component
+### Current Shop component
 
 - `SiteHeader`
 - `Button`
 - `LinkButton`
 - `ProductCard`
 - `ProductGrid`
+- `ProductMediaPlaceholder`
+- `ProductPurchasePanel`
 
 ### 후속 UI에서 필요한 것
 
@@ -320,7 +340,7 @@ apps/web/
 - `PurchaseModeBadge`
 - `ProductPurchaseAction`
 
-`ProductPurchaseAction`은 `purchaseMode`에 따라 `견적 문의`와 `장바구니 담기`를 분기한다. 정적 layout과 card는 Server Component를 우선하고, 실제 browser state가 필요한 작은 leaf만 Client Component로 만든다.
+현재 ProductPurchasePanel은 `QUOTE_REQUIRED`의 공식 문의 link와 `DIRECT_PURCHASE`의 구매 방법 정보를 분기한다. Cart task에서는 이 panel을 확장하거나 별도의 ProductPurchaseAction을 추가해 `DIRECT_PURCHASE`의 실제 장바구니 동작을 연결한다. 정적 layout과 card는 Server Component를 우선하고, 실제 browser state가 필요한 작은 leaf만 Client Component로 만든다.
 
 ### 해당 기능을 구현할 때 필요한 것
 
@@ -353,7 +373,7 @@ UI foundation과 Shop Catalog는 각각 독립된 worktree에서 구현되었다
 | --- | --- | --- | --- | --- |
 | 1 | `chore/ui-foundation` | token, typography, container, focus와 reduced motion | bootstrap commit | lint, typecheck, build, contrast, keyboard |
 | 2 | `feat/shop-catalog` | Button, SiteHeader, Home 역할 정리, `/products`, responsive ProductGrid | 1 | route 이동, 375/768/1280px, keyboard |
-| 3 | `feat/product-detail` | `/products/[productId]`, placeholder gallery와 판매 방식별 CTA | Product ID와 purchaseMode 결정 | 정상·없는 ID, CTA 분기, responsive detail |
+| 3 | `feat/product-detail` | `/products/[productId]`, media placeholder와 판매 방식별 정보 및 유효한 CTA | Product ID와 purchaseMode 결정 | 정상·없는 ID, 판매 방식 분기, responsive detail |
 | 4 | `chore/api-bootstrap` | NestJS application 경계 생성 | bootstrap 안정화 | lint, typecheck, health API |
 | 5 | `feat/product-read-api` | Product read model과 DB/API 연결 | ORM·DB ADR | API와 DB integration test |
 | 6 | `feat/cart-flow` | Add to Cart, badge, 수량, 삭제와 Undo | Cart 저장 방식 결정 | 합계 unit test, reload, mobile, accessibility |
@@ -363,7 +383,7 @@ UI foundation과 Shop Catalog는 각각 독립된 worktree에서 구현되었다
 | 10 | `feat/wishlist` | 필요성이 남아 있을 때 관심 Product 저장 | Customer 또는 저장 방식 결정 | reload, keyboard, mobile |
 | 11 | `chore/ui-a11y-polish` | 전체 접근성, motion과 성능 점검 | 핵심 흐름 완료 | keyboard, reduced motion, browser audit |
 
-1번과 2번은 Current이며 3번 이후는 Proposed다.
+1번부터 3번까지 Current이며 4번 이후는 Proposed다.
 
 Responsive와 접근성은 11번까지 미루지 않고 각 기능 task의 완료 조건에 포함한다. 11번은 누락된 전체 흐름을 다시 점검하는 단계다.
 
@@ -376,7 +396,7 @@ Responsive와 접근성은 11번까지 미루지 않고 각 기능 task의 완�
 3. Home과 Product List 역할 분리
 4. responsive ProductCard와 grid
 5. Product Detail
-6. `QUOTE_REQUIRED`와 `DIRECT_PURCHASE` CTA 분기
+6. `QUOTE_REQUIRED`의 공식 문의 CTA와 `DIRECT_PURCHASE`의 Cart 이전 정보 분기
 7. focus, loading, disabled, empty state의 기본 pattern
 8. 권한 확인 전 image placeholder 정책
 

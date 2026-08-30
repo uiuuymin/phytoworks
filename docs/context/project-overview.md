@@ -80,7 +80,7 @@ Current IA, 전체 Proposed route, responsive와 interaction 기준은 [`../desi
 
 ## 현재 프로젝트 단계
 
-현재는 **Stage 3: Shop Catalog** 단계다. 다음 항목이 구현되었다.
+현재는 **Stage 4: Product Detail** 단계다. 다음 항목이 구현되었다.
 
 - pnpm workspace 루트와 단일 lockfile
 - Next.js 16 App Router 기반 `apps/web`
@@ -93,11 +93,15 @@ Current IA, 전체 Proposed route, responsive와 interaction 기준은 [`../desi
 - 동작과 내부 이동의 의미를 분리한 Button·LinkButton
 - Shop 진입 역할의 Home과 Product 비교 역할의 `/products`
 - 정적 Catalog data, ProductCard와 1열·2열·3열 responsive ProductGrid
+- ProductCard의 상세 진입 link와 `/products/[productId]` 정적 상세 route 세 건
+- Product별 요약·주요 기능, 권한 확인 전 media placeholder와 판매 방식 panel
+- `QUOTE_REQUIRED`의 공식 문의 link와 Cart 이전 `DIRECT_PURCHASE`의 무 CTA 정책
+- Product 전용 not-found 화면과 Catalog 복귀 경로
 - Component·route별 CSS Modules와 skip link
 
-현재 `/`는 Shop을 간결하게 소개하고 `/products`로 안내한다. `/products`는 정적 Product 세 건을 비교 가능한 card로 렌더링한다. 학습용 Shop이라는 표시는 공통 SiteHeader의 `Shop Demo` label로 한정하며 Home과 Catalog에는 별도 해설 notice를 두지 않는다. Product Detail, Cart, Checkout, Payment result와 Order status는 아직 구현되지 않았다.
+현재 `/`는 Shop을 간결하게 소개하고 `/products`로 안내한다. `/products`는 정적 Product 세 건을 비교 가능한 card로 렌더링하고 각 `/products/[productId]` 상세 화면으로 연결한다. 상세 화면은 정적 data, 자체 media placeholder, 제품 설명, 주요 기능과 구매 방법을 제공한다. NITRO의 견적 문의만 공식 PhytoWorks 문의 경로로 연결하며, 직접 구매 Product는 Cart가 없는 동안 구매 CTA를 표시하지 않는다. 학습용 Shop이라는 표시는 공통 SiteHeader의 `Shop Demo` label로 한정하며 각 route에는 별도 해설 notice를 두지 않는다. Cart, Checkout, Payment result와 Order status는 아직 구현되지 않았다.
 
-NestJS API, PostgreSQL, Docker, Toss Payments와 Vercel 설정은 아직 존재하지 않는다. 현재 요청 경로는 `Browser → Next.js`까지만 연결되어 있다.
+NestJS API, PostgreSQL, Docker, Toss Payments와 Vercel 설정은 아직 존재하지 않는다. 현재 Product Detail 요청도 `Browser → Next.js Server Component → 정적 Product data → Browser` 경로만 사용한다.
 
 ## 아직 결정되지 않은 사항
 

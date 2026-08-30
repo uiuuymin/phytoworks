@@ -13,6 +13,14 @@ const navigationItems = [
   { href: "/products", label: "Products" },
 ] as const;
 
+function isCurrentRoute(pathname: string, href: string) {
+  if (href === "/products") {
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
+
+  return pathname === href;
+}
+
 export function SiteHeader() {
   const pathname = usePathname();
   const [isNavigationOpen, setIsNavigationOpen] = useState(false);
@@ -68,7 +76,9 @@ export function SiteHeader() {
                 <Link
                   className={styles.navigationLink}
                   href={item.href}
-                  aria-current={pathname === item.href ? "page" : undefined}
+                  aria-current={
+                    isCurrentRoute(pathname, item.href) ? "page" : undefined
+                  }
                   onClick={closeNavigation}
                   onKeyDown={handleHeaderKeyDown}
                 >
