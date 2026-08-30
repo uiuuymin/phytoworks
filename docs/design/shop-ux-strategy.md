@@ -4,7 +4,7 @@
 
 이 문서는 PhytoWorks Shop의 Information Architecture, responsive UI, interaction과 최소 design system 방향의 원본이다. 구현 세부사항은 각 task에서 다시 검증하되, 화면을 만들기 전에 전체 흐름과 공통 원칙을 확인하기 위해 사용한다.
 
-- **Current:** 2026-08-29의 코드, Next.js route manifest와 Orca browser 관찰로 확인한 현재 상태
+- **Current:** 2026-08-30의 코드, Next.js route manifest와 browser 관찰로 확인한 현재 상태
 - **Proposed:** 후속 task의 계획 기준이며 아직 구현되지 않은 방향
 - **Deferred:** 핵심 주문·결제 흐름 이후에 다시 평가할 항목
 - **Excluded:** 현재 학습 범위에는 넣지 않는 항목
@@ -42,7 +42,7 @@ Home
 - Product Detail, Cart, Checkout, Payment result, Order status route는 없다.
 - Product는 `page.tsx` 안의 정적 TypeScript 배열이며 API, DB와 client state를 사용하지 않는다.
 - 사용자 상호작용은 NITRO 공식 페이지로 이동하는 외부 링크 하나뿐이다.
-- CSS, CSS Module, Tailwind와 project media query가 없다. 화면 폭이 달라지면 같은 block 문서가 자연 줄바꿈될 뿐 정보 구조나 interaction이 바뀌지 않는다.
+- Native CSS token, global typography, focus, motion preference와 project media query는 구현되었다. 화면별 CSS Module과 responsive component layout은 아직 없다.
 - 현재 semantic markup은 `lang="ko"`, `main`, heading hierarchy, `section`, `article`, `aside`, list와 `aria-labelledby`를 사용한다. 후속 UI에서도 이 장점을 유지한다.
 
 ## Current UX/UI 문제
@@ -61,11 +61,11 @@ Home
 
 | 문제 | 사용자 영향 |
 | --- | --- |
-| browser 기본 typography와 spacing만 사용 | 브랜드와 정보 위계가 드러나지 않는다. |
+| 전역 foundation만 있고 Product별 시각 구조가 없음 | 기본 정보 위계는 생겼지만 Product가 비교 가능한 card로 보이지 않는다. |
 | Product card의 시각적 경계, 이미지와 사양이 없음 | 각 항목이 선택 대상보다 긴 텍스트 목록처럼 보인다. |
 | Home과 Product List 역할이 섞임 | 브랜드 소개와 상품 탐색의 목적이 불명확하다. |
 | global shell과 공통 UI 규칙이 없음 | route가 늘 때 화면마다 navigation과 표현이 달라질 위험이 있다. |
-| responsive 규칙이 없음 | grid, gallery, Cart와 Checkout을 추가할 때 모바일 구조가 뒤늦게 깨질 수 있다. |
+| responsive component 규칙이 없음 | 공통 breakpoint와 gutter는 있지만 grid, gallery, Cart와 Checkout의 구조 변화가 아직 없다. |
 | Loading, Empty, Error pattern이 없음 | API 연결 후 상태별 임시 구현이 분산될 수 있다. |
 | 공식 외부 링크의 경계가 약함 | 사용자가 Demo에서 실제 회사 사이트로 이동함을 예상하기 어렵다. |
 
@@ -241,9 +241,31 @@ Motion은 상태 변화와 공간 관계를 설명할 때만 사용한다. 단�
 | Focus | 모든 interactive element에 명확한 `:focus-visible` outline |
 | Container | max-width 1200–1280px, mobile 16px, tablet 24px, desktop 32px gutter 후보 |
 
-공식 사이트에서 관찰한 dark background, light text와 muted surface는 palette 참고점이지만 실제 token 값은 contrast 검증 후 task에서 확정한다. font package와 icon library도 필요성이 생길 때 라이선스와 bundle 비용을 확인한 뒤 선택한다.
+공식 사이트에서 관찰한 dark background, light text와 muted surface는 palette 참고점으로만 사용했다. 실제 값은 [`tasks/003-ui-foundation.md`](../../tasks/003-ui-foundation.md)에서 contrast를 검증한 Demo Shop palette이며 공식 brand token이 아니다. Font package와 icon library는 필요성이 생길 때 라이선스와 bundle 비용을 확인한 뒤 선택한다.
 
-### Proposed 위치
+### CSS foundation 선택
+
+[`tasks/003-ui-foundation.md`](../../tasks/003-ui-foundation.md)에서 다음 방향을 선택했다.
+
+- 전역 token·reset·typography·focus·container는 `app/globals.css`에 native CSS로 작성한다.
+- Component별 style은 해당 component를 처음 구현할 때 CSS Modules로 분리한다.
+- Tailwind, Sass, CSS-in-JS, UI library와 webfont는 foundation 범위에 포함하지 않는다.
+- Dark theme 하나와 system font stack으로 시작하며 색상은 공식 brand 값이 아닌 Demo Shop palette로 구분한다.
+- Foundation은 semantic token, 전역 기본값, responsive container, focus와 reduced motion까지만 담당한다.
+- Button과 상태별 token은 실제 사용처가 생기는 후속 task에서 정의한다.
+
+이 방식은 현재 dependency를 늘리지 않고 CSS의 cascade와 custom property를 직접 학습하면서, 화면별 selector 충돌은 CSS Modules로 제한하기 위한 선택이다. Native CSS의 반복과 유지 비용이 실제 문제로 확인되면 별도 task에서 framework 도입을 다시 비교한다.
+
+### Current foundation
+
+- `canvas #0b0f0d`, `text #f4f7f5`, `action #b8f34b`, `focus #d7ff72`를 포함한 10개 semantic color token을 사용한다.
+- 본문·보조 본문·action은 인접 배경에서 4.5:1 이상이며 border는 canvas와 surface에서 3:1 이상이다.
+- 14·16·18·24·36·48px type scale, 4–80px spacing scale, 세 radius와 120·180·240ms motion scale을 사용한다.
+- Container는 1280px max-width이며 640px와 1024px breakpoint에서 gutter가 16px, 24px, 32px로 바뀐다.
+- `prefers-reduced-motion: reduce`에서는 motion duration token이 `0.01ms`로 줄고 smooth scrolling을 사용하지 않는다.
+- 375px viewport와 200% text 확대에서 horizontal overflow가 없음을 browser에서 확인했다.
+
+### Current와 Proposed 위치
 
 ```text
 apps/web/
@@ -255,7 +277,7 @@ apps/web/
    └─ ui/
 ```
 
-- `app/globals.css`: token, reset, global typography, focus와 responsive container
+- `app/globals.css`: **Current** — token, reset, global typography, focus와 responsive container
 - `components/layout/`: SiteHeader, SiteFooter와 Container
 - `components/commerce/`: Product, Cart와 Checkout에 의미가 있는 component
 - `components/ui/`: Button, Badge와 공통 상태 표현
@@ -306,8 +328,8 @@ apps/web/
 
 | 순서 | 작업 후보 | 목표 | 주요 선행 조건 | 핵심 검증 |
 | --- | --- | --- | --- | --- |
-| 1 | `chore/ui-foundation` | token, typography, container, focus와 Button 상태 | bootstrap commit | lint, typecheck, build, contrast, keyboard |
-| 2 | `feat/shop-catalog` | SiteHeader, Home 역할 정리, `/products`, responsive ProductGrid | 1 | route 이동, 375/768/1280px, keyboard |
+| 1 | `chore/ui-foundation` | token, typography, container, focus와 reduced motion | bootstrap commit | lint, typecheck, build, contrast, keyboard |
+| 2 | `feat/shop-catalog` | Button, SiteHeader, Home 역할 정리, `/products`, responsive ProductGrid | 1 | route 이동, 375/768/1280px, keyboard |
 | 3 | `feat/product-detail` | `/products/[productId]`, placeholder gallery와 판매 방식별 CTA | Product ID와 purchaseMode 결정 | 정상·없는 ID, CTA 분기, responsive detail |
 | 4 | `chore/api-bootstrap` | NestJS application 경계 생성 | bootstrap 안정화 | lint, typecheck, health API |
 | 5 | `feat/product-read-api` | Product read model과 DB/API 연결 | ORM·DB ADR | API와 DB integration test |

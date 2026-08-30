@@ -37,8 +37,8 @@ const products: Product[] = [
 
 export default function Home() {
   return (
-    <main>
-      <header>
+    <main className="container page-layout flow">
+      <header className="flow">
         <p>PhytoWorks Shop · Learning Demo</p>
         <h1>식물 연구와 육종을 위한 기술</h1>
         <p>
@@ -47,12 +47,12 @@ export default function Home() {
         </p>
       </header>
 
-      <section aria-labelledby="products-heading">
+      <section className="flow" aria-labelledby="products-heading">
         <h2 id="products-heading">연구 제품과 모듈</h2>
-        <ul>
+        <ul className="flow">
           {products.map((product) => (
             <li key={product.id}>
-              <article>
+              <article className="flow">
                 <p>{product.category}</p>
                 <h3>{product.name}</h3>
                 <p>{product.description}</p>
@@ -63,7 +63,7 @@ export default function Home() {
         </ul>
       </section>
 
-      <aside aria-labelledby="demo-notice-heading">
+      <aside className="flow" aria-labelledby="demo-notice-heading">
         <h2 id="demo-notice-heading">학습용 Demo 안내</h2>
         <p>
           이 화면의 직접 구매 가능 여부와 이후 추가할 가격은 실제 PhytoWorks의

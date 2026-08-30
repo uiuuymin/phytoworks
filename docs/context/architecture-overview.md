@@ -34,7 +34,7 @@ Toss Payments
 
 ### Web route와 component 경계
 
-**Current:** 직접 작성된 route는 `/` 하나다. `apps/web/app`에는 `layout.tsx`와 `page.tsx`만 있으며 공통 navigation, 별도 component directory, project CSS와 client state가 없다. Next.js가 생성한 `/_not-found`, `/_global-error`는 framework fallback이다.
+**Current:** 직접 작성된 route는 `/` 하나다. `apps/web/app`에는 `layout.tsx`, `page.tsx`와 `globals.css`가 있다. Native CSS foundation은 semantic token, global typography, responsive container, focus와 reduced motion을 제공한다. 공통 navigation, 별도 component directory, component별 CSS Module과 client state는 아직 없다. Next.js가 생성한 `/_not-found`, `/_global-error`는 framework fallback이다.
 
 **Proposed:** 최소 Shop route는 다음과 같다.
 

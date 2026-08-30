@@ -80,15 +80,17 @@ Current IA, 전체 Proposed route, responsive와 interaction 기준은 [`../desi
 
 ## 현재 프로젝트 단계
 
-현재는 **Stage 1: web bootstrap** 단계다. 다음 항목이 구현되었다.
+현재는 **Stage 2: CSS foundation** 단계다. 다음 항목이 구현되었다.
 
 - pnpm workspace 루트와 단일 lockfile
 - Next.js 16 App Router 기반 `apps/web`
 - TypeScript 7 typecheck와 Biome lint
 - 루트의 `dev`, `lint`, `typecheck`, `build` 명령
 - 브라우저에서 확인 가능한 `/` 학습 화면
+- Native CSS semantic token, dark Demo palette와 system font
+- Global typography, responsive container, visible focus와 reduced motion 기준
 
-현재 `/`는 정적 Product 목록을 browser 기본 style로 렌더링한다. 공통 navigation, Product Detail, Cart, Checkout, Payment result, Order status, project CSS와 responsive breakpoint는 아직 구현되지 않았다.
+현재 `/`는 정적 Product 목록을 global CSS foundation으로 렌더링한다. 공통 navigation, component별 CSS Module, responsive Product grid, Product Detail, Cart, Checkout, Payment result와 Order status는 아직 구현되지 않았다.
 
 NestJS API, PostgreSQL, Docker, Toss Payments와 Vercel 설정은 아직 존재하지 않는다. 현재 요청 경로는 `Browser → Next.js`까지만 연결되어 있다.
 
