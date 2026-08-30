@@ -1,0 +1,131 @@
+.header {
+  position: sticky;
+  z-index: 10;
+  top: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-canvas);
+}
+
+.skipLink {
+  position: fixed;
+  z-index: 20;
+  top: var(--space-2);
+  left: var(--space-2);
+  min-height: 2.75rem;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-action);
+  color: var(--color-on-action);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  transform: translateY(calc(-100% - var(--space-4)));
+}
+
+.skipLink:focus-visible {
+  color: var(--color-on-action);
+  transform: translateY(0);
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  min-height: 4.5rem;
+  padding-block: var(--space-3);
+}
+
+.brand {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: var(--space-2);
+  color: var(--color-text);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-heading);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.brand:hover {
+  color: var(--color-action-hover);
+}
+
+.brandLabel {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.menuButton {
+  justify-self: end;
+  padding-inline: var(--space-4);
+}
+
+.navigation {
+  display: none;
+  grid-column: 1 / -1;
+  padding-block-end: var(--space-2);
+}
+
+.navigationOpen {
+  display: block;
+}
+
+.navigationList {
+  display: grid;
+  gap: var(--space-2);
+  padding: 0;
+  list-style: none;
+}
+
+.navigationLink {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.navigationLink:hover {
+  background: var(--color-surface);
+  color: var(--color-action-hover);
+}
+
+.navigationLink[aria-current="page"] {
+  background: var(--color-surface-raised);
+  color: var(--color-action);
+  text-decoration: underline;
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.25em;
+}
+
+@media (min-width: 40rem) {
+  .inner {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .menuButton {
+    display: none;
+  }
+
+  .navigation {
+    display: block;
+    padding-block-end: 0;
+  }
+
+  .navigationList {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .navigationLink {
+    padding-inline: var(--space-4);
+  }
+}

@@ -80,7 +80,7 @@ Current IA, 전체 Proposed route, responsive와 interaction 기준은 [`../desi
 
 ## 현재 프로젝트 단계
 
-현재는 **Stage 2: CSS foundation** 단계다. 다음 항목이 구현되었다.
+현재는 **Stage 3: Shop Catalog** 단계다. 다음 항목이 구현되었다.
 
 - pnpm workspace 루트와 단일 lockfile
 - Next.js 16 App Router 기반 `apps/web`
@@ -89,8 +89,13 @@ Current IA, 전체 Proposed route, responsive와 interaction 기준은 [`../desi
 - 브라우저에서 확인 가능한 `/` 학습 화면
 - Native CSS semantic token, dark Demo palette와 system font
 - Global typography, responsive container, visible focus와 reduced motion 기준
+- 공통 SiteHeader, Home·Products navigation과 mobile disclosure
+- 동작과 내부 이동의 의미를 분리한 Button·LinkButton
+- Shop 진입 역할의 Home과 Product 비교 역할의 `/products`
+- 정적 Catalog data, ProductCard와 1열·2열·3열 responsive ProductGrid
+- Component·route별 CSS Modules와 skip link
 
-현재 `/`는 정적 Product 목록을 global CSS foundation으로 렌더링한다. 공통 navigation, component별 CSS Module, responsive Product grid, Product Detail, Cart, Checkout, Payment result와 Order status는 아직 구현되지 않았다.
+현재 `/`는 Shop을 간결하게 소개하고 `/products`로 안내한다. `/products`는 정적 Product 세 건을 비교 가능한 card로 렌더링한다. 학습용 Shop이라는 표시는 공통 SiteHeader의 `Shop Demo` label로 한정하며 Home과 Catalog에는 별도 해설 notice를 두지 않는다. Product Detail, Cart, Checkout, Payment result와 Order status는 아직 구현되지 않았다.
 
 NestJS API, PostgreSQL, Docker, Toss Payments와 Vercel 설정은 아직 존재하지 않는다. 현재 요청 경로는 `Browser → Next.js`까지만 연결되어 있다.
 

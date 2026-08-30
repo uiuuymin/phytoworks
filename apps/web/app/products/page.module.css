@@ -1,0 +1,33 @@
+.main {
+  display: grid;
+  gap: clamp(var(--space-12), 7vw, var(--space-20));
+  padding-block: clamp(var(--space-12), 7vw, var(--space-20));
+}
+
+.pageHeader {
+  display: grid;
+  max-width: 52rem;
+  gap: var(--space-4);
+}
+
+.eyebrow {
+  color: var(--color-action);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lead {
+  color: var(--color-text-muted);
+}
+
+.lead {
+  max-width: 43rem;
+  font-size: var(--font-size-lg);
+}
+
+.catalog {
+  display: grid;
+  gap: var(--space-8);
+}

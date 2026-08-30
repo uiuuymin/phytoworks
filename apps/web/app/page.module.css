@@ -1,0 +1,25 @@
+.main {
+  padding-block: clamp(var(--space-12), 8vw, var(--space-20));
+}
+
+.hero {
+  display: grid;
+  max-width: 52rem;
+  gap: var(--space-6);
+}
+
+.lead {
+  max-width: 43rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lg);
+}
+
+.catalogLink {
+  width: 100%;
+}
+
+@media (min-width: 40rem) {
+  .catalogLink {
+    width: max-content;
+  }
+}

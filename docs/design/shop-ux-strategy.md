@@ -13,37 +13,38 @@
 
 ## Current IA
 
-직접 작성된 route는 `/` 하나뿐이다. Next.js가 생성한 `/_not-found`, `/_global-error`는 framework fallback이며 프로젝트가 설계한 사용자 화면으로 세지 않는다.
+직접 작성된 route는 `/`와 `/products`다. Next.js가 생성한 `/_not-found`, `/_global-error`는 framework fallback이며 프로젝트가 설계한 사용자 화면으로 세지 않는다.
 
 ```text
-/
-└─ Home
-   ├─ 페이지 내부 header
-   │  ├─ Learning Demo label
-   │  ├─ H1
-   │  └─ 프로젝트 설명
-   ├─ 정적 Product 목록
-   │  ├─ NITRO Plant Growth System
-   │  ├─ Thermal Imaging Module
-   │  └─ Chlorophyll Fluorescence Module
-   └─ Demo 안내
-      └─ NITRO 공식 정보 외부 링크
+Root layout
+├─ SiteHeader
+│  ├─ Home·Products navigation
+│  └─ Mobile disclosure
+├─ / Home
+│  ├─ Shop 소개
+│  └─ Catalog CTA
+└─ /products Product Catalog
+   ├─ Catalog 설명
+   └─ responsive ProductGrid
+      ├─ NITRO Plant Growth System
+      ├─ Thermal Imaging Module
+      └─ Chlorophyll Fluorescence Module
 ```
 
 ### Current 사용자 흐름
 
 ```text
 Home
-→ 정적 Product 설명 읽기
-→ NITRO 공식 사이트로 외부 이동
+→ Products
+→ 정적 Product 세 건 비교
 ```
 
-- 공통 Site Header, `<nav>`, Footer와 내부 route link는 없다.
+- 공통 SiteHeader, Home·Products navigation, 현재 route 표시와 mobile disclosure가 있다. Footer는 아직 없다.
 - Product Detail, Cart, Checkout, Payment result, Order status route는 없다.
-- Product는 `page.tsx` 안의 정적 TypeScript 배열이며 API, DB와 client state를 사용하지 않는다.
-- 사용자 상호작용은 NITRO 공식 페이지로 이동하는 외부 링크 하나뿐이다.
-- Native CSS token, global typography, focus, motion preference와 project media query는 구현되었다. 화면별 CSS Module과 responsive component layout은 아직 없다.
-- 현재 semantic markup은 `lang="ko"`, `main`, heading hierarchy, `section`, `article`, `aside`, list와 `aria-labelledby`를 사용한다. 후속 UI에서도 이 장점을 유지한다.
+- Product는 `apps/web/data/products.ts`의 정적 TypeScript 배열이며 API와 DB를 사용하지 않는다. SiteHeader의 mobile disclosure만 client state를 사용한다.
+- Home의 LinkButton과 SiteHeader로 내부 route를 이동한다. 학습용 Shop이라는 맥락은 SiteHeader의 `Shop Demo` label에서 한 번만 알린다.
+- Native CSS foundation 위에 component·route별 CSS Module, 1열·2열·3열 ProductGrid와 responsive SiteHeader가 구현되었다.
+- 현재 semantic markup은 `lang="ko"`, SiteHeader, navigation list, skip link, `main`, heading hierarchy, `section`, `article`, Product list와 `aria-labelledby`·`aria-current`를 사용한다.
 
 ## Current UX/UI 문제
 
@@ -51,9 +52,8 @@ Home
 
 | 문제 | 사용자 영향 |
 | --- | --- |
-| 내부 navigation이 없음 | 사이트 범위와 이동 가능한 화면을 알 수 없다. |
 | Product Detail 접근이 없음 | 상품을 비교한 다음 더 알아보거나 구매 판단을 이어갈 수 없다. |
-| `견적 문의`, `학습용 구매`가 정적 텍스트임 | 판매 방식은 보이지만 다음 행동이 없다. |
+| `견적 문의`, `온라인 구매`가 정보 표시임 | 구매 방법은 비교할 수 있지만 Product Detail과 다음 행동은 아직 없다. |
 | Cart부터 Payment까지의 흐름이 없음 | 쇼핑몰의 핵심 학습 흐름을 시작할 수 없다. |
 | 가격, 직접 구매 대상과 Product URL 규칙이 미확정임 | card, detail과 CTA의 안정적인 정보 계약을 만들 수 없다. |
 
@@ -61,13 +61,9 @@ Home
 
 | 문제 | 사용자 영향 |
 | --- | --- |
-| 전역 foundation만 있고 Product별 시각 구조가 없음 | 기본 정보 위계는 생겼지만 Product가 비교 가능한 card로 보이지 않는다. |
-| Product card의 시각적 경계, 이미지와 사양이 없음 | 각 항목이 선택 대상보다 긴 텍스트 목록처럼 보인다. |
-| Home과 Product List 역할이 섞임 | 브랜드 소개와 상품 탐색의 목적이 불명확하다. |
-| global shell과 공통 UI 규칙이 없음 | route가 늘 때 화면마다 navigation과 표현이 달라질 위험이 있다. |
-| responsive component 규칙이 없음 | 공통 breakpoint와 gutter는 있지만 grid, gallery, Cart와 Checkout의 구조 변화가 아직 없다. |
+| Product image와 상세 사양이 없음 | card에서 용도와 판매 방식은 비교할 수 있지만 실제 장비 형태와 기술 차이를 충분히 판단하기 어렵다. |
+| Product Detail 이후의 responsive 규칙이 구현되지 않음 | Catalog는 검증되었지만 gallery, Cart와 Checkout의 구조 변화는 아직 없다. |
 | Loading, Empty, Error pattern이 없음 | API 연결 후 상태별 임시 구현이 분산될 수 있다. |
-| 공식 외부 링크의 경계가 약함 | 사용자가 Demo에서 실제 회사 사이트로 이동함을 예상하기 어렵다. |
 
 ### Nice-to-have
 
@@ -162,9 +158,9 @@ Home 또는 Products
 - Home은 공식 사이트의 기술 narrative와 여백을 참고하되 문구와 layout을 그대로 복제하지 않는다.
 - Product List는 category, 판매 방식, 짧은 설명과 CTA를 비교하기 쉬운 card로 바꾼다.
 - Product Detail은 제품 이미지와 기술 사양을 중심에 두고 `견적 문의` 또는 `장바구니 담기`를 명확히 분기한다.
-- `DIRECT_PURCHASE` 가격과 재고에는 실제 회사 정책이 아닌 `Demo`임을 표시한다.
+- 가격과 재고를 추가할 때에는 허구의 판매 조건을 실제 회사 정책처럼 보이게 하지 않되, 일반적인 Catalog 화면마다 장문의 Demo 안내를 반복하지 않는다.
 - 소비재식 할인 압박, 마감 임박과 과장된 판매 문구는 사용하지 않는다.
-- 공식 사이트와 Demo의 경계를 외부 링크 label, source 표시와 Demo 안내로 유지한다.
+- 학습용 Shop이라는 경계는 SiteHeader의 `Shop Demo` label로 유지하고, 공식 자료의 출처와 실제 판매 정책과의 차이는 사용자 화면이 아니라 context와 task 문서에 기록한다.
 
 ### Brand asset 정책
 
@@ -265,35 +261,62 @@ Motion은 상태 변화와 공간 관계를 설명할 때만 사용한다. 단�
 - `prefers-reduced-motion: reduce`에서는 motion duration token이 `0.01ms`로 줄고 smooth scrolling을 사용하지 않는다.
 - 375px viewport와 200% text 확대에서 horizontal overflow가 없음을 browser에서 확인했다.
 
+### Current Catalog component와 responsive 동작
+
+- SiteHeader는 Home·Products navigation, `aria-current`, skip link와 mobile disclosure를 제공한다. 현재 route와 disclosure state가 필요하므로 새 component 중 유일한 Client Component다.
+- Button은 현재 문서의 동작, LinkButton은 내부 route 이동을 담당하며 `primary`와 `secondary` variant만 사용한다.
+- Home은 Product 목록을 중복하지 않고 간결한 Shop 소개와 `/products` 진입만 제공한다.
+- `/products`는 정적 Catalog data 세 건을 ProductGrid와 ProductCard Server Component로 렌더링한다.
+- Home과 `/products`에는 프로젝트 성격을 해설하는 별도 notice를 두지 않으며 ProductCard의 구매 방법은 `견적 문의`와 `온라인 구매`로 간결하게 표시한다.
+- ProductGrid는 375px에서 1열, 768px에서 2열, 1280px에서 3열이며 각 viewport와 200% text 확대에서 horizontal overflow가 없다.
+- Mobile menu와 navigation link, Home CTA의 조작 영역은 44px 이상이며 Enter·Space·Escape, skip link focus와 visible focus를 browser에서 확인했다.
+
 ### Current와 Proposed 위치
 
 ```text
 apps/web/
 ├─ app/
-│  └─ globals.css
-└─ components/
-   ├─ layout/
-   ├─ commerce/
-   └─ ui/
+│  ├─ globals.css
+│  ├─ page.tsx
+│  ├─ page.module.css
+│  └─ products/
+│     ├─ page.tsx
+│     └─ page.module.css
+├─ components/
+│  ├─ layout/
+│  │  └─ SiteHeader
+│  ├─ commerce/
+│  │  ├─ ProductCard
+│  │  └─ ProductGrid
+│  └─ ui/
+│     ├─ Button
+│     └─ LinkButton
+└─ data/
+   └─ products.ts
 ```
 
 - `app/globals.css`: **Current** — token, reset, global typography, focus와 responsive container
-- `components/layout/`: SiteHeader, SiteFooter와 Container
-- `components/commerce/`: Product, Cart와 Checkout에 의미가 있는 component
-- `components/ui/`: Button, Badge와 공통 상태 표현
+- `components/layout/`: **Current** — SiteHeader. SiteFooter와 별도 Container component는 아직 없다.
+- `components/commerce/`: **Current** — ProductCard와 ProductGrid. Cart·Checkout component는 아직 없다.
+- `components/ui/`: **Current** — Button과 LinkButton. Badge와 상태 표현은 아직 없다.
+- `data/products.ts`: **Current** — API·DB 이전 단계의 정적 Catalog data와 UI용 type
 
 현재 단순 구조를 `src/`로 옮기는 대규모 refactor는 이 foundation task에 포함하지 않는다.
 
 ## 공통 Component 후보
 
-### UI foundation과 Catalog에서 먼저 필요한 것
+### Current Catalog component
 
 - `SiteHeader`
-- `SiteFooter`
-- `Container`
-- `Button` 또는 `LinkButton`
+- `Button`
+- `LinkButton`
 - `ProductCard`
 - `ProductGrid`
+
+### 후속 UI에서 필요한 것
+
+- `SiteFooter`
+- 별도 Container component가 실제로 필요한지 재검토
 - `PurchaseModeBadge`
 - `ProductPurchaseAction`
 
@@ -324,7 +347,7 @@ apps/web/
 
 ## Task와 Worktree 로드맵
 
-현재 bootstrap 변경을 검토하고 사용자 승인으로 commit한 뒤 아래 작업을 각각 독립된 worktree에서 수행한다.
+UI foundation과 Shop Catalog는 각각 독립된 worktree에서 구현되었다. 나머지 작업도 아래 순서와 경계를 유지한다.
 
 | 순서 | 작업 후보 | 목표 | 주요 선행 조건 | 핵심 검증 |
 | --- | --- | --- | --- | --- |
@@ -339,6 +362,8 @@ apps/web/
 | 9 | `feat/order-status` | Order와 Payment 상태 확인 | 상태 모델 확정 | 상태별 UI와 API test |
 | 10 | `feat/wishlist` | 필요성이 남아 있을 때 관심 Product 저장 | Customer 또는 저장 방식 결정 | reload, keyboard, mobile |
 | 11 | `chore/ui-a11y-polish` | 전체 접근성, motion과 성능 점검 | 핵심 흐름 완료 | keyboard, reduced motion, browser audit |
+
+1번과 2번은 Current이며 3번 이후는 Proposed다.
 
 Responsive와 접근성은 11번까지 미루지 않고 각 기능 task의 완료 조건에 포함한다. 11번은 누락된 전체 흐름을 다시 점검하는 단계다.
 
