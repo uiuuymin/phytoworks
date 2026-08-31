@@ -3,7 +3,7 @@
 ## 문서 상태
 
 - **Current:** pnpm workspace에 `apps/web` Next.js 애플리케이션과 `apps/api` NestJS 애플리케이션이 있다. web에서는 Home, Product Catalog, Product Detail과 browser Cart가 실행되며 API에서는 최소 health endpoint가 실행된다.
-- **Proposed:** Product를 비롯한 사업 API, PostgreSQL과 외부 서비스 연동은 구현 전 검토할 초기 목표이며 확정된 배포 구조가 아니다.
+- **Proposed:** Product persistence, Cart·Order·Payment API, PostgreSQL과 외부 서비스 연동은 아직 확정되지 않은 초기 목표이며, Product read API의 정적 fixture 이후 별도 task에서 결정한다.
 - **TBD:** 구체적인 도구나 책임 경계를 추가 조사해야 한다.
 
 ## 논리 구조
@@ -57,7 +57,7 @@ IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](.
 
 ### NestJS
 
-**Current:** `apps/api`에 NestJS 12.0.1과 ESM 기반의 최소 application 경계가 있다. `AppModule`은 feature module을 조합하고 `HealthModule`과 `HealthController`는 `GET /health`만 담당한다. 이 endpoint는 application이 기동하고 HTTP 요청에 응답할 수 있다는 사실만 나타내며 DB, 외부 서비스와 사업 상태를 확인하지 않는다. API는 기본 port 3001을 사용하고 유효한 `PORT` 환경변수로 변경할 수 있다. 현재 web은 API를 호출하지 않는다.
+**Current:** `apps/api`에 NestJS 12.0.1과 ESM 기반 application 경계가 있다. `AppModule`은 `HealthModule`과 `ProductModule`을 조합한다. `HealthModule`과 `HealthController`는 `GET /health`만 담당하며, 이 endpoint는 application이 기동하고 HTTP 요청에 응답할 수 있다는 사실만 나타낸다. `ProductModule`과 `ProductController`는 API 내부 정적 fixture를 사용해 `GET /api/products`와 `GET /api/products/:productId`를 제공한다. Product 상세 조회에서 없는 ID는 404로 응답한다. API는 기본 port 3001을 사용하고 유효한 `PORT` 환경변수로 변경할 수 있다. 현재 web은 API를 호출하지 않는다.
 
 **Proposed:** 이후 서비스 규칙과 신뢰 경계를 담당하는 feature module을 추가한다. 입력 검증, 상품·주문·결제 규칙 적용, PostgreSQL 접근과 Toss Payments 서버 승인 요청은 각 기능을 구현할 때 경계를 확정한다. 브라우저가 보낸 금액이나 결제 결과를 그대로 신뢰하지 않는다.
 
@@ -80,9 +80,9 @@ IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](.
 
 현재 Cart 조작과 복원 경로는 `Browser event → CartProvider reducer → browser memory → localStorage`다. 최초 server HTML과 첫 client render는 미복원 상태를 사용하고 mount effect에서 version 1 저장 data를 검증한 뒤 hydration을 완료한다. 존재하지 않거나 `DIRECT_PURCHASE`가 아닌 Product와 잘못된 수량은 제외한다. localStorage를 사용할 수 없으면 현재 tab의 memory state로 계속 동작한다. 이 저장소는 주문 금액, 재고와 판매 가능 여부의 신뢰 가능한 기준이 아니다.
 
-현재 API health 요청은 `HTTP client → NestJS HTTP adapter → HealthController → JSON response` 경로를 사용한다. `GET /health`는 HTTP 200과 `{ "status": "ok" }`를 반환한다. `/api` global prefix, API versioning과 web 연결은 아직 없다.
+현재 API health 요청은 `HTTP client → NestJS HTTP adapter → HealthController → JSON response` 경로를 사용한다. `GET /health`는 HTTP 200과 `{ "status": "ok" }`를 반환한다. Product read 요청은 `HTTP client → NestJS HTTP adapter → ProductController → ProductService → API static fixture → JSON response` 경로를 사용한다. Product controller의 `api/products` route prefix는 전역 prefix 설정이 아니며, API versioning과 web 연결은 아직 없다.
 
-상품 조회의 초기 후보 흐름은 `Browser → Next.js → NestJS → PostgreSQL → NestJS → Next.js → Browser`다. 결제는 여기에 Toss Payments 인증과 NestJS의 서버 승인 요청이 추가된다. 캐싱, 직접 서버 렌더링 데이터 접근 또는 API 경계 변경은 아직 확정하지 않았다.
+현재 Product API는 PostgreSQL 없이 정적 fixture를 읽는다. 장기 후보 흐름은 `Browser → Next.js → NestJS → PostgreSQL → NestJS → Next.js → Browser`이며, PostgreSQL source of truth와 ORM은 별도 database task에서 결정한다. 결제는 여기에 Toss Payments 인증과 NestJS의 서버 승인 요청이 추가된다. web fetch, 캐싱, 직접 서버 렌더링 데이터 접근 또는 API contract 공유 방식은 아직 확정하지 않았다.
 
 ## Monorepo 구조
 
