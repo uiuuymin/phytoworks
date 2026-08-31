@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { CheckoutView } from "@/components/checkout/CheckoutView";
 
@@ -25,7 +26,9 @@ export default function CheckoutPage() {
           결제수단을 선택하면 Toss Payments 결제창으로 이동합니다.
         </p>
       </header>
-      <CheckoutView />
+      <Suspense fallback={<p>checkout을 준비하고 있습니다.</p>}>
+        <CheckoutView />
+      </Suspense>
     </main>
   );
 }

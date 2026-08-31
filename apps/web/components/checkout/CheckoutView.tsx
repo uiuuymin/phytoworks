@@ -1,11 +1,16 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { getOrCreateCartSessionId } from "@/lib/cart-session";
-import { createPendingOrder, type OrderApiResponse } from "@/lib/order-api";
+import {
+  createPendingOrder,
+  getOrder,
+  type OrderApiResponse,
+} from "@/lib/order-api";
 
 import styles from "./CheckoutView.module.css";
 
@@ -25,6 +30,7 @@ export function CheckoutView() {
   const [sdkLoaded, setSdkLoaded] = useState(false);
   const [status, setStatus] = useState<CheckoutStatus>("idle");
   const [message, setMessage] = useState("");
+  const retryOrderId = useSearchParams().get("orderId");
 
   const orderName = useMemo(() => {
     if (!order || order.items.length === 0) {
@@ -36,6 +42,41 @@ export function CheckoutView() {
       remainingItems.length > 0 ? ` 외 ${remainingItems.length}건` : "";
     return `${firstItem.productName}${suffix}`.slice(0, 100);
   }, [order]);
+
+  useEffect(() => {
+    if (!retryOrderId || order) {
+      return;
+    }
+
+    let cancelled = false;
+    setStatus("preparing");
+    getOrder(getOrCreateCartSessionId(), retryOrderId)
+      .then((nextOrder) => {
+        if (cancelled) {
+          return;
+        }
+
+        if (nextOrder.status !== "PENDING") {
+          setStatus("error");
+          setMessage("이 주문은 결제를 다시 시도할 수 없습니다.");
+          return;
+        }
+
+        setOrder(nextOrder);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setStatus("error");
+          setMessage(
+            "이전 주문을 불러오지 못했습니다. 주문 상태를 확인해 주세요.",
+          );
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [order, retryOrderId]);
 
   useEffect(() => {
     if (!order || !sdkLoaded || !tossClientKey) {
@@ -125,7 +166,7 @@ export function CheckoutView() {
         orderId: order.id,
         orderName,
         successUrl: `${window.location.origin}/checkout/success`,
-        failUrl: `${window.location.origin}/checkout/fail`,
+        failUrl: `${window.location.origin}/checkout/fail?orderId=${encodeURIComponent(order.id)}`,
       });
     } catch {
       setStatus("error");

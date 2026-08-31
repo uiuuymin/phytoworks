@@ -58,6 +58,39 @@ export async function createPendingOrder(
   }
 }
 
+export async function getOrder(
+  sessionId: string,
+  orderId: string,
+): Promise<OrderApiResponse> {
+  let response: Response;
+
+  try {
+    response = await fetch(`/api/orders/${encodeURIComponent(orderId)}`, {
+      headers: { "X-Cart-Session-Id": sessionId },
+      cache: "no-store",
+    });
+  } catch {
+    throw new OrderApiError();
+  }
+
+  if (!response.ok) {
+    throw new OrderApiError(response.status);
+  }
+
+  try {
+    const value: unknown = await response.json();
+    if (!isOrderApiResponse(value)) {
+      throw new OrderApiError();
+    }
+    return value;
+  } catch (error) {
+    if (error instanceof OrderApiError) {
+      throw error;
+    }
+    throw new OrderApiError();
+  }
+}
+
 function isOrderApiResponse(value: unknown): value is OrderApiResponse {
   return (
     isRecord(value) &&

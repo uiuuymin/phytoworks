@@ -54,6 +54,7 @@ Task 016에서 NestJS의 `POST /api/payments/confirm`과 Toss server gateway를 
 - `/checkout`에 서버 Order 준비, Toss SDK 결제 UI와 결제 요청 버튼을 추가했다.
 - `/checkout/success`에서 redirect query를 서버 Payment confirm API로 전달한다.
 - `/checkout/fail`에서 안전한 실패 안내와 재시도 링크를 제공한다.
+- 실패 redirect에 포함된 Order를 다시 조회해 Cart가 비워진 뒤에도 같은 Order로 재시도한다.
 - `/api/orders`, `/api/payments/confirm` same-origin proxy와 Web API 타입 검증을 추가했다.
 - `NEXT_PUBLIC_TOSS_CLIENT_KEY` 환경변수 예시를 추가했다.
 
@@ -61,7 +62,8 @@ Task 016에서 NestJS의 `POST /api/payments/confirm`과 Toss server gateway를 
 
 - Web lint 통과
 - Web typecheck 통과
-- Web build 통과
+- Web build는 checkout 최초 구현 시 통과했다. 재시도 보완 후 재실행에서는 로컬
+  `@typescript/typescript-win32-x64`의 `tsc.exe` 누락으로 TypeScript 단계가 실행되지 않았다.
 - 실제 결제창은 유효한 Toss 테스트 client key가 준비된 경우에만 수동 확인한다.
 
 ## Follow-up
