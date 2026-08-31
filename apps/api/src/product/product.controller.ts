@@ -8,12 +8,12 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get()
-  getProducts(): ProductListResponse {
-    return { items: this.productService.findAll() };
+  async getProducts(): Promise<ProductListResponse> {
+    return { items: await this.productService.findAll() };
   }
 
   @Get(":productId")
-  getProduct(@Param("productId") productId: string): ProductReadModel {
+  getProduct(@Param("productId") productId: string): Promise<ProductReadModel> {
     return this.productService.findById(productId);
   }
 }

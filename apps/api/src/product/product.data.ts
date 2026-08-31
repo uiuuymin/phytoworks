@@ -1,4 +1,4 @@
-import type { ProductReadModel } from "./product.types.js";
+import type { ProductBaseReadModel } from "./product.types.js";
 
 export const productFixtures = [
   {
@@ -49,4 +49,4 @@ export const productFixtures = [
     mediaLabel: "CHLOROPHYLL FLUORESCENCE",
     purchaseMode: "DIRECT_PURCHASE",
   },
-] satisfies readonly ProductReadModel[];
+] satisfies readonly ProductBaseReadModel[];

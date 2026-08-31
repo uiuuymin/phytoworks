@@ -1,5 +1,9 @@
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
-import { type CatalogPurchaseMode, purchaseModeLabels } from "@/data/products";
+import {
+  type CatalogPurchaseMode,
+  type ProductPricing,
+  purchaseModeLabels,
+} from "@/lib/product-types";
 
 import styles from "./ProductPurchasePanel.module.css";
 
@@ -8,11 +12,13 @@ const officialInquiryUrl = "https://phyto-works.com/ko?source=nitro";
 type ProductPurchasePanelProps = {
   productId: string;
   purchaseMode: CatalogPurchaseMode;
+  pricing: ProductPricing;
 };
 
 export function ProductPurchasePanel({
   productId,
   purchaseMode,
+  pricing,
 }: ProductPurchasePanelProps) {
   const isQuoteRequired = purchaseMode === "QUOTE_REQUIRED";
 
@@ -24,6 +30,14 @@ export function ProductPurchasePanel({
         </h2>
         <p className={styles.mode}>{purchaseModeLabels[purchaseMode]}</p>
       </div>
+
+      <p className={styles.pricing}>
+        <span className={styles.heading}>가격 참고</span>
+        <span>{pricing.displayLabel}</span>
+        <span className={styles.description}>
+          카탈로그 또는 Demo 참고값이며 실제 확정 판매 가격이 아닙니다.
+        </span>
+      </p>
 
       {isQuoteRequired ? (
         <>

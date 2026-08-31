@@ -3,24 +3,33 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ProductMediaPlaceholder } from "@/components/commerce/ProductMediaPlaceholder";
+import { ProductOptionSummary } from "@/components/commerce/ProductOptionSummary";
 import { ProductPurchasePanel } from "@/components/commerce/ProductPurchasePanel";
-import { getProductById, products } from "@/data/products";
+import { ProductApiUnavailable } from "@/components/feedback/ProductApiUnavailable";
+import { getProductById } from "@/lib/product-api";
+import type { CatalogProduct } from "@/lib/product-types";
 
 import styles from "./page.module.css";
+
+export const dynamic = "force-dynamic";
 
 type ProductPageProps = {
   params: Promise<{ productId: string }>;
 };
 
-export function generateStaticParams() {
-  return products.map((product) => ({ productId: product.id }));
-}
-
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { productId } = await params;
-  const product = getProductById(productId);
+  let product: CatalogProduct | null;
+
+  try {
+    product = await getProductById(productId);
+  } catch {
+    return {
+      title: "제품 정보를 불러올 수 없음 | PhytoWorks Shop",
+    };
+  }
 
   if (!product) {
     return {
@@ -36,7 +45,13 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { productId } = await params;
-  const product = getProductById(productId);
+  let product: CatalogProduct | null;
+
+  try {
+    product = await getProductById(productId);
+  } catch {
+    return <ProductApiUnavailable />;
+  }
 
   if (!product) {
     notFound();
@@ -79,6 +94,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <ProductPurchasePanel
               productId={product.id}
               purchaseMode={product.purchaseMode}
+              pricing={product.pricing}
             />
           </div>
         </div>
@@ -97,6 +113,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
               ))}
             </ul>
           </section>
+
+          <ProductOptionSummary optionGroups={product.optionGroups} />
         </div>
       </article>
     </main>

@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 
 import { ProductGrid } from "@/components/commerce/ProductGrid";
-import { products } from "@/data/products";
+import { ProductApiUnavailable } from "@/components/feedback/ProductApiUnavailable";
+import { getProducts } from "@/lib/product-api";
+import type { CatalogProduct } from "@/lib/product-types";
 
 import styles from "./page.module.css";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Product Catalog | PhytoWorks Shop",
@@ -11,7 +15,15 @@ export const metadata: Metadata = {
     "PhytoWorks의 연구·육종 장비와 이미징 모듈을 살펴보는 Product Catalog",
 };
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  let products: readonly CatalogProduct[];
+
+  try {
+    products = await getProducts();
+  } catch {
+    return <ProductApiUnavailable />;
+  }
+
   return (
     <main
       id="main-content"

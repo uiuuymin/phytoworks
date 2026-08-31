@@ -11,6 +11,7 @@ export type CartState = {
 
 export type CartAction =
   | { type: "hydrate"; items: readonly CartItem[] }
+  | { type: "retainProducts"; productIds: readonly string[] }
   | { type: "add"; productId: string }
   | { type: "setQuantity"; productId: string; quantity: number }
   | { type: "remove"; productId: string }
@@ -42,6 +43,23 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
         lastRemovedItem: null,
         hasHydrated: true,
       };
+
+    case "retainProducts": {
+      const availableProductIds = new Set(action.productIds);
+      const items = state.items.filter((item) =>
+        availableProductIds.has(item.productId),
+      );
+
+      if (items.length === state.items.length) {
+        return state;
+      }
+
+      return {
+        ...state,
+        items,
+        lastRemovedItem: null,
+      };
+    }
 
     case "add": {
       const currentItem = getCartItem(state.items, action.productId);

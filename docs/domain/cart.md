@@ -4,7 +4,7 @@
 
 Cart는 고객이 주문을 만들기 전에 구매할 Product와 수량을 임시로 모아 두는 영역이다. 주문이 아니므로 결제가 보장되지 않으며, Cart의 내용은 주문 생성 시 서버 규칙으로 다시 검증해야 한다.
 
-현재 Cart domain 모델 전체는 **Proposed**다. `apps/web`에는 API와 Customer 식별 전의 **Current Demo 구현**으로 browser Cart가 있다.
+서버 Cart domain 모델은 **Current Demo 구현**이며, Customer 인증과 ownership 보장은 **Proposed**다. `apps/web`에는 API와 Customer 식별 전의 **Current Demo 구현**으로 browser Cart도 있다.
 
 Cart에는 `DIRECT_PURCHASE`로 명시된 Demo Product만 담을 수 있다. `QUOTE_REQUIRED` Product는 견적 문의 대상으로 남기며 CartItem을 만들지 않는다. Product의 판매 방식과 CTA 경계는 [`product.md`](./product.md)와 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 함께 확인한다.
 
@@ -64,9 +64,23 @@ value:
 - `localStorage`에 접근하거나 저장할 수 없으면 현재 tab의 memory state로 계속 동작하며 새로고침 유지가 보장되지 않는다고 알린다.
 - 여러 tab, 다른 browser 및 기기 사이의 동기화, 만료와 Customer Cart 병합은 현재 범위에 없다.
 
-## 향후 서버 Cart로 전환할 때
+## 현재 서버 Cart API 경계
 
-현재 localStorage Cart는 API 기반 Cart의 최종 저장 모델이 아니다. 서버 Cart를 도입할 때 다음 항목을 다시 결정한다.
+`apps/api`는 인증 도입 전의 익명 Cart API를 제공한다. 요청은 `X-Cart-Session-Id` header로
+session을 식별하며, 이 값은 사용자가 조작할 수 있으므로 Cart ownership을 보장하지 않는다.
+
+- `GET /api/cart`는 session의 Cart를 조회하고, 없으면 빈 Cart를 반환한다.
+- `POST /api/cart/items`는 `DIRECT_PURCHASE` Product를 추가하며 같은 Product의 수량을 합친다.
+- `PATCH /api/cart/items/:productId`는 양의 정수 수량으로 항목을 변경한다.
+- `DELETE /api/cart/items/:productId`는 항목을 명시적으로 제거한다.
+- API 응답은 Product ID와 수량만 반환하며 가격, 재고, 옵션 선택과 Product snapshot을 반환하지 않는다.
+- `QUOTE_REQUIRED`와 존재하지 않는 Product는 Cart 변경 대상이 아니다.
+
+현재 API Cart와 browser `localStorage` Cart는 자동으로 병합하지 않는다.
+
+## 향후 서버 Cart를 확장할 때
+
+현재 session header 기반 API Cart는 최종 production ownership 모델이 아니다. 서버 Cart를 확장할 때 다음 항목을 다시 결정한다.
 
 - Customer 또는 비회원 session의 Cart 소유 방식
 - Cart ID와 CartItem ID

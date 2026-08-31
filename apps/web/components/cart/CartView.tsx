@@ -1,14 +1,20 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
+
 import { Button } from "@/components/ui/Button";
 import { LinkButton } from "@/components/ui/LinkButton";
-import { getDirectPurchaseProductById } from "@/data/products";
+import type { CatalogProduct } from "@/lib/product-types";
 
 import { CartLineItem } from "./CartLineItem";
 import { useCart } from "./CartProvider";
 import styles from "./CartView.module.css";
 
-export function CartView() {
+type CartViewProps = {
+  products: readonly CatalogProduct[];
+};
+
+export function CartView({ products }: CartViewProps) {
   const {
     items,
     lastRemovedItem,
@@ -16,14 +22,35 @@ export function CartView() {
     hasHydrated,
     storageStatus,
     undoRemove,
+    retainProductIds,
   } = useCart();
+  const directPurchaseProducts = useMemo(
+    () =>
+      products.filter((product) => product.purchaseMode === "DIRECT_PURCHASE"),
+    [products],
+  );
+  const directPurchaseProductIds = useMemo(
+    () => directPurchaseProducts.map((product) => product.id),
+    [directPurchaseProducts],
+  );
+
+  useEffect(() => {
+    if (hasHydrated) {
+      retainProductIds(directPurchaseProductIds);
+    }
+  }, [directPurchaseProductIds, hasHydrated, retainProductIds]);
+
   const cartLines = items.flatMap((item) => {
-    const product = getDirectPurchaseProductById(item.productId);
+    const product = directPurchaseProducts.find(
+      (candidate) => candidate.id === item.productId,
+    );
 
     return product ? [{ item, product }] : [];
   });
   const removedProduct = lastRemovedItem
-    ? getDirectPurchaseProductById(lastRemovedItem.productId)
+    ? directPurchaseProducts.find(
+        (product) => product.id === lastRemovedItem.productId,
+      )
     : undefined;
 
   if (!hasHydrated) {

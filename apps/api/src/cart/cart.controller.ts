@@ -1,0 +1,135 @@
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  Param,
+  Patch,
+  Post,
+} from "@nestjs/common";
+// biome-ignore lint/style/useImportType: NestJS needs the runtime class for dependency injection.
+import { CartService } from "./cart.service.js";
+import type { CartReadModel } from "./cart.types.js";
+
+const SESSION_HEADER = "x-cart-session-id";
+
+@Controller("api/cart")
+export class CartController {
+  constructor(private readonly cartService: CartService) {}
+
+  @Get()
+  getCart(
+    @Headers(SESSION_HEADER) sessionId: string | undefined,
+  ): Promise<CartReadModel> {
+    return this.cartService.findBySessionId(requireSessionId(sessionId));
+  }
+
+  @Post("items")
+  addItem(
+    @Headers(SESSION_HEADER) sessionId: string | undefined,
+    @Body() body: unknown,
+  ): Promise<CartReadModel> {
+    const request = parseAddItemBody(body);
+    return this.cartService.addItem(
+      requireSessionId(sessionId),
+      request.productId,
+      request.quantity,
+    );
+  }
+
+  @Patch("items/:productId")
+  setItemQuantity(
+    @Headers(SESSION_HEADER) sessionId: string | undefined,
+    @Param("productId") productId: string,
+    @Body() body: unknown,
+  ): Promise<CartReadModel> {
+    return this.cartService.setItemQuantity(
+      requireSessionId(sessionId),
+      requireProductId(productId),
+      parseQuantityBody(body),
+    );
+  }
+
+  @Delete("items/:productId")
+  removeItem(
+    @Headers(SESSION_HEADER) sessionId: string | undefined,
+    @Param("productId") productId: string,
+  ): Promise<CartReadModel> {
+    return this.cartService.removeItem(
+      requireSessionId(sessionId),
+      requireProductId(productId),
+    );
+  }
+}
+
+function requireSessionId(sessionId: string | undefined): string {
+  if (!sessionId) {
+    throw new BadRequestException("Cart session is required");
+  }
+
+  const normalized = sessionId.trim();
+
+  if (normalized.length < 1 || normalized.length > 128) {
+    throw new BadRequestException("Cart session is invalid");
+  }
+
+  return normalized;
+}
+
+function requireProductId(productId: string): string {
+  const normalized = productId.trim();
+
+  if (normalized.length < 1 || normalized.length > 128) {
+    throw new BadRequestException("Product ID is invalid");
+  }
+
+  return normalized;
+}
+
+function parseAddItemBody(body: unknown): {
+  productId: string;
+  quantity: number;
+} {
+  if (!isRecord(body)) {
+    throw new BadRequestException("Cart item request is invalid");
+  }
+
+  return {
+    productId: requireProductId(readString(body.productId)),
+    quantity: readOptionalPositiveQuantity(body.quantity),
+  };
+}
+
+function parseQuantityBody(body: unknown): number {
+  if (!isRecord(body) || !("quantity" in body)) {
+    throw new BadRequestException("Cart quantity request is invalid");
+  }
+
+  return readPositiveQuantity(body.quantity);
+}
+
+function readString(value: unknown): string {
+  if (typeof value !== "string") {
+    throw new BadRequestException("Product ID is invalid");
+  }
+
+  return value;
+}
+
+function readOptionalPositiveQuantity(value: unknown): number {
+  return value === undefined ? 1 : readPositiveQuantity(value);
+}
+
+function readPositiveQuantity(value: unknown): number {
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 1) {
+    throw new BadRequestException("Quantity must be a positive integer");
+  }
+
+  return value;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
