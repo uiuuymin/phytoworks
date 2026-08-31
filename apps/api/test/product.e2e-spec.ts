@@ -37,6 +37,10 @@ describe("Product endpoints", () => {
           summary: expect.any(String),
           features: expect.any(Array),
           purchaseMode: "QUOTE_REQUIRED",
+          pricing: {
+            mode: "QUOTE_REFERENCE",
+            authoritative: false,
+          },
         });
       });
   });
@@ -53,7 +57,57 @@ describe("Product endpoints", () => {
           summary: expect.any(String),
           features: expect.any(Array),
           purchaseMode: "DIRECT_PURCHASE",
+          pricing: {
+            mode: "DEMO",
+            amount: 5_000_000,
+            authoritative: false,
+          },
         });
+      });
+  });
+
+  it("returns NITRO brochure option groups without option prices", async () => {
+    await request(app.getHttpServer())
+      .get("/api/products/nitro")
+      .expect(200)
+      .expect(({ body }) => {
+        expect(body.optionGroups).toEqual([
+          {
+            id: "depth-imaging",
+            label: "Depth 이미징",
+            selection: "single",
+            source: "BROCHURE",
+            options: [
+              { id: "lidar", label: "Lidar" },
+              { id: "stereo", label: "Stereo" },
+            ],
+          },
+          {
+            id: "irrigation",
+            label: "관수",
+            selection: "single",
+            source: "BROCHURE",
+            options: [
+              { id: "drip", label: "점적 관수" },
+              { id: "mist", label: "분무경" },
+              { id: "sub-irrigation", label: "저면 관수" },
+            ],
+          },
+          {
+            id: "add-ons",
+            label: "추가 옵션",
+            selection: "multiple",
+            source: "BROCHURE",
+            options: [
+              { id: "ec-ph-sensor", label: "EC/pH 센서" },
+              { id: "load-cell-sensor", label: "로드셀 센서" },
+              { id: "power-meter", label: "전력량계" },
+              { id: "humidifier", label: "가습 장치" },
+            ],
+          },
+        ]);
+        expect(JSON.stringify(body)).not.toContain("stockQuantity");
+        expect(JSON.stringify(body)).not.toContain("additionalPrice");
       });
   });
 

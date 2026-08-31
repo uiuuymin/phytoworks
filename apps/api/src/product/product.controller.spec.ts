@@ -30,6 +30,11 @@ describe("ProductController", () => {
       summary: expect.any(String),
       features: expect.any(Array),
       purchaseMode: "DIRECT_PURCHASE",
+      pricing: {
+        mode: "DEMO",
+        amount: 7_000_000,
+        authoritative: false,
+      },
     });
   });
 });
