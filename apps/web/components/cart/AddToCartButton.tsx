@@ -18,7 +18,7 @@ export function AddToCartButton({
   return (
     <Button
       className={className}
-      disabled={!hasHydrated || apiStatus !== "available" || isPending}
+      disabled={!hasHydrated || apiStatus === "loading" || isPending}
       onClick={() => void addItem(productId)}
     >
       장바구니 담기

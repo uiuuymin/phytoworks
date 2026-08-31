@@ -148,12 +148,7 @@ export function CartProvider({ children }: CartProviderProps) {
       successMessage: string,
       lastRemovedItem?: CartItem,
     ): Promise<boolean> => {
-      if (
-        !sessionId ||
-        !state.hasHydrated ||
-        apiStatus !== "available" ||
-        isPending
-      ) {
+      if (!sessionId || !state.hasHydrated || isPending) {
         return false;
       }
 
@@ -173,7 +168,7 @@ export function CartProvider({ children }: CartProviderProps) {
         setIsPending(false);
       }
     },
-    [announce, apiStatus, isPending, sessionId, state.hasHydrated],
+    [announce, isPending, sessionId, state.hasHydrated],
   );
 
   async function addItem(productId: string) {

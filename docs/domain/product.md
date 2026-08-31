@@ -52,7 +52,7 @@ SKU, 장비 옵션 조합, 납기, 설치와 유지보수 정보는 실제 구�
 - 공식 사이트에서 실제 가격은 확인되지 않았다. 가격을 추가하면 반드시 `Demo`로 표시한다.
 - **Current Demo:** NITRO의 `도입·1년 운영비 2,000만 원부터`는 카탈로그 비교값이며 제품의 확정 판매 단가가 아니다.
 - **Current Demo:** Thermal Imaging Module `500만 원`, Chlorophyll Fluorescence Module `700만 원`은 UI 검증용 임시값이다.
-- **Current Demo:** Web은 가격 object의 `authoritative: false`로 위 경계를 보존하고 `500만 원`, `700만 원`과 같은 Demo 가격을 표시한다. 이 값은 실제 결제 금액이나 주문 단가로 사용하지 않는다.
+- **Current Demo:** Web은 직접 구매 이미징 모듈에만 `500만 원`, `700만 원`과 같은 Demo 가격을 표시한다. `QUOTE_REQUIRED`인 NITRO의 운영비 비교값은 Product 카드에 표시하지 않는다. 모든 가격 object는 `authoritative: false`이며 실제 결제 금액이나 주문 단가로 사용하지 않는다.
 - **Proposed:** `DIRECT_PURCHASE` 항목의 표시 가격과 주문 금액은 서버가 관리하는 Product 가격을 기준으로 한다.
 - **Proposed:** `QUOTE_REQUIRED` 항목은 가격 없이 문의 흐름으로 보내며 Cart에 담지 않는다.
 - 브라우저나 Cart가 보낸 금액을 그대로 신뢰하지 않는다.
