@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { ProductController } from "./product.controller.js";
 import { ProductService } from "./product.service.js";
+import { StaticProductRepository } from "./static-product.repository.js";
 
 describe("ProductController", () => {
-  const controller = new ProductController(new ProductService());
+  const controller = new ProductController(
+    new ProductService(new StaticProductRepository()),
+  );
 
-  it("returns the Product list envelope", () => {
-    expect(controller.getProducts()).toEqual({
+  it("returns the Product list envelope", async () => {
+    await expect(controller.getProducts()).resolves.toEqual({
       items: expect.arrayContaining([
         expect.objectContaining({
           id: "nitro",
@@ -18,8 +21,10 @@ describe("ProductController", () => {
     });
   });
 
-  it("returns the Product detail read model", () => {
-    expect(controller.getProduct("chlorophyll-fluorescence")).toMatchObject({
+  it("returns the Product detail read model", async () => {
+    await expect(
+      controller.getProduct("chlorophyll-fluorescence"),
+    ).resolves.toMatchObject({
       id: "chlorophyll-fluorescence",
       name: "Chlorophyll Fluorescence Module",
       summary: expect.any(String),

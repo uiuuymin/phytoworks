@@ -3,6 +3,8 @@ import { Test } from "@nestjs/testing";
 import request from "supertest";
 import { afterAll, beforeAll, describe, it } from "vitest";
 import { AppModule } from "../src/app.module.js";
+import { PRODUCT_REPOSITORY } from "../src/product/product.repository.js";
+import { StaticProductRepository } from "../src/product/static-product.repository.js";
 
 describe("Health endpoint", () => {
   let app: INestApplication;
@@ -10,7 +12,10 @@ describe("Health endpoint", () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(PRODUCT_REPOSITORY)
+      .useValue(new StaticProductRepository())
+      .compile();
 
     app = moduleRef.createNestApplication();
     await app.init();

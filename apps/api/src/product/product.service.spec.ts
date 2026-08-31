@@ -1,30 +1,35 @@
 import { describe, expect, it } from "vitest";
 import { ProductService } from "./product.service.js";
+import { StaticProductRepository } from "./static-product.repository.js";
 
 describe("ProductService", () => {
-  it("returns all Product fixtures in source order", () => {
-    const service = new ProductService();
+  const createService = () => new ProductService(new StaticProductRepository());
 
-    expect(service.findAll().map((product) => product.id)).toEqual([
+  it("returns all Product fixtures in source order", async () => {
+    const service = createService();
+
+    const products = await service.findAll();
+
+    expect(products.map((product) => product.id)).toEqual([
       "nitro",
       "thermal-imaging",
       "chlorophyll-fluorescence",
     ]);
   });
 
-  it("returns a Product by ID", () => {
-    const service = new ProductService();
+  it("returns a Product by ID", async () => {
+    const service = createService();
 
-    expect(service.findById("thermal-imaging")).toMatchObject({
+    await expect(service.findById("thermal-imaging")).resolves.toMatchObject({
       id: "thermal-imaging",
       purchaseMode: "DIRECT_PURCHASE",
     });
   });
 
-  it("throws NotFoundException when the Product does not exist", () => {
-    const service = new ProductService();
+  it("throws NotFoundException when the Product does not exist", async () => {
+    const service = createService();
 
-    expect(() => service.findById("unknown-product")).toThrow(
+    await expect(service.findById("unknown-product")).rejects.toThrow(
       "Product not found",
     );
   });

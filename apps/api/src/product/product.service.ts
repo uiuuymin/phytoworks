@@ -1,17 +1,23 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { productFixtures } from "./product.data.js";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  PRODUCT_REPOSITORY,
+  type ProductRepository,
+} from "./product.repository.js";
 import type { ProductReadModel } from "./product.types.js";
 
 @Injectable()
 export class ProductService {
-  findAll(): readonly ProductReadModel[] {
-    return productFixtures;
+  constructor(
+    @Inject(PRODUCT_REPOSITORY)
+    private readonly productRepository: ProductRepository,
+  ) {}
+
+  findAll(): Promise<readonly ProductReadModel[]> {
+    return this.productRepository.findAll();
   }
 
-  findById(productId: string): ProductReadModel {
-    const product = productFixtures.find(
-      (candidate) => candidate.id === productId,
-    );
+  async findById(productId: string): Promise<ProductReadModel> {
+    const product = await this.productRepository.findById(productId);
 
     if (!product) {
       throw new NotFoundException("Product not found");

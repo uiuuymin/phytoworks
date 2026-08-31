@@ -1,6 +1,6 @@
 # Task: Product PostgreSQL source of truth 설계
 
-**Status:** Prisma 7 stable fallback 검증 완료. ADR-003에서 Prisma 7 stable을 현재 production dependency baseline으로 Accepted 처리했으며, ProductRepository 구현은 별도 승인 대기 중이다.
+**Status:** Prisma 7 stable fallback과 ProductRepository 구현을 완료했다. ADR-003에서 Prisma 7 stable을 현재 production dependency baseline으로 Accepted 처리했으며, web fetch 전환은 후속 task로 남긴다.
 
 **조사 기준일:** 2026-08-31
 
@@ -8,7 +8,7 @@
 
 현재 정적 Product read API를 PostgreSQL source of truth로 이전하기 위한 범위, 접근 방법, schema·migration 책임, API와 module 경계를 설계한다. 다음 구현 task가 현재 API response contract를 유지하면서 Product data source만 PostgreSQL로 교체할 수 있도록 선택지와 검증 조건을 기록한다.
 
-이번 task의 실행 전략은 **database 구현을 별도 task로 분리하고, Prisma 8 RC spike 후 Prisma 7 stable fallback을 검증하는 것**이었다. Prisma 7 stable 조합이 현재 환경에서 검증되어 database 접근 기술 baseline으로 채택되었지만, Product API의 실제 source 교체는 별도 구현 task로 분리한다.
+이번 task의 실행 전략은 **database 구현을 별도 task로 분리하고, Prisma 8 RC spike 후 Prisma 7 stable fallback을 검증한 뒤 ProductRepository를 연결하는 것**이었다. Prisma 7 stable 조합과 ProductRepository 기반 API 연결이 현재 환경에서 검증되었으며, web fetch 전환은 별도 task로 분리한다.
 
 ## Current State
 
@@ -53,11 +53,11 @@ GET /api/products/:productId
 - module format: ESM, TypeScript `NodeNext`, Accepted ADR-002 적용
 - test: Vitest `4.1.11`과 Supertest `7.2.2`
 - lint: root Biome `2.5.10`
-- PostgreSQL, ORM, migration, seed, Docker와 database package는 아직 없다.
+- PostgreSQL schema·migration·seed와 Prisma 7 접근 계층이 추가되었고, 지속적인 local infrastructure와 Docker 설정은 아직 없다.
 
 ## Problem
 
-현재 API는 Product를 조회할 수 있지만 database가 source of truth가 아니며, web에는 같은 의미의 data가 한 번 더 존재한다. 이 상태에서 바로 ORM을 설치하거나 schema를 만들면 다음 결정이 한 task에 섞인다.
+현재 API는 Product를 PostgreSQL에서 조회하지만, web에는 같은 의미의 static data가 한 번 더 존재한다. 다음 task에서는 web ownership 전환과 database 운영 범위를 별도로 결정해야 한다.
 
 - Product read model과 PostgreSQL의 저장 model을 어디까지 일치시킬지
 - ORM, driver와 migration 도구의 Node.js 24·TypeScript 7·ESM 호환성
@@ -84,10 +84,9 @@ GET /api/products/:productId
 
 ## Non-goals
 
-이번 task의 설계 산출물과 사용자가 승인한 compatibility spike에서는 다음 production 전환을 구현하지 않는다. Prisma 7 stable spike에 필요한 최소 dependency, schema, migration, seed와 Nest provider, 그리고 검증용 임시 PostgreSQL 실행은 예외적으로 수행했다.
+이번 task의 설계 산출물과 사용자가 승인한 compatibility spike 및 ProductRepository 구현에서는 다음 범위를 구현하지 않는다. Prisma 7 stable dependency, schema, migration, seed와 ProductRepository 연결, 그리고 검증용 임시 PostgreSQL 실행은 승인된 범위로 수행했다.
 
 - 지속적으로 관리하는 PostgreSQL 설치·실행과 infrastructure 설정
-- Product API를 PostgreSQL source로 교체하는 구현
 - web fetch 연결 또는 `apps/web/data/products.ts` 제거
 - Cart, Customer, Order, Payment와 Checkout
 - 가격, 재고, 할인, 세금, 배송과 판매 정책
@@ -96,7 +95,7 @@ GET /api/products/:productId
 - Swagger/OpenAPI
 - 사용처가 없는 `packages/contracts`, `packages/database` 또는 공통 package
 - NestJS CLI, `@nestjs/config`, validation dependency와 CORS
-- 커밋
+- Product API 외 기능의 database 전환
 
 ## Options Considered
 
@@ -240,7 +239,7 @@ PostgreSQL을 Product API의 source of truth로 삼는 시점은 단순히 table
 - `GET /health`는 Product DB 상태를 섞지 않고 기존 `{ "status": "ok" }` 계약을 유지한다.
 - migration, seed, dependency와 environment 사용 방법이 문서화된다.
 
-이 조건을 통과한 뒤 API Product read의 authoritative source를 PostgreSQL로 바꾼다. 이 시점에도 web은 별도 정적 data를 읽을 수 있으므로 **API ownership 전환**과 **전체 web/API data ownership 통합**을 구분한다. web의 최종 전환은 별도 web integration task에서 수행한다.
+위 조건을 통과했으므로 현재 API Product read의 authoritative source는 PostgreSQL이다. web은 아직 별도 정적 data를 읽으므로 **API ownership 전환**과 **전체 web/API data ownership 통합**을 구분한다. web의 최종 전환은 별도 web integration task에서 수행한다.
 
 ### 이전 단계
 
@@ -368,14 +367,14 @@ AppModule
    ├─ ProductController → /api/products
    ├─ ProductService
    └─ ProductRepository port
-      └─ PostgreSQL adapter → DatabaseModule client/pool
+       └─ PostgreSQL adapter → Prisma7Module → Prisma7Service
 ```
 
 - `HealthModule`과 `ProductModule`은 계속 독립적인 sibling module이다.
 - `HealthModule`은 DB connection을 검사하거나 Product 상태를 반환하지 않는다. 따라서 Product DB가 없더라도 health 의미가 바뀌지 않는다.
-- `DatabaseModule`은 `ProductModule`이 명시적으로 import하는 non-global module을 우선 검토한다. 이 방식은 DB dependency를 사용하는 feature를 module graph에서 확인하기 쉽다.
+- 현재 구현은 `ProductModule`이 `Prisma7Module`을 import하고 `Prisma7Service`가 client 생명주기를 담당한다. 향후 database provider가 여러 feature에서 공유될 때 `DatabaseModule` 이름으로 일반화할지는 `TBD`다.
 - ProductService의 constructor에는 Drizzle client, `Pool`, Prisma Client 또는 TypeORM repository를 직접 노출하지 않는다.
-- 현재 static fixture에는 repository abstraction이 없으므로, DB 구현 task에서 처음으로 port와 static test double 또는 PostgreSQL adapter를 도입한다.
+- `ProductRepository` port, static adapter와 PostgreSQL adapter를 분리했다. 기본 `ProductModule` provider는 Prisma adapter를 사용하며, HTTP test는 같은 token을 static adapter로 override한다.
 
 ## Environment와 migration 실행
 
@@ -508,25 +507,28 @@ Nest CLI, `@nestjs/config`, class-validator, Swagger/OpenAPI, CORS와 공통 dat
 - `apps/api/prisma/migrations-prisma7/*`
 - `apps/api/src/generated/prisma/*`: generated Prisma Client
 - `apps/api/src/prisma7/*`: spike client, Nest provider, seed, verify와 CRUD smoke
+- `apps/api/src/product/product.repository.ts`: repository port와 DI token
+- `apps/api/src/product/static-product.repository.ts`: static test adapter
+- `apps/api/src/product/prisma-product.repository.ts`: Prisma 7 PostgreSQL adapter
+- `apps/api/src/product/product.service.ts`, `product.module.ts`, `product.controller.ts`: repository 연결과 async API 위임
+- `apps/api/src/product/*.spec.ts`, `apps/api/test/*.e2e-spec.ts`: static adapter 기반 API 회귀와 repository unit test
+- `apps/api/vitest.integration.config.ts`, `apps/api/src/product/product.repository.integration.test.ts`: PostgreSQL integration test
+- `apps/api/tsconfig.json`: integration Vitest config 포함
 - `pnpm-lock.yaml`
 
-ProductRepository port, static adapter와 Prisma adapter를 실제 Product API에 연결하는 작업은 아직 구현하지 않았다.
+ProductRepository port, static adapter와 Prisma adapter를 실제 Product API에 연결했다. web의 static data는 아직 유지한다.
 
-### 다음 구현 task에서 변경할 수 있는 파일
+### 후속 task에서 변경할 수 있는 파일
 
 - `apps/api/package.json`
 - 승인된 도구에 따른 root `pnpm-lock.yaml`
 - `apps/api/src/database/*`
-- `apps/api/src/product/product.repository.ts` 및 repository test
-- `apps/api/database/migrations/*`
-- `apps/api/database/seed.ts`
-- 선택된 migration tool config 파일
-- `apps/api/src/product/product.service.ts`, module와 test: repository port 연결에 필요한 최소 변경만
+- `apps/api/src/product/product.service.ts`, module와 test: repository port 변경이 필요한 경우에만
+- `apps/web/data/products.ts`, Product route와 component: API data 전환 시
 - API README와 관련 task 문서: 실제 명령과 결과 기록
 
 ### 이번 task에서 변경하지 않을 파일
 
-- `apps/api/src/product/product.controller.ts`: API contract가 유지되는 한 변경하지 않는다.
 - `apps/api/src/health/*`: HealthModule과 `GET /health` 계약을 유지한다.
 - `apps/web/data/products.ts`, Product route와 component: web fetch task 전까지 유지한다.
 - `apps/web`의 fetch, Server Action, cache와 UI
@@ -535,7 +537,7 @@ ProductRepository port, static adapter와 Prisma adapter를 실제 Product API�
 - 실제 credential, Docker, deployment와 운영 설정
 - Cart, Customer, Order, Payment, Checkout 코드와 문서
 - Swagger/OpenAPI와 validation 설정
-- 커밋
+- 추가 커밋은 별도 승인 후 수행한다.
 
 ## Completion Criteria
 
@@ -557,7 +559,7 @@ ProductRepository port, static adapter와 Prisma adapter를 실제 Product API�
 - dependency, script, tsconfig, Biome와 lockfile 변경 후보가 현재 변경과 분리되어 있다.
 - 변경·비변경 파일, non-goals와 승인 전 금지 범위가 기록되어 있다.
 - 장기 영향이 있는 ORM 선택을 ADR-003 `Accepted`로 기록했다.
-- Prisma 8 RC compatibility spike와 Prisma 7 stable fallback을 비교 기록했으며, 현재 stable baseline은 Prisma 7이다. 실제 Product API data source 교체와 web fetch 연결은 수행하지 않았다.
+- Prisma 8 RC compatibility spike와 Prisma 7 stable fallback을 비교 기록했으며, 현재 stable baseline은 Prisma 7이다. Product API는 Prisma repository를 사용하도록 전환했고, web fetch 연결은 수행하지 않았다.
 
 ## ADR 후보
 
@@ -584,15 +586,12 @@ ProductRepository port, static adapter와 Prisma adapter를 실제 Product API�
 
 ## Follow-up
 
-사용자 승인 후 다음 순서로 구현한다.
+남은 후속 작업은 다음 순서로 진행한다.
 
-1. Prisma 7 stable baseline을 기준으로 `ProductRepository` port, static adapter와 Prisma adapter 구현 계획을 검토한다.
-2. 별도 승인을 받으면 `apps/api` 내부 schema·migration·seed ownership을 정리하고 Product repository adapter를 실제 API에 연결한다.
-3. Product API의 response contract, 404와 DB 오류 전파를 유지하면서 PostgreSQL source of truth 전환을 검증한다.
-4. Prisma 8 stable package가 실제 registry에서 확인되면 별도 upgrade task에서 Prisma 7과 side-by-side 호환성과 migration을 검토한다.
-5. DB 연결이 없을 때 fallback하지 않는 failure와 DB와 독립적인 `/health`를 실제 repository 경계에서 검증한다.
-6. 별도 web integration task에서 `apps/web/data/products.ts`를 API data로 대체하고 fixture 제거 시점을 결정한다.
-7. 이후 Cart vertical slice에서 최신 Product, 가격·재고 검증을 별도로 설계한다. 이번 task의 Product schema에 이를 미리 추가하지 않는다.
+1. DB 연결이 없을 때 Product request가 fallback하지 않고 실패하는 동작을 운영 환경에서 확인한다.
+2. Prisma 8 stable package가 실제 registry에서 확인되면 별도 upgrade task에서 Prisma 7과 side-by-side 호환성과 migration을 검토한다.
+3. 별도 web integration task에서 `apps/web/data/products.ts`를 API data로 대체하고 fixture 제거 시점을 결정한다.
+4. 이후 Cart vertical slice에서 최신 Product, 가격·재고 검증을 별도로 설계한다. 이번 task의 Product schema에 이를 미리 추가하지 않는다.
 
 ## Problems Encountered
 
@@ -615,6 +614,8 @@ ProductRepository port, static adapter와 Prisma adapter를 실제 Product API�
 - 처음 작성한 Prisma 7 seed가 과거 중첩 fixture 구조를 가정해 실패했다. 현재 API fixture가 flat read model이라는 사실에 맞춰 `summary`, `features`, `mediaLabel` 매핑을 수정했다.
 - generated Prisma Client가 Biome lint의 대상이 되면 생성 코드 내부 형식과 충돌할 수 있다. generated source를 lint 대상에서 제외하고 직접 수정하지 않는 원칙을 적용했다.
 - PowerShell inline Node query는 따옴표 확장으로 두 번 실패했다. 최종 schema·seed 검증은 별도 TypeScript verify script로 수행해 shell quoting 문제와 DB 검증 결과를 분리했다.
+- 처음 Prisma adapter를 `import type`으로 가져와 NestJS runtime metadata에서 dependency가 `undefined`가 되는 문제가 발생했다. repository constructor에는 runtime import와 명시적인 Biome 예외를 적용해 DI를 복구했다.
+- PostgreSQL integration test는 기본 unit·HTTP test와 분리된 `test:integration` script와 config를 사용한다. `DATABASE_URL`이 없으면 integration test가 실패하므로 DB 부재를 성공으로 숨기지 않는다.
 
 ## Verification 계획
 
@@ -650,7 +651,19 @@ ProductRepository port, static adapter와 Prisma adapter를 실제 Product API�
 - typecheck: API typecheck와 root typecheck 통과.
 - build: API build와 root build 통과. root build에서 Next.js 16 build도 통과했다.
 - peer dependency: `pnpm peers check` 통과.
-- frozen install: stable dependency lockfile 기준 `pnpm install --frozen-lockfile --ignore-scripts`를 최종 확인한다. 일반 lifecycle script approval 문제는 아래 Problems Encountered에 별도로 기록한다.
+- frozen install: stable dependency lockfile 기준 `pnpm install --frozen-lockfile --ignore-scripts` 통과. 일반 lifecycle script approval 문제는 아래 Problems Encountered에 별도로 기록했다.
+
+### ProductRepository implementation result
+
+- `ProductRepository` port는 `findAll()`과 `findById()`만 노출하며 ProductService가 Prisma 타입을 직접 참조하지 않도록 했다.
+- `StaticProductRepository`는 기존 fixture를 사용하고 unit·HTTP test double로 유지한다.
+- `PrismaProductRepository`는 Prisma 7 generated client를 사용하고 database row를 `ProductReadModel`로 명시적으로 매핑한다.
+- `Prisma7Service`는 Prisma client를 지연 생성한다. 따라서 DB가 없어도 `HealthModule`은 기동하고, Product 요청 시 `DATABASE_URL` 누락 또는 DB 오류가 fixture fallback 없이 전파된다.
+- `ProductModule`의 기본 repository token은 Prisma adapter를 가리키며, API regression test는 같은 token을 static adapter로 override한다.
+- `ProductService`는 repository 결과가 `null`일 때 기존 `NotFoundException("Product not found")`을 유지한다.
+- 실제 Nest application을 PostgreSQL에 연결해 `GET /api/products`, `GET /api/products/nitro`, 없는 Product ID의 `404`, 잘못된 path의 `404`, `GET /health`의 `200`과 `{ "status": "ok" }`를 확인했다.
+- API 기본 test는 6개 file, 15개 test가 통과했고, PostgreSQL integration test는 1개 file, 2개 test가 통과했다.
+- DB가 없는 상태에서도 실제 Nest application의 `GET /health`는 `200`을 반환했고, `GET /api/products`는 `500`으로 실패했다. static fixture fallback은 발생하지 않았다.
 
 ### Comparison and unverified items
 
@@ -670,7 +683,7 @@ ProductRepository port, static adapter와 Prisma adapter를 실제 Product API�
 
 - Vercel 배포와 실제 production credential
 - 개발용 PostgreSQL 제공 방식과 Docker Compose 도입
-- Product API를 Prisma repository로 실제 전환한 뒤의 HTTP integration
+- web fetch를 전환한 뒤의 Next.js와 API 통합
 - 병렬 test database provisioning과 teardown
 - Prisma 8 stable upgrade의 실제 package와 migration 호환성
 

@@ -3,18 +3,28 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client.js";
 
 @Injectable()
-export class Prisma7Service extends PrismaClient implements OnModuleDestroy {
-  constructor() {
+export class Prisma7Service implements OnModuleDestroy {
+  private prismaClient: PrismaClient | undefined;
+
+  get client(): PrismaClient {
+    if (!this.prismaClient) {
+      this.prismaClient = this.createClient();
+    }
+
+    return this.prismaClient;
+  }
+
+  private createClient(): PrismaClient {
     const connectionString = process.env.DATABASE_URL;
 
     if (!connectionString) {
       throw new Error("DATABASE_URL is required for Prisma7Service.");
     }
 
-    super({ adapter: new PrismaPg({ connectionString }) });
+    return new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
   }
 
   async onModuleDestroy(): Promise<void> {
-    await this.$disconnect();
+    await this.prismaClient?.$disconnect();
   }
 }

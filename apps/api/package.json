@@ -17,9 +17,10 @@
     "prisma:verify": "node dist/prisma7/verify.js",
     "prisma:seed": "node dist/prisma7/seed.js",
     "prisma:smoke": "node dist/prisma7/spike.js",
-    "lint": "biome check src test package.json tsconfig.json tsconfig.build.json vitest.config.ts",
+    "lint": "biome check src test package.json tsconfig.json tsconfig.build.json vitest.config.ts vitest.integration.config.ts",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
     "@nestjs/common": "12.0.1",
