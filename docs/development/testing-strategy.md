@@ -2,9 +2,11 @@
 
 ## 현재 상태
 
-`apps/web`에는 TypeScript 7 typecheck와 Biome lint가 구성되어 있으며 루트에서 `pnpm typecheck`, `pnpm lint`, `pnpm build`로 실행한다. Next.js와 NestJS의 unit/API test runner는 아직 `TBD`다.
+`apps/web`과 `apps/api`에는 TypeScript 7 typecheck와 공통 Biome lint가 구성되어 있으며 루트에서 `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build`로 실행한다. `apps/api`는 Vitest 4.1.11을 unit/API test runner로 사용하고 Supertest로 실제 Nest application의 HTTP adapter를 검증한다. web에는 아직 test runner가 없으므로 root `test`는 현재 API test만 실행한다.
 
 Biome를 선택한 이유와 Next.js 16.3·TypeScript 7·typescript-eslint 사이의 현재 호환성 제약은 `tasks/001-bootstrap-monorepo.md`에 기록한다. 호환성 변화에 따라 Next.js 전용 lint 규칙을 다시 검토한다.
+
+NestJS API에 Vitest를 선택한 후보 비교와 Node.js test runner 및 Jest를 사용하지 않은 이유는 `tasks/007-api-bootstrap.md`에 기록한다. API bootstrap test는 controller의 최소 응답을 확인하는 unit test와 `AppModule`부터 HTTP adapter까지 구성하여 `/health`의 200·JSON 계약 및 존재하지 않는 route의 404를 확인하는 endpoint test로 나눈다. 실제 build 결과로 process를 기동하는 검증은 자동 test와 별도로 task의 수동 HTTP 검증에 기록한다.
 
 지금 확정하는 것은 특정 도구가 아니라 **변경의 위험에 맞는 여러 검증 계층을 함께 고려한다**는 원칙이다.
 
@@ -43,7 +45,8 @@ Biome를 선택한 이유와 Next.js 16.3·TypeScript 7·typescript-eslint 사�
 
 ## 향후 결정할 사항
 
-- Next.js와 NestJS의 unit/API test runner
+- Next.js의 unit/component test runner
+- 향후 NestJS domain module의 test fixture와 test double 구성
 - PostgreSQL integration test 격리 방식
 - test fixture, factory와 seed 데이터의 책임
 - Toss Payments 테스트 double 또는 sandbox 활용 범위

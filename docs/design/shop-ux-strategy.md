@@ -412,7 +412,7 @@ UI foundation과 Shop Catalog는 각각 독립된 worktree에서 구현되었다
 | 11 | `feat/wishlist` | 필요성이 남아 있을 때 관심 Product 저장 | Customer 또는 저장 방식 결정 | reload, keyboard, mobile |
 | 12 | `chore/ui-a11y-polish` | 전체 접근성, motion과 성능 점검 | 핵심 흐름 완료 | keyboard, reduced motion, browser audit |
 
-1번부터 4번까지 Current이며 5번 이후는 Proposed다.
+1번부터 5번까지 Current이며 6번 이후는 Proposed다. 5번에서 추가한 `/health`는 사용자 화면이나 Shop navigation에 포함되지 않으며 현재 IA와 browser Cart 흐름을 변경하지 않는다.
 
 Responsive와 접근성은 12번까지 미루지 않고 각 기능 task의 완료 조건에 포함한다. 12번은 누락된 전체 흐름을 다시 점검하는 단계다.
 
@@ -436,6 +436,7 @@ UI foundation
 → Home / Products / Product Detail
 → Browser Cart로 상태·hydration·접근성 학습
 → UI 선행 구축 중단
+→ 최소 NestJS application 경계
 → NestJS / PostgreSQL 기능 개발
 → Server Cart부터 UI와 API·DB를 vertical slice로 함께 구현
 ```

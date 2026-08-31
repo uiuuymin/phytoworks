@@ -24,7 +24,7 @@
 | --- | --- | --- |
 | 언어 | TypeScript 7 | Current — 7.0.2 |
 | 웹 | Next.js 16 | Current — 16.3.3, `apps/web` |
-| API | NestJS | Proposed — 미생성 |
+| API | NestJS | Current — 12.0.1, `apps/api` |
 | monorepo | pnpm workspace | Current — pnpm 11.24.0 |
 | 데이터베이스 | PostgreSQL | Proposed — 미설치·미설계 |
 | 개발 환경 | Docker | Proposed — 미구성 |
@@ -80,12 +80,15 @@ Current IA, 전체 Proposed route, responsive와 interaction 기준은 [`../desi
 
 ## 현재 프로젝트 단계
 
-현재는 **Stage 5: Browser Cart** 단계다. 다음 항목이 구현되었다.
+현재는 **Stage 6: API Bootstrap** 단계다. 다음 항목이 구현되었다.
 
 - pnpm workspace 루트와 단일 lockfile
 - Next.js 16 App Router 기반 `apps/web`
-- TypeScript 7 typecheck와 Biome lint
-- 루트의 `dev`, `lint`, `typecheck`, `build` 명령
+- web과 API의 TypeScript 7 typecheck 및 공통 Biome lint
+- web과 API를 일관되게 실행하는 루트의 `dev`, `lint`, `typecheck`, `test`, `build` 명령
+- NestJS 12와 ESM 기반의 `apps/api`
+- application 기동과 HTTP 응답 가능 여부만 나타내는 `GET /health`
+- API controller unit test와 실제 Nest application을 구성하는 Vitest·Supertest endpoint test
 - 브라우저에서 확인 가능한 `/` 학습 화면
 - Native CSS semantic token, dark Demo palette와 system font
 - Global typography, responsive container, visible focus와 reduced motion 기준
@@ -106,7 +109,7 @@ Current IA, 전체 Proposed route, responsive와 interaction 기준은 [`../desi
 
 현재 `/`는 Shop을 간결하게 소개하고 `/products`로 안내한다. `/products`는 정적 Product 세 건을 비교 가능한 card로 렌더링하고 각 `/products/[productId]` 상세 화면으로 연결한다. NITRO는 기존 공식 문의 경로를 유지하며, 두 `DIRECT_PURCHASE` Product는 실제 `장바구니 담기` button을 제공한다. `/cart`는 Product와 수량을 관리하고 같은 Product를 한 줄로 합치며, route 이동과 새로고침 뒤 browser Cart를 복원한다. 학습용 Shop이라는 표시는 공통 SiteHeader의 `Shop Demo` label로 한정하며 각 route에는 별도 해설 notice를 두지 않는다. 가격, 재고, 합계, Checkout, Payment result와 Order status는 아직 구현되지 않았다.
 
-NestJS API, PostgreSQL, Docker, Toss Payments와 Vercel 설정은 아직 존재하지 않는다. Product 화면 요청은 `Browser → Next.js Server Component → 정적 Product data → Browser` 경로를 사용하며 Cart 조작은 `Browser event → CartProvider reducer → browser memory → localStorage` 안에서만 처리한다.
+NestJS API의 최소 application 경계는 존재하지만 web과 연결하지 않았고 Product API도 아직 없다. Product 화면 요청은 `Browser → Next.js Server Component → 정적 Product data → Browser` 경로를 사용하며 Cart 조작은 `Browser event → CartProvider reducer → browser memory → localStorage` 안에서만 처리한다. API health 요청만 `HTTP client → NestJS HTTP adapter → HealthController → JSON response` 경로를 사용한다. PostgreSQL, Docker, Toss Payments와 Vercel 설정은 아직 존재하지 않는다.
 
 ## 아직 결정되지 않은 사항
 
@@ -117,6 +120,6 @@ NestJS API, PostgreSQL, Docker, Toss Payments와 Vercel 설정은 아직 존재�
 - `TBD` — 서버 Cart의 소유 방식, Customer 식별과 현재 localStorage Cart의 병합·이관 정책
 - `TBD` — 주문과 결제의 최종 상태 모델 및 취소·환불 범위
 - `TBD` — 재고 차감·예약 시점과 동시성 처리
-- `TBD` — 테스트 프레임워크와 테스트 데이터 전략
+- `TBD` — Next.js test runner와 domain·integration test 데이터 전략
 - `TBD` — Docker가 담당할 로컬 서비스 범위
 - `TBD` — NestJS API와 PostgreSQL의 실제 배포 위치 및 Vercel 연결 구조

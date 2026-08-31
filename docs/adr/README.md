@@ -47,4 +47,7 @@ ADR은 구현 과정을 모두 적는 작업 일지가 아니다. 개별 작업�
 4. 합의된 경우에만 `Accepted`로 변경하고 구현 task에서 참조한다.
 5. 결정이 바뀌면 과거 기록을 지우지 않고 새 ADR을 만든 뒤 기존 ADR을 `Superseded`로 표시한다.
 
-현재는 실제 기술 결정 ADR을 만들지 않았으며 template과 운영 규칙만 존재한다.
+현재 Accepted 상태인 기술 결정은 다음과 같다.
+
+- [`001-use-pnpm-workspace.md`](./001-use-pnpm-workspace.md): pnpm workspace 구조와 단일 lockfile을 사용한다.
+- [`002-use-esm-for-nest-api.md`](./002-use-esm-for-nest-api.md): NestJS API에 ESM과 TypeScript `NodeNext`를 사용한다.

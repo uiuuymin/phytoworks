@@ -4,9 +4,10 @@
   "private": true,
   "packageManager": "pnpm@11.24.0",
   "scripts": {
-    "dev": "pnpm --filter @phytoworks/web dev",
-    "build": "pnpm --filter @phytoworks/web build",
-    "lint": "pnpm --filter @phytoworks/web lint",
-    "typecheck": "pnpm --filter @phytoworks/web typecheck"
+    "dev": "pnpm --parallel --filter \"./apps/*\" --if-present dev",
+    "build": "pnpm --filter \"./apps/*\" --if-present build",
+    "lint": "pnpm --filter \"./apps/*\" --if-present lint",
+    "typecheck": "pnpm --filter \"./apps/*\" --if-present typecheck",
+    "test": "pnpm --filter \"./apps/*\" --if-present test"
   }
 }
