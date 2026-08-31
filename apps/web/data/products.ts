@@ -232,3 +232,9 @@ export function getDirectPurchaseProductById(productId: string) {
 
   return product?.purchaseMode === "DIRECT_PURCHASE" ? product : undefined;
 }
+
+export function getQuoteProductById(productId: string) {
+  const product = getProductById(productId);
+
+  return product?.purchaseMode === "QUOTE_REQUIRED" ? product : undefined;
+}

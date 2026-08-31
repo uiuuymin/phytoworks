@@ -1,6 +1,8 @@
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
+import { QuoteConfigurator } from "@/components/commerce/QuoteConfigurator";
 import {
   type CatalogPurchaseMode,
+  type ProductOptionGroup,
   type ProductPricing,
   purchaseModeLabels,
 } from "@/data/products";
@@ -13,12 +15,14 @@ type ProductPurchasePanelProps = {
   productId: string;
   purchaseMode: CatalogPurchaseMode;
   pricing: ProductPricing;
+  optionGroups: readonly ProductOptionGroup[];
 };
 
 export function ProductPurchasePanel({
   productId,
   purchaseMode,
   pricing,
+  optionGroups,
 }: ProductPurchasePanelProps) {
   const isQuoteRequired = purchaseMode === "QUOTE_REQUIRED";
 
@@ -44,8 +48,12 @@ export function ProductPurchasePanel({
       {isQuoteRequired ? (
         <>
           <p className={styles.description}>
-            제품 구성과 도입 상담은 PhytoWorks 공식 문의 페이지에서 진행합니다.
+            구성을 선택해 견적함에 저장한 뒤 도입 상담을 진행할 수 있습니다.
           </p>
+          <QuoteConfigurator
+            productId={productId}
+            optionGroups={optionGroups}
+          />
           <a className={styles.inquiryLink} href={officialInquiryUrl}>
             PhytoWorks에 견적 문의
           </a>
