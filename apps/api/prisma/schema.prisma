@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PurchaseMode {
+  QUOTE_REQUIRED
+  DIRECT_PURCHASE
+}
+
+model Product {
+  id           String       @id
+  name         String
+  category     String
+  description  String
+  summary      String
+  features     String[]
+  mediaLabel   String
+  purchaseMode PurchaseMode
+}

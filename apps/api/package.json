@@ -11,6 +11,12 @@
     "dev:serve": "node --watch dist/main.js",
     "build": "pnpm run clean && tsc -p tsconfig.build.json",
     "start": "node dist/main.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev --name product-init",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:verify": "node dist/prisma7/verify.js",
+    "prisma:seed": "node dist/prisma7/seed.js",
+    "prisma:smoke": "node dist/prisma7/spike.js",
     "lint": "biome check src test package.json tsconfig.json tsconfig.build.json vitest.config.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
@@ -19,6 +25,9 @@
     "@nestjs/common": "12.0.1",
     "@nestjs/core": "12.0.1",
     "@nestjs/platform-express": "12.0.1",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "dotenv": "17.4.2",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2"
   },
@@ -27,6 +36,7 @@
     "@nestjs/testing": "12.0.1",
     "@types/node": "24.13.3",
     "@types/supertest": "7.2.1",
+    "prisma": "7.10.0",
     "supertest": "7.2.2",
     "typescript": "7.0.2",
     "vitest": "4.1.11"
