@@ -15,6 +15,7 @@
     "prisma:migrate:dev": "prisma migrate dev --name product-init",
     "prisma:migrate:cart": "prisma migrate dev --name cart-init",
     "prisma:migrate:order": "prisma migrate dev --name order-init",
+    "prisma:migrate:payment": "prisma migrate dev --name payment-init",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:verify": "node dist/prisma7/verify.js",
     "prisma:seed": "node dist/prisma7/seed.js",

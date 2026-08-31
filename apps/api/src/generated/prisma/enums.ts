@@ -31,3 +31,12 @@ export const OrderPricingSource = {
 } as const
 
 export type OrderPricingSource = (typeof OrderPricingSource)[keyof typeof OrderPricingSource]
+
+
+export const PaymentStatus = {
+  PENDING: 'PENDING',
+  DONE: 'DONE',
+  FAILED: 'FAILED'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]

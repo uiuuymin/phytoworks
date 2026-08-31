@@ -6,13 +6,13 @@ Order는 고객이 구매하려는 상품, 수량과 금액을 나타낸다. Pay
 
 둘을 분리하면 결제 실패 후 재시도, 외부 서비스 응답 기록, 주문의 내용과 결제 처리 상태를 각각 명확히 다룰 수 있다. 한 Order에 여러 Payment 시도를 허용할지는 `TBD`다.
 
-## Proposed 결제 흐름
+## Current Demo 결제 흐름
 
 ### 1. 결제 준비
 
 - 서버가 Product와 Cart를 다시 검증한다.
 - 서버가 신뢰할 수 있는 `orderId`와 금액으로 Order를 `PENDING` 상태로 준비한다.
-- Payment를 `READY`로 저장할지, 어느 시점에 저장할지는 `TBD`다.
+- 현재 `POST /api/orders`는 Payment 없이 `PENDING` Order를 생성한다.
 
 ### 2. Toss 결제창
 
@@ -28,7 +28,10 @@ NestJS가 서버에만 보관한 Toss secret key를 사용해 승인 API를 호�
 
 ### 5. 승인 후 DB 변경
 
-**Proposed:** 승인 성공을 확인한 뒤 Payment를 `DONE`, Order를 `PAID`로 변경한다. 외부 승인과 DB 변경 사이의 실패, transaction, idempotency와 재조정 방식은 구현 전에 별도로 설계한다.
+현재 `POST /api/payments/confirm`은 먼저 Payment를 `PENDING`으로 저장한 뒤 Toss 승인 결과를 반영한다.
+승인 성공을 확인하면 Payment를 `DONE`, Order를 `PAID`로 변경하며 두 상태 변경은 짧은 DB
+transaction에서 처리한다. 같은 Order와 paymentKey, amount를 사용한 성공 요청은 저장된 성공
+결과를 반환한다.
 
 ### 6. 실패 처리
 
@@ -38,13 +41,14 @@ NestJS가 서버에만 보관한 Toss secret key를 사용해 승인 API를 호�
 - 승인 성공 후 로컬 DB 갱신 실패
 - 같은 요청의 중복 실행
 
-이 상황들을 하나의 오류로 취급하지 않는다. Payment에 `FAILED`를 저장할 조건, Order를 `PENDING`으로 유지할 조건, 재시도 가능 여부와 사용자 메시지는 `TBD`다.
+서버 승인 거절이나 network 오류가 발생하면 Payment를 `FAILED`로 기록하고 Order는
+`PENDING`으로 유지한다. 실패 코드는 안전한 외부 오류 코드만 저장한다.
 
-## Proposed 초기 상태 흐름
+## Current Demo 상태 흐름
 
 ```text
 Order: PENDING
-Payment: READY
+Payment: (없음)
         ↓
 Toss 인증
         ↓
@@ -54,7 +58,9 @@ Order: PAID
 Payment: DONE
 ```
 
-이 흐름과 상태 이름은 학습을 위한 초기 후보다. 실제 Toss Payments 연동 시 **공식 문서를 확인하여 API 요구사항, 상태값, redirect parameter, 승인 방식과 오류 처리를 반드시 재검증**한다.
+결제 승인 요청이 시작되면 Payment가 `PENDING`이 되고, 승인 성공 시 `DONE`과 Order `PAID`가
+된다. 실패 시 Payment는 `FAILED`, Order는 `PENDING`으로 남는다. 현재 구현에는 결제창과 성공·실패
+redirect를 호출하는 Web 흐름이 없으며, 실제 Toss 연동 시 공식 문서에 맞춰 해당 흐름을 추가해야 한다.
 
 ## secret key가 서버에만 있어야 하는 이유
 
@@ -62,7 +68,7 @@ Payment: DONE
 
 ## 향후 결정해야 할 규칙
 
-- Payment 생성 시점과 한 Order당 허용하는 시도 수
+- 한 Order당 여러 Payment 시도를 허용하는 정책과 승인 재시도 규칙
 - 외부 상태값과 내부 상태값의 mapping
 - 승인 API idempotency와 중복 callback 처리
 - timeout과 부분 실패의 재조정 방법

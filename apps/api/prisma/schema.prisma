@@ -22,6 +22,12 @@ enum OrderPricingSource {
   DEMO
 }
 
+enum PaymentStatus {
+  PENDING
+  DONE
+  FAILED
+}
+
 model Product {
   id           String       @id
   name         String
@@ -67,6 +73,7 @@ model Order {
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
   items         OrderItem[]
+  payment       Payment?
 
   @@index([sessionId])
 }
@@ -84,4 +91,18 @@ model OrderItem {
 
   @@index([orderId])
   @@index([productId])
+}
+
+model Payment {
+  id           String        @id @default(cuid())
+  orderId      String        @unique
+  paymentKey   String        @unique
+  status       PaymentStatus
+  amount       Int
+  currency     String
+  failureCode  String?
+  approvedAt   DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  order        Order         @relation(fields: [orderId], references: [id], onDelete: Restrict)
 }

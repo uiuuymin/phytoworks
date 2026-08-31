@@ -32,7 +32,8 @@ PENDING
 → CANCELLED
 ```
 
-현재 구현은 `PENDING`만 생성하며, 나머지 상태 변경은 아직 구현하지 않았다.
+현재 구현은 `PENDING`을 생성하고 Payment 승인 성공 시 `PAID`로 변경한다. `CANCELLED` 상태
+변경은 아직 구현하지 않았다.
 
 - `PENDING`: 주문은 생성됐지만 결제 완료가 확정되지 않음
 - `PAID`: 서버 결제 승인이 성공함
@@ -42,7 +43,9 @@ PENDING
 
 ## 결제와의 관계
 
-Order는 무엇을 얼마에 구매하는지를 나타내고, Payment는 그 금액을 지불하려는 시도와 결과를 나타낸다. **Proposed:** Payment 승인이 성공한 경우에만 관련 Order를 `PAID`로 변경한다. 한 Order에 여러 Payment 시도를 허용하는지와 DB transaction 경계는 `TBD`다.
+Order는 무엇을 얼마에 구매하는지를 나타내고, Payment는 그 금액을 지불하려는 시도와 결과를
+나타낸다. Payment 승인이 성공한 경우에만 관련 Order를 `PAID`로 변경한다. 현재는 한 Order에
+Payment 한 건을 저장하고 실패한 Payment를 재시도 시 재사용한다.
 
 ## 향후 결정해야 할 규칙
 
