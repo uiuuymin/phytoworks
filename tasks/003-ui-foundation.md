@@ -43,7 +43,7 @@ PhytoWorks Shop의 후속 화면이 같은 시각 언어와 responsive 기준을
 
 ## Current State
 
-- 작업 branch는 `uiuuymin/chore-ui-foundation`이며 기준 commit은 `95d9357`이다.
+- 작업 branch는 `uiuuymin/ui-foundation`이며 기준 commit은 `95d9357`이다.
 - `apps/web`은 Next.js 16.3.3 App Router와 React 19.2.8을 사용한다.
 - `apps/web/app/layout.tsx`는 metadata와 `lang="ko"`만 설정하며 stylesheet를 import하지 않는다.
 - `apps/web/app/page.tsx`는 정적 Product 배열을 semantic HTML로 렌더링하고 `className`을 사용하지 않는다.

@@ -37,7 +37,7 @@ bootstrap으로 `/` 화면은 실행되지만 실제 구현은 정적 Product �
 
 ## Current State
 
-- 작업 branch는 `uiuuymin/chore-bootstrap`이며 bootstrap 변경은 아직 commit되지 않았다.
+- 작업 branch는 `uiuuymin/bootstrap`이며 bootstrap 변경은 아직 commit되지 않았다.
 - 직접 작성된 Next.js route는 `/` 하나다.
 - `apps/web/app`에는 `layout.tsx`와 `page.tsx`만 있다.
 - 공통 navigation, Product Detail, Cart, Checkout, Payment result와 Order status route는 없다.
@@ -121,9 +121,9 @@ Option 3을 선택한다.
 
 ## Follow-up
 
-- `chore/ui-foundation` worktree에서 token, typography, container와 focus 구현
-- `feat/shop-catalog` worktree에서 SiteHeader, Home 역할 정리와 `/products` 구현
-- `feat/product-detail` worktree에서 `/products/[productId]`와 판매 방식별 CTA 구현
+- `ui-foundation` worktree에서 token, typography, container와 focus 구현
+- `shop-catalog` worktree에서 SiteHeader, Home 역할 정리와 `/products` 구현
+- `product-detail` worktree에서 `/products/[productId]`와 판매 방식별 CTA 구현
 - Cart 전에 저장 방식, Product 가격과 API/DB 경계 결정
 
 ## Lessons Learned

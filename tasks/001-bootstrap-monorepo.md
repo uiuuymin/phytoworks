@@ -27,7 +27,7 @@ pnpm workspace의 최소 루트 구성과 `apps/web` Next.js 애플리케이션�
 
 ## Current State
 
-- 작업 branch: `uiuuymin/chore-bootstrap`
+- 작업 branch: `uiuuymin/bootstrap`
 - 기준 commit: `bb4d131` (`문서: LLM Wiki 기반 구축`)
 - 실행 가능한 애플리케이션과 `package.json`, `pnpm-workspace.yaml`이 없다.
 - 로컬 Node.js는 `v24.14.0`, Corepack은 `0.34.6`이며 pnpm 명령은 아직 설치되지 않았다.

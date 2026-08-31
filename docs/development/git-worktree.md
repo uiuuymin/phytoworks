@@ -10,22 +10,35 @@
 
 Branch만 만들면 새 작업 이력의 이름은 생기지만 파일을 볼 별도 폴더가 자동으로 필요한 것은 아니다. Worktree를 만들면 같은 repository를 공유하는 별도 폴더에서 다른 branch를 동시에 열 수 있다.
 
-예를 들어 `main`에서 `chore/test-orca`를 만들면 생성 직후 두 branch는 같은 commit을 가리킬 수 있다.
+## Branch 이름 규칙
+
+이 프로젝트의 branch 이름은 `chore/`나 `feat/` 같은 작업 유형 접두사보다 작업 주제를 우선한다. agent 또는 사용자 식별자를 포함할 때에는 `uiuuymin/<작업 주제>` 형식을 사용한다.
+
+예시는 다음과 같다.
+
+- `uiuuymin/bootstrap`
+- `uiuuymin/ui-foundation`
+- `uiuuymin/api-bootstrap`
+- `uiuuymin/product-read-api`
+
+Worktree의 표시 이름도 branch의 작업 주제와 맞추며, 기존 worktree의 로컬 폴더 경로는 branch 이름 변경만으로 자동 변경하지 않는다.
+
+예를 들어 `main`에서 `test-orca`를 만들면 생성 직후 두 branch는 같은 commit을 가리킬 수 있다.
 
 ```text
 생성 직후
 
 main ───────────── A
                     ↑
-             chore/test-orca
+             test-orca
 ```
 
-`chore/test-orca` worktree에서 변경을 commit하면 branch가 갈라진다.
+`test-orca` worktree에서 변경을 commit하면 branch가 갈라진다.
 
 ```text
 main ───────────── A
                     \
-chore/test-orca ──── B
+test-orca ─────────── B
 ```
 
 두 폴더의 파일은 서로 독립적으로 보이지만 Git history, object database와 remote 설정은 같은 repository를 공유한다. 독립적인 `git clone`을 하나 더 만드는 것과 다르다.

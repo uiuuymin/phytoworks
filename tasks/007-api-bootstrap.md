@@ -93,7 +93,7 @@ package version, Node engine과 peer dependency는 npm registry의 package metad
 - web과 NestJS test runner는 아직 결정되지 않았다.
 - `.gitignore`는 이미 `dist/`, `build/`, `*.tsbuildinfo`, `coverage/`, `.env`, `.env.*`를 제외하고 안전한 `.env.example`과 `.env.*.example`은 허용한다.
 - `apps/api`, NestJS dependency, API source와 API 문서는 아직 없다.
-- 현재 프로젝트 단계는 Stage 5: Browser Cart이며 UX roadmap의 다음 단계가 `chore/api-bootstrap`이다.
+- 현재 프로젝트 단계는 Stage 5: Browser Cart이며 UX roadmap의 다음 단계가 `api-bootstrap`이다.
 
 ## Compatibility and Version Baseline
 

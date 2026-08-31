@@ -399,18 +399,18 @@ UI foundation과 Shop Catalog는 각각 독립된 worktree에서 구현되었다
 
 | 순서 | 작업 후보 | 목표 | 주요 선행 조건 | 핵심 검증 |
 | --- | --- | --- | --- | --- |
-| 1 | `chore/ui-foundation` | token, typography, container, focus와 reduced motion | bootstrap commit | lint, typecheck, build, contrast, keyboard |
-| 2 | `feat/shop-catalog` | Button, SiteHeader, Home 역할 정리, `/products`, responsive ProductGrid | 1 | route 이동, 375/768/1280px, keyboard |
-| 3 | `feat/product-detail` | `/products/[productId]`, media placeholder와 판매 방식별 정보 및 유효한 CTA | Product ID와 purchaseMode 결정 | 정상·없는 ID, 판매 방식 분기, responsive detail |
-| 4 | `feat/browser-cart` | localStorage 기반 Add to Cart, count, 수량, 삭제와 Undo | Product Detail | reload, 손상 data, mobile, accessibility |
-| 5 | `chore/api-bootstrap` | NestJS application 경계 생성 | bootstrap 안정화 | lint, typecheck, health API |
-| 6 | `feat/product-read-api` | Product read model과 정적 API 연결 | API bootstrap | API unit·application test와 실제 HTTP 요청 |
-| 7 | `feat/server-cart` | Customer 또는 session 기반 Cart와 browser Cart 이관 | Cart ownership·가격·재고 규칙 | API, DB, validation, migration |
-| 8 | `feat/checkout-order` | Checkout와 `PENDING` Order 생성 | Customer·금액 규칙 결정 | form validation, API, DB test |
-| 9 | `feat/toss-payment` | 테스트 결제와 success/fail feedback | Toss 공식 문서 재검증 | 성공, 취소, 실패, timeout, 중복 승인 |
-| 10 | `feat/order-status` | Order와 Payment 상태 확인 | 상태 모델 확정 | 상태별 UI와 API test |
-| 11 | `feat/wishlist` | 필요성이 남아 있을 때 관심 Product 저장 | Customer 또는 저장 방식 결정 | reload, keyboard, mobile |
-| 12 | `chore/ui-a11y-polish` | 전체 접근성, motion과 성능 점검 | 핵심 흐름 완료 | keyboard, reduced motion, browser audit |
+| 1 | `ui-foundation` | token, typography, container, focus와 reduced motion | bootstrap commit | lint, typecheck, build, contrast, keyboard |
+| 2 | `shop-catalog` | Button, SiteHeader, Home 역할 정리, `/products`, responsive ProductGrid | 1 | route 이동, 375/768/1280px, keyboard |
+| 3 | `product-detail` | `/products/[productId]`, media placeholder와 판매 방식별 정보 및 유효한 CTA | Product ID와 purchaseMode 결정 | 정상·없는 ID, 판매 방식 분기, responsive detail |
+| 4 | `browser-cart` | localStorage 기반 Add to Cart, count, 수량, 삭제와 Undo | Product Detail | reload, 손상 data, mobile, accessibility |
+| 5 | `api-bootstrap` | NestJS application 경계 생성 | bootstrap 안정화 | lint, typecheck, health API |
+| 6 | `product-read-api` | Product read model과 정적 API 연결 | API bootstrap | API unit·application test와 실제 HTTP 요청 |
+| 7 | `server-cart` | Customer 또는 session 기반 Cart와 browser Cart 이관 | Cart ownership·가격·재고 규칙 | API, DB, validation, migration |
+| 8 | `checkout-order` | Checkout와 `PENDING` Order 생성 | Customer·금액 규칙 결정 | form validation, API, DB test |
+| 9 | `toss-payment` | 테스트 결제와 success/fail feedback | Toss 공식 문서 재검증 | 성공, 취소, 실패, timeout, 중복 승인 |
+| 10 | `order-status` | Order와 Payment 상태 확인 | 상태 모델 확정 | 상태별 UI와 API test |
+| 11 | `wishlist` | 필요성이 남아 있을 때 관심 Product 저장 | Customer 또는 저장 방식 결정 | reload, keyboard, mobile |
+| 12 | `ui-a11y-polish` | 전체 접근성, motion과 성능 점검 | 핵심 흐름 완료 | keyboard, reduced motion, browser audit |
 
 1번부터 6번까지 Current이며 7번 이후는 Proposed다. 5번에서 추가한 `/health`와 6번에서 추가한 Product API는 사용자 화면이나 Shop navigation에 포함되지 않으며 현재 IA와 browser Cart 흐름을 변경하지 않는다. PostgreSQL과 ORM을 이용한 Product source 전환은 별도 database task로 남아 있다.
 
