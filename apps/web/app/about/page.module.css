@@ -1,0 +1,24 @@
+.main {
+  min-height: calc(100svh - 7.5rem);
+  padding-block: clamp(var(--space-12), 8vw, var(--space-20));
+}
+
+.intro {
+  display: grid;
+  max-width: 42rem;
+  gap: var(--space-6);
+}
+
+.intro p:not(.eyebrow) {
+  max-width: 36rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lg);
+}
+
+.eyebrow {
+  color: var(--color-action);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

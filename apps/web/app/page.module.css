@@ -4,8 +4,9 @@
 
 .hero {
   display: grid;
-  max-width: 52rem;
-  gap: var(--space-6);
+  max-width: none;
+  align-items: center;
+  gap: var(--space-4);
 }
 
 .hero h1 {
@@ -23,11 +24,37 @@
 }
 
 .catalogLink {
+  width: max-content;
+  padding-inline: var(--space-4);
+}
+
+.heroMedia {
+  width: min(100%, 36rem);
+  margin: 0;
+  justify-self: center;
+}
+
+.heroMedia img {
   width: 100%;
+  height: auto;
+  filter: drop-shadow(0 1.5rem 2rem rgb(0 0 0 / 0.24));
 }
 
 @media (min-width: 40rem) {
-  .catalogLink {
-    width: max-content;
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 1fr);
+    column-gap: clamp(var(--space-8), 8vw, var(--space-20));
+  }
+
+  .hero h1,
+  .hero .lead,
+  .hero .catalogLink {
+    grid-column: 1;
+  }
+
+  .heroMedia {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    justify-self: end;
   }
 }

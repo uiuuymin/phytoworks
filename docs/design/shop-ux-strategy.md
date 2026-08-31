@@ -13,7 +13,7 @@
 
 ## Current IA
 
-직접 작성된 route는 `/`, `/login`, `/signup`, `/products`, `/products/[productId]`와 `/cart`다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이며 프로젝트가 설계한 사용자 화면으로 세지 않는다.
+직접 작성된 route는 `/`, `/login`, `/signup`, `/about`, `/search`, `/products`, `/products/[productId]`와 `/cart`다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이며 프로젝트가 설계한 사용자 화면으로 세지 않는다.
 
 ```text
 Root layout
@@ -58,12 +58,12 @@ Home
    → Cart에서 수량 변경·제거
 ```
 
-- 공통 SiteHeader, PhytoWorks 홈 링크, Products navigation, Login link, Cart utility, Cart 총 수량, 현재 route 표시와 mobile disclosure가 있다. Footer는 아직 없다.
+- 공통 SiteHeader는 상단 utility row의 `KR | EN`, Search, Cart·Login link와 구분선을, 두 번째 row의 확대된 PhytoWorks 홈 link와 Products·About navigation, mobile disclosure를 제공한다. Footer는 아직 없다.
 - `/login`은 Email과 Password를 받는 프런트엔드 화면이며 인증 API와 session은 아직 연결되지 않았다. 패널 아래에 `/signup` 진입 링크를 가운데 배치한다.
 - `/signup`은 Name, Email과 Password를 받는 프런트엔드 화면이며 계정 생성 API와 session은 아직 연결되지 않았다.
 - Product Detail과 `/cart`가 있으며 Checkout, Payment result와 Order status route는 없다.
 - Product는 `apps/web/data/products.ts`의 정적 TypeScript 배열이며 API와 DB를 사용하지 않는다. 세 Product Detail은 `generateStaticParams`로 생성하며 CartProvider, SiteHeader와 Cart 전용 leaf만 client state를 사용한다.
-- Home의 LinkButton과 SiteHeader로 내부 route를 이동한다. 학습용 Shop이라는 맥락은 SiteHeader의 `Shop Demo` label에서 한 번만 알린다.
+- Home은 제품 중심 hero에서 NITRO chamber cutout image와 `/products` 진입 CTA를 제공한다. `/about`은 정적 브랜드 소개, `/search`는 정적 Product fixture 검색 Demo다. 언어 전환은 아직 동작하지 않는 `KR | EN` 시각 placeholder이며 실제 locale route와 번역은 `TBD`다.
 - Native CSS foundation 위에 component·route별 CSS Module, 1열·2열·3열 ProductGrid, responsive SiteHeader와 1열·2열 Product Detail이 구현되었다.
 - Product 목록은 생육·표현형 분석 시스템과 이미징 모듈을 별도 section으로 나누며, ProductCard는 승인된 제품 thumbnail이 있을 때만 이를 표시하고 제품명, 설명과 다음 행동을 함께 제공한다. NITRO의 `QUOTE_REQUIRED`는 견적 구성과 공식 문의로 연결하고, 두 `DIRECT_PURCHASE` detail은 실제 `장바구니 담기` button을 제공한다.
 - `/cart`는 Product ID와 수량만 localStorage에 저장하고 hydration 뒤 검증한다. 같은 Product는 한 줄로 합치며 존재하지 않거나 직접 구매할 수 없는 Product는 제외한다.

@@ -9,7 +9,10 @@ import { Button } from "@/components/ui/Button";
 
 import styles from "./SiteHeader.module.css";
 
-const navigationItems = [{ href: "/products", label: "Products" }] as const;
+const navigationItems = [
+  { href: "/products", label: "Products" },
+  { href: "/about", label: "About" },
+] as const;
 
 function isCurrentRoute(pathname: string, href: string) {
   if (href === "/") {
@@ -77,6 +80,32 @@ export function SiteHeader() {
         </nav>
 
         <div className={styles.utilities}>
+          <nav className={styles.language} aria-label="Language selection">
+            <span className={styles.languageActive}>KR</span>
+            <span className={styles.divider} aria-hidden="true" />
+            <span aria-disabled="true">EN</span>
+          </nav>
+
+          <span className={styles.utilityDivider} aria-hidden="true">
+            |
+          </span>
+
+          <Link
+            className={styles.searchLink}
+            href="/search"
+            aria-current={
+              isCurrentRoute(pathname, "/search") ? "page" : undefined
+            }
+            onClick={closeNavigation}
+            onKeyDown={handleHeaderKeyDown}
+          >
+            Search
+          </Link>
+
+          <span className={styles.utilityDivider} aria-hidden="true">
+            |
+          </span>
+
           <Link
             className={styles.cartLink}
             href="/cart"
@@ -98,6 +127,10 @@ export function SiteHeader() {
               </span>
             ) : null}
           </Link>
+
+          <span className={styles.utilityDivider} aria-hidden="true">
+            |
+          </span>
 
           <Link
             className={styles.loginLink}
