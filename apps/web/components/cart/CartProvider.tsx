@@ -10,7 +10,6 @@ import {
   useState,
 } from "react";
 
-import { getDirectPurchaseProductById } from "@/data/products";
 import styles from "./CartProvider.module.css";
 import {
   type CartItem,
@@ -36,6 +35,7 @@ type CartContextValue = {
   decrementItem: (productId: string) => void;
   removeItem: (productId: string) => void;
   undoRemove: () => void;
+  retainProductIds: (productIds: readonly string[]) => void;
   announceInvalidQuantity: () => void;
 };
 
@@ -81,9 +81,7 @@ export function CartProvider({ children }: CartProviderProps) {
   }, [announce, state.hasHydrated, state.items, storageStatus]);
 
   function addItem(productId: string) {
-    const product = getDirectPurchaseProductById(productId);
-
-    if (!product || !state.hasHydrated) {
+    if (!state.hasHydrated) {
       return;
     }
 
@@ -96,22 +94,19 @@ export function CartProvider({ children }: CartProviderProps) {
     }
 
     dispatch({ type: "add", productId });
-    announce(
-      `${product.name}을 장바구니에 담았습니다. 수량은 ${nextQuantity}개입니다.`,
-    );
+    announce(`상품을 장바구니에 담았습니다. 수량은 ${nextQuantity}개입니다.`);
   }
 
   function setQuantity(productId: string, quantity: number) {
-    const product = getDirectPurchaseProductById(productId);
     const currentItem = getCartItem(state.items, productId);
 
-    if (!product || !currentItem || !isValidCartQuantity(quantity)) {
+    if (!currentItem || !isValidCartQuantity(quantity)) {
       announce("수량은 1 이상의 정수여야 합니다.");
       return false;
     }
 
     dispatch({ type: "setQuantity", productId, quantity });
-    announce(`${product.name} 수량을 ${quantity}개로 변경했습니다.`);
+    announce(`상품 수량을 ${quantity}개로 변경했습니다.`);
     return true;
   }
 
@@ -136,15 +131,14 @@ export function CartProvider({ children }: CartProviderProps) {
   }
 
   function removeItem(productId: string) {
-    const product = getDirectPurchaseProductById(productId);
     const currentItem = getCartItem(state.items, productId);
 
-    if (!product || !currentItem) {
+    if (!currentItem) {
       return;
     }
 
     dispatch({ type: "remove", productId });
-    announce(`${product.name}을 장바구니에서 제거했습니다.`);
+    announce("상품을 장바구니에서 제거했습니다.");
   }
 
   function undoRemove() {
@@ -154,17 +148,13 @@ export function CartProvider({ children }: CartProviderProps) {
       return;
     }
 
-    const product = getDirectPurchaseProductById(removedItem.productId);
-
-    if (!product) {
-      return;
-    }
-
     dispatch({ type: "undoRemove" });
-    announce(
-      `${product.name}을 수량 ${removedItem.quantity}개로 복원했습니다.`,
-    );
+    announce(`상품을 수량 ${removedItem.quantity}개로 복원했습니다.`);
   }
+
+  const retainProductIds = useCallback((productIds: readonly string[]) => {
+    dispatch({ type: "retainProducts", productIds });
+  }, []);
 
   const contextValue: CartContextValue = {
     items: state.items,
@@ -178,6 +168,7 @@ export function CartProvider({ children }: CartProviderProps) {
     decrementItem,
     removeItem,
     undoRemove,
+    retainProductIds,
     announceInvalidQuantity: () => announce("수량은 1 이상의 정수여야 합니다."),
   };
 

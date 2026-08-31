@@ -10,7 +10,7 @@ import {
 } from "react";
 
 import { Button } from "@/components/ui/Button";
-import type { CatalogProduct } from "@/data/products";
+import type { CatalogProduct } from "@/lib/product-types";
 
 import { useCart } from "./CartProvider";
 import styles from "./CartView.module.css";

@@ -1,0 +1,18 @@
+.main {
+  display: grid;
+  max-width: 52rem;
+  gap: var(--space-6);
+  padding-block: clamp(var(--space-12), 8vw, var(--space-20));
+}
+
+.description {
+  max-width: 42rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lg);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

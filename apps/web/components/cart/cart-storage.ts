@@ -1,5 +1,3 @@
-import { getDirectPurchaseProductById } from "@/data/products";
-
 import { type CartItem, isValidCartQuantity } from "./cart-state";
 
 const cartStorageKey = "phytoworks-shop.cart.v1";
@@ -58,7 +56,6 @@ export function parseStoredCart(rawValue: string | null): ParsedCart {
       typeof productId !== "string" ||
       typeof quantity !== "number" ||
       !isValidCartQuantity(quantity) ||
-      !getDirectPurchaseProductById(productId) ||
       invalidProductIds.has(productId)
     ) {
       continue;

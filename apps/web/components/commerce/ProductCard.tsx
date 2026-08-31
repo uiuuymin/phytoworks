@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { type CatalogProduct, purchaseModeLabels } from "@/data/products";
+import { type CatalogProduct, purchaseModeLabels } from "@/lib/product-types";
 
 import styles from "./ProductCard.module.css";
 
@@ -23,6 +23,10 @@ export function ProductCard({ product }: ProductCardProps) {
         <p className={styles.purchaseMode}>
           <span className={styles.purchaseModeLabel}>구매 방법</span>
           <span>{purchaseModeLabels[product.purchaseMode]}</span>
+        </p>
+        <p className={styles.purchaseMode}>
+          <span className={styles.purchaseModeLabel}>가격 참고</span>
+          <span>{product.pricing.displayLabel}</span>
         </p>
         <Link className={styles.detailLink} href={`/products/${product.id}`}>
           상세 보기
