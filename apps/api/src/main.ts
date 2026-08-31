@@ -1,8 +1,9 @@
+import "reflect-metadata";
 import "dotenv/config";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module.js";
 
-const DEFAULT_PORT = 3001;
+const DEFAULT_PORT = 3000;
 
 function resolvePort(rawPort: string | undefined): number {
   if (rawPort === undefined) {
@@ -30,4 +31,7 @@ async function bootstrap(): Promise<void> {
   await app.listen(port);
 }
 
-await bootstrap();
+bootstrap().catch((error: unknown) => {
+  console.error("Failed to start API.", error);
+  process.exitCode = 1;
+});
