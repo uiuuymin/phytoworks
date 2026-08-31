@@ -88,23 +88,25 @@ export function CartProvider({ children }: CartProviderProps) {
 
   useEffect(() => {
     let cancelled = false;
-    const nextSessionId = getOrCreateCartSessionId();
-    setSessionId(nextSessionId);
 
-    const storedQuote = readQuoteFromStorage();
-    quoteDispatch({ type: "hydrate", items: storedQuote.items });
-    setQuoteStorageAvailable(storedQuote.isAvailable);
+    async function initializeCart() {
+      try {
+        const nextSessionId = getOrCreateCartSessionId();
+        setSessionId(nextSessionId);
 
-    getCart(nextSessionId)
-      .then((cart) => {
+        const storedQuote = readQuoteFromStorage();
+        quoteDispatch({ type: "hydrate", items: storedQuote.items });
+        setQuoteStorageAvailable(storedQuote.isAvailable);
+
+        const cart = await getCart(nextSessionId);
+
         if (cancelled) {
           return;
         }
 
         dispatch({ type: "hydrate", items: cart.items });
         setApiStatus("available");
-      })
-      .catch(() => {
+      } catch {
         if (cancelled) {
           return;
         }
@@ -112,7 +114,10 @@ export function CartProvider({ children }: CartProviderProps) {
         dispatch({ type: "hydrate", items: [] });
         setApiStatus("unavailable");
         announce("Cart API를 사용할 수 없습니다.");
-      });
+      }
+    }
+
+    void initializeCart();
 
     return () => {
       cancelled = true;

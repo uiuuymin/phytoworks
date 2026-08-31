@@ -82,6 +82,12 @@
   font-weight: var(--font-weight-semibold);
 }
 
+.price {
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
 .detailLink {
   display: inline-flex;
   width: max-content;

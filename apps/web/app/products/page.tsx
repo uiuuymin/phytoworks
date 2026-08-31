@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { ProductGrid } from "@/components/commerce/ProductGrid";
 import { ProductApiUnavailable } from "@/components/feedback/ProductApiUnavailable";
 import { getProducts } from "@/lib/product-api";
-import type { CatalogProduct } from "@/lib/product-types";
+import { type CatalogProduct, sortProducts } from "@/lib/product-types";
 
 import styles from "./page.module.css";
 
@@ -22,8 +22,13 @@ export default async function ProductsPage() {
   } catch {
     return <ProductApiUnavailable />;
   }
-  const systemProducts = products.filter((product) => product.id === "nitro");
-  const imagingModules = products.filter((product) => product.id !== "nitro");
+  const orderedProducts = sortProducts(products);
+  const systemProducts = orderedProducts.filter(
+    (product) => product.id === "nitro",
+  );
+  const imagingModules = orderedProducts.filter(
+    (product) => product.id !== "nitro",
+  );
 
   return (
     <main

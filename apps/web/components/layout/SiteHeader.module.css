@@ -90,7 +90,7 @@
   min-height: 2.25rem;
   align-items: center;
   gap: var(--space-2);
-  padding-inline: 0 var(--space-3);
+  padding-inline: var(--space-2);
   border-radius: var(--radius-sm);
   color: var(--color-text);
   font-weight: var(--font-weight-medium);
@@ -114,12 +114,24 @@
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   line-height: 1.2;
-  opacity: 0.62;
 }
 
-.languageActive {
+.languageButton {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.languageButton:hover {
+  color: var(--color-action-hover);
+}
+
+.languageSelected {
   color: var(--color-text);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-bold);
 }
 
 .divider {
@@ -147,11 +159,9 @@
 }
 
 .cartLink[aria-current="page"] {
-  background: var(--color-surface-raised);
+  background: transparent;
   color: var(--color-action);
-  text-decoration: underline;
-  text-decoration-thickness: 0.12em;
-  text-underline-offset: 0.25em;
+  text-decoration: none;
 }
 
 .loginLink {
@@ -172,11 +182,9 @@
 }
 
 .loginLink[aria-current="page"] {
-  background: var(--color-surface-raised);
+  background: transparent;
   color: var(--color-action);
-  text-decoration: underline;
-  text-decoration-thickness: 0.12em;
-  text-underline-offset: 0.25em;
+  text-decoration: none;
 }
 
 .cartCount {
@@ -199,6 +207,7 @@
   min-height: 2rem;
   align-items: center;
   padding-inline: var(--space-2);
+  border-radius: var(--radius-sm);
   color: var(--color-text);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -206,14 +215,14 @@
 }
 
 .searchLink:hover {
+  background: var(--color-surface);
   color: var(--color-action-hover);
 }
 
 .searchLink[aria-current="page"] {
+  background: transparent;
   color: var(--color-action);
-  text-decoration: underline;
-  text-decoration-thickness: 0.12em;
-  text-underline-offset: 0.25em;
+  text-decoration: none;
 }
 
 .utilityDivider {
@@ -222,16 +231,18 @@
   line-height: 1;
 }
 
-.navigationLink:hover {
-  background: var(--color-surface);
-  color: var(--color-action-hover);
+.navigationLink[aria-current="page"] {
+  background: transparent;
+  color: var(--color-action);
+  text-decoration: none;
 }
 
-.navigationLink[aria-current="page"] {
-  color: var(--color-action);
-  text-decoration: underline;
-  text-decoration-thickness: 0.12em;
-  text-underline-offset: 0.25em;
+.navigationLink:hover,
+.searchLink:hover,
+.cartLink:hover,
+.loginLink:hover {
+  background: var(--color-surface);
+  color: var(--color-action-hover);
 }
 
 @media (min-width: 40rem) {
@@ -262,7 +273,7 @@
   }
 
   .navigationLink {
-    padding-inline: 0;
+    padding-inline: var(--space-2);
   }
 
   .cartLink {

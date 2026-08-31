@@ -18,6 +18,8 @@ export class CartApiError extends Error {
   }
 }
 
+const CART_API_TIMEOUT_MS = 5_000;
+
 export async function getCart(sessionId: string): Promise<CartApiResponse> {
   return requestCartApi("/api/cart", sessionId);
 }
@@ -72,15 +74,20 @@ async function requestCartApi(
   }
 
   let response: Response;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), CART_API_TIMEOUT_MS);
 
   try {
     response = await fetch(path, {
       ...init,
       headers,
+      signal: controller.signal,
       cache: "no-store",
     });
   } catch {
     throw new CartApiError();
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   if (!response.ok) {

@@ -14,6 +14,8 @@ const navigationItems = [
   { href: "/about", label: "About" },
 ] as const;
 
+type Language = "KR" | "EN";
+
 function isCurrentRoute(pathname: string, href: string) {
   if (href === "/") {
     return pathname === href;
@@ -26,6 +28,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const { totalQuantity, hasHydrated } = useCart();
   const [isNavigationOpen, setIsNavigationOpen] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>("KR");
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   function closeNavigation() {
@@ -80,11 +83,31 @@ export function SiteHeader() {
         </nav>
 
         <div className={styles.utilities}>
-          <nav className={styles.language} aria-label="Language selection">
-            <span className={styles.languageActive}>KR</span>
+          <div className={styles.language}>
+            <button
+              className={`${styles.languageButton} ${
+                selectedLanguage === "KR" ? styles.languageSelected : ""
+              }`}
+              type="button"
+              aria-pressed={selectedLanguage === "KR"}
+              title="Language switching is not available yet"
+              onClick={() => setSelectedLanguage("KR")}
+            >
+              KR
+            </button>
             <span className={styles.divider} aria-hidden="true" />
-            <span aria-disabled="true">EN</span>
-          </nav>
+            <button
+              className={`${styles.languageButton} ${
+                selectedLanguage === "EN" ? styles.languageSelected : ""
+              }`}
+              type="button"
+              aria-pressed={selectedLanguage === "EN"}
+              title="Language switching is not available yet"
+              onClick={() => setSelectedLanguage("EN")}
+            >
+              EN
+            </button>
+          </div>
 
           <Link
             className={styles.searchLink}

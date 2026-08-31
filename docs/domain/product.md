@@ -25,7 +25,7 @@ Product는 PhytoWorks Shop에서 연구자나 기관 담당자가 조회하는 �
 | `description` | 상품 설명 | Proposed — 필수 여부 TBD |
 | `category` | 생육 시스템, 이미징 모듈, 환경·관수 옵션, 분석 서비스 구분 | Proposed |
 | `purchaseMode` | 직접 구매 또는 견적 문의 구분 | Proposed — `DIRECT_PURCHASE`, `QUOTE_REQUIRED` 후보 |
-| `pricing` | 가격 표시값, 통화, 출처와 권위 여부 | Current Demo — 데이터에만 남아 있으며 현재 Web UI에는 표시하지 않음 |
+| `pricing` | 가격 표시값, 통화, 출처와 권위 여부 | Current Demo — Web UI에 표시하지만 실제 판매 가격이나 주문 금액의 기준으로 사용하지 않음 |
 | `optionGroups` | 카탈로그에 기재된 선택 가능 구성 후보 | Current Demo — NITRO의 Depth Imaging, Irrigation과 Additional Options |
 | `specGroups` | 카탈로그의 기술 사양을 화면에서 그룹별로 표시하기 위한 값 | Current Demo — NITRO의 Chamber, Imaging, LED와 Plant 정보 |
 | `stockQuantity` | 직접 구매 항목의 재고 수량 | 현재 범위에서 제외 — 재고 모델은 TBD |
@@ -52,7 +52,7 @@ SKU, 장비 옵션 조합, 납기, 설치와 유지보수 정보는 실제 구�
 - 공식 사이트에서 실제 가격은 확인되지 않았다. 가격을 추가하면 반드시 `Demo`로 표시한다.
 - **Current Demo:** NITRO의 `도입·1년 운영비 2,000만 원부터`는 카탈로그 비교값이며 제품의 확정 판매 단가가 아니다.
 - **Current Demo:** Thermal Imaging Module `500만 원`, Chlorophyll Fluorescence Module `700만 원`은 UI 검증용 임시값이다.
-- **Current Demo:** Web은 가격 object의 `authoritative: false`로 위 경계를 보존하지만, 현재 화면에는 가격을 표시하지 않으며 실제 결제 금액이나 주문 단가로 사용하지 않는다.
+- **Current Demo:** Web은 가격 object의 `authoritative: false`로 위 경계를 보존하고 `500만 원`, `700만 원`과 같은 Demo 가격을 표시한다. 이 값은 실제 결제 금액이나 주문 단가로 사용하지 않는다.
 - **Proposed:** `DIRECT_PURCHASE` 항목의 표시 가격과 주문 금액은 서버가 관리하는 Product 가격을 기준으로 한다.
 - **Proposed:** `QUOTE_REQUIRED` 항목은 가격 없이 문의 흐름으로 보내며 Cart에 담지 않는다.
 - 브라우저나 Cart가 보낸 금액을 그대로 신뢰하지 않는다.

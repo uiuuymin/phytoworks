@@ -58,12 +58,12 @@ Home
    → Cart에서 수량 변경·제거
 ```
 
-- 공통 SiteHeader는 상단 utility row의 `KR | EN`, Search, Cart·Login link와 구분선을, 두 번째 row의 확대된 PhytoWorks 홈 link와 Products·About navigation, mobile disclosure를 제공한다. Footer는 아직 없다.
+- 공통 SiteHeader는 상단 utility row의 `KR | EN` language button, Search, Cart·Login link와 구분선을, 두 번째 row의 확대된 PhytoWorks 홈 link와 Products·About navigation, mobile disclosure를 제공한다. Footer는 아직 없다.
 - `/login`은 Email과 Password를 받는 프런트엔드 화면이며 인증 API와 session은 아직 연결되지 않았다. 패널 아래에 `/signup` 진입 링크를 가운데 배치한다.
 - `/signup`은 Name, Email과 Password를 받는 프런트엔드 화면이며 계정 생성 API와 session은 아직 연결되지 않았다.
 - Product Detail과 `/cart`가 있으며 Checkout, Payment result와 Order status route는 없다.
-- Product는 `apps/web/data/products.ts`의 정적 TypeScript 배열이며 API와 DB를 사용하지 않는다. 세 Product Detail은 `generateStaticParams`로 생성하며 CartProvider, SiteHeader와 Cart 전용 leaf만 client state를 사용한다.
-- Home은 제품 중심 hero에서 NITRO chamber cutout image와 `/products` 진입 CTA를 제공한다. `/about`은 정적 브랜드 소개, `/search`는 정적 Product fixture 검색 Demo다. 언어 전환은 아직 동작하지 않는 `KR | EN` 시각 placeholder이며 실제 locale route와 번역은 `TBD`다.
+- Product는 NestJS Product Read API와 PostgreSQL read model에서 조회한다. 세 Product Detail은 동적 API 조회로 생성하며 CartProvider, SiteHeader와 Cart 전용 leaf만 client state를 사용한다.
+- Home은 제품 중심 hero에서 NITRO chamber cutout image와 `/products` 진입 CTA를 제공한다. `/about`은 정적 브랜드 소개, `/search`는 API Product 목록을 고정된 제품 순서로 표시하는 검색 Demo다. 언어 전환은 아직 동작하지 않으며 `KR | EN` button은 선택 상태만 표시한다. 실제 locale route와 번역은 `TBD`다.
 - Native CSS foundation 위에 component·route별 CSS Module, 1열·2열·3열 ProductGrid, responsive SiteHeader와 1열·2열 Product Detail이 구현되었다.
 - Product 목록은 생육·표현형 분석 시스템과 이미징 모듈을 별도 section으로 나누며, ProductCard는 승인된 제품 thumbnail이 있을 때만 이를 표시하고 제품명, 설명과 다음 행동을 함께 제공한다. NITRO의 `QUOTE_REQUIRED`는 견적 구성과 공식 문의로 연결하고, 두 `DIRECT_PURCHASE` detail은 실제 `장바구니 담기` button을 제공한다.
 - `/cart`는 Product ID와 수량만 localStorage에 저장하고 hydration 뒤 검증한다. 같은 Product는 한 줄로 합치며 존재하지 않거나 직접 구매할 수 없는 Product는 제외한다.
@@ -181,7 +181,7 @@ Home 또는 Products
 - Home은 공식 사이트의 기술 narrative와 여백을 참고하되 문구와 layout을 그대로 복제하지 않는다.
 - Product List는 생육·표현형 분석 시스템과 이미징 모듈을 별도 section으로 나누고, 승인된 제품 thumbnail 또는 정직한 이미지 준비 상태, 짧은 설명과 CTA를 비교하기 쉬운 card로 표시한다.
 - Product Detail은 제품 이미지와 기술 사양을 중심에 두고 `견적 문의` 또는 `장바구니 담기`를 명확히 분기한다.
-- 가격 데이터는 실제 판매 계약이 확정되기 전까지 화면에 노출하지 않는다. 주문과 견적 API가 준비되면 source와 authoritative 경계를 확인한 뒤 별도 UI를 설계한다.
+- 가격 데이터는 `authoritative: false`인 Demo 표시값으로만 화면에 노출한다. 실제 판매 계약과 주문 가격으로 사용하지 않으며, 운영 가격 UI는 source와 authoritative 경계를 확정한 뒤 별도 설계한다.
 - 재고는 현재 Shop 범위에서 제공하지 않으며, 품절·재고 부족 상태도 표시하지 않는다.
 - 소비재식 할인 압박, 마감 임박과 과장된 판매 문구는 사용하지 않는다.
 - 학습용 Shop이라는 경계는 SiteHeader의 `Shop Demo` label로 유지하고, 공식 자료의 출처와 실제 판매 정책과의 차이는 사용자 화면이 아니라 context와 task 문서에 기록한다.
@@ -295,7 +295,7 @@ Motion은 상태 변화와 공간 관계를 설명할 때만 사용한다. 단�
 - ProductCard의 `자세히 보기` link는 세 `/products/[productId]` route로 연결된다. 각 detail은 제품 또는 분석 결과 media와 ProductPurchasePanel을 포함한 Server Component 구조다.
 - Home, `/products`와 Product Detail에는 프로젝트 성격을 해설하는 별도 notice를 두지 않으며 ProductCard와 detail의 구매 방법은 `견적 문의`와 `온라인 구매`로 간결하게 표시한다.
 - NITRO detail은 공식 문의 외부 link를 제공한다. 두 `DIRECT_PURCHASE` detail은 Client leaf인 AddToCartButton을 통해 실제 Cart state를 갱신한다.
-- 사용자가 제공한 NITRO 카탈로그에서 추출한 이미지를 사용한다. 분석 결과 crop은 상세 페이지에만 사용하며, 모듈 실물 사진과 image gallery는 아직 없다. 알려지지 않은 ID는 Product 전용 not-found와 Products 복귀 link로 처리한다.
+- 사용자가 제공한 NITRO 카탈로그에서 추출한 이미지를 사용한다. 분석 결과 crop은 상세 페이지에만 사용하며, 모듈 실물 사진은 아직 없어 ProductCard에서는 `제품 사진 준비 중` placeholder를 표시한다. 알려지지 않은 ID는 Product 전용 not-found와 Products 복귀 link로 처리한다.
 - ProductGrid는 375px에서 1열, 768px에서 2열, 1280px에서 3열이며 각 viewport와 200% text 확대에서 horizontal overflow가 없다.
 - Product Detail은 375px에서 한 열, 768px에서 균등한 2열, 1280px에서 약 7:5의 2열을 사용한다. 세 viewport와 375px의 200% text 확대에서 horizontal overflow가 없다.
 - Root CartProvider는 Context와 reducer를 제공하고 Product ID 및 수량만 version 1 localStorage에 저장한다. Server와 첫 client render는 미복원 상태로 일치시키고 mount effect에서 저장 data를 검증한다.

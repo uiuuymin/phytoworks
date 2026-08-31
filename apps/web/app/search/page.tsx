@@ -4,7 +4,7 @@ import { ProductGrid } from "@/components/commerce/ProductGrid";
 import { ProductApiUnavailable } from "@/components/feedback/ProductApiUnavailable";
 import { Button } from "@/components/ui/Button";
 import { getProducts } from "@/lib/product-api";
-import type { CatalogProduct } from "@/lib/product-types";
+import { type CatalogProduct, sortProducts } from "@/lib/product-types";
 
 import styles from "./page.module.css";
 
@@ -30,14 +30,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const rawQuery = Array.isArray(params.query) ? params.query[0] : params.query;
   const query = rawQuery?.trim() ?? "";
   const normalizedQuery = query.toLocaleLowerCase();
+  const orderedProducts = sortProducts(products);
   const results = normalizedQuery
-    ? products.filter((product) =>
+    ? orderedProducts.filter((product) =>
         [product.name, product.category, product.description]
           .join(" ")
           .toLocaleLowerCase()
           .includes(normalizedQuery),
       )
-    : products;
+    : orderedProducts;
 
   return (
     <main

@@ -12,31 +12,25 @@ type ProductCardProps = {
 
 export function ProductCard({ product }: ProductCardProps) {
   const headingId = `product-${product.id}-heading`;
-  const { media, thumbnail } = getProductMedia(product.id);
-  const hoverMedia = thumbnail ? media : undefined;
+  const { thumbnail } = getProductMedia(product.id);
 
   return (
     <article className={styles.card} aria-labelledby={headingId}>
       <div className={styles.media}>
-        <Image
-          className={styles.thumbnail}
-          fill
-          src={(thumbnail ?? media).src}
-          alt={(thumbnail ?? media).alt}
-          loading="lazy"
-          sizes="(min-width: 64rem) 33vw, (min-width: 40rem) 50vw, 100vw"
-        />
-        {hoverMedia ? (
+        {thumbnail ? (
           <Image
-            className={styles.hoverMedia}
+            className={styles.thumbnail}
             fill
-            src={hoverMedia.src}
-            alt=""
-            aria-hidden="true"
+            src={thumbnail.src}
+            alt={thumbnail.alt}
             loading="lazy"
             sizes="(min-width: 64rem) 33vw, (min-width: 40rem) 50vw, 100vw"
           />
-        ) : null}
+        ) : (
+          <div className={styles.mediaPlaceholder}>
+            <span>제품 사진 준비 중</span>
+          </div>
+        )}
       </div>
 
       <div className={styles.content}>
@@ -48,10 +42,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <p className={styles.purchaseMode}>
           {purchaseModeLabels[product.purchaseMode]}
         </p>
-        <p className={styles.purchaseMode}>
-          <span className={styles.purchaseModeLabel}>가격 참고</span>
-          <span>{product.pricing.displayLabel}</span>
-        </p>
+        <p className={styles.price}>{product.pricing.displayLabel}</p>
         <Link className={styles.detailLink} href={`/products/${product.id}`}>
           자세히 보기
         </Link>

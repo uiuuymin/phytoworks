@@ -53,6 +53,20 @@ export type CatalogProduct = {
   };
 };
 
+const productDisplayOrder: Record<string, number> = {
+  nitro: 0,
+  "thermal-imaging": 1,
+  "chlorophyll-fluorescence": 2,
+};
+
+export function sortProducts(products: readonly CatalogProduct[]) {
+  return [...products].sort(
+    (left, right) =>
+      (productDisplayOrder[left.id] ?? Number.MAX_SAFE_INTEGER) -
+      (productDisplayOrder[right.id] ?? Number.MAX_SAFE_INTEGER),
+  );
+}
+
 export const purchaseModeLabels = {
   QUOTE_REQUIRED: "견적 문의",
   DIRECT_PURCHASE: "온라인 구매",
