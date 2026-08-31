@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "biome check app components data lib next.config.ts",
+    "lint": "biome check app components lib next.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -13,6 +13,7 @@
     "start": "node dist/main.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev --name product-init",
+    "prisma:migrate:cart": "prisma migrate dev --name cart-init",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:verify": "node dist/prisma7/verify.js",
     "prisma:seed": "node dist/prisma7/seed.js",
