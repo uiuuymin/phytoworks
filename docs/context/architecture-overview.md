@@ -2,7 +2,7 @@
 
 ## 문서 상태
 
-- **Current:** pnpm workspace와 `apps/web` Next.js 애플리케이션이 있으며 Home, Product Catalog와 Product Detail이 실행된다.
+- **Current:** pnpm workspace와 `apps/web` Next.js 애플리케이션이 있으며 Home, Product Catalog, Product Detail과 browser Cart가 실행된다.
 - **Proposed:** NestJS 이후의 구조는 구현 전 검토할 초기 목표이며 확정된 배포 구조가 아니다.
 - **TBD:** 구체적인 도구나 책임 경계를 추가 조사해야 한다.
 
@@ -28,13 +28,13 @@ Toss Payments
 
 ### Next.js 16
 
-**Current:** `apps/web`에 Next.js 16.3.3 App Router가 생성되었고 `/`, `/products`와 Product Detail 세 건을 정적으로 렌더링한다. Home, Product 목록, card와 detail은 Server Component이며 API나 DB data를 사용하지 않는다. 공통 SiteHeader만 현재 route와 mobile navigation 상태를 확인해야 하므로 Client Component다.
+**Current:** `apps/web`에 Next.js 16.3.3 App Router가 생성되었고 `/`, `/products`, Product Detail 세 건과 `/cart`를 정적으로 렌더링한다. Home, Product 목록, card, detail과 Cart page shell은 Server Component이며 API나 DB data를 사용하지 않는다. Root CartProvider, SiteHeader, AddToCartButton, CartView와 CartLineItem은 browser state, event와 localStorage가 필요하므로 Client Component다.
 
 **Proposed:** 이후 상품·장바구니·주문·결제 결과 화면을 제공하고 NestJS API와 통신한다. 어떤 기능을 Server Component, Server Action 또는 브라우저 코드에서 처리할지는 기능별 task에서 결정한다.
 
 ### Web route와 component 경계
 
-**Current:** 직접 작성된 route는 `/`, `/products`와 `/products/[productId]`다. Root layout은 공통 SiteHeader를 렌더링하고 SiteHeader는 Home·Products link, `Shop Demo` label, 현재 route와 mobile disclosure state를 소유한다. Home은 Shop 소개와 Catalog 진입을, `/products`는 정적 Product 탐색을, Product Detail은 정적 data 조회, 설명, placeholder와 판매 방식 표현을 담당한다. 세 Product ID는 `generateStaticParams`로 정적 생성하며 알려지지 않은 ID는 page의 `notFound()`와 Product 전용 not-found 화면으로 처리한다. 각 route에는 Demo 경계를 반복해서 설명하는 notice가 없다. `components/layout`, `components/ui`, `components/commerce`에 역할별 component가 있고 각 component와 route는 CSS Module을 사용한다. Native CSS foundation은 계속 semantic token, global typography, responsive container, focus와 reduced motion만 제공한다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이다.
+**Current:** 직접 작성된 route는 `/`, `/products`, `/products/[productId]`와 `/cart`다. Root layout의 CartProvider는 SiteHeader와 route content를 감싸며 Product Detail, SiteHeader와 Cart가 같은 browser state를 사용하게 한다. Server Component `children`은 CartProvider 안에서도 server rendering 경계를 유지한다. SiteHeader는 Home·Products·Cart link, `Shop Demo` label, Cart 총 수량, 현재 route와 mobile disclosure state를 소유한다. Home은 Shop 소개와 Catalog 진입을, `/products`는 정적 Product 탐색을, Product Detail은 정적 data 조회, 설명, placeholder와 판매 방식 표현을 담당한다. `/cart` page는 metadata와 page shell을, CartView와 CartLineItem은 hydration, empty state, 수량 변경, 제거와 Undo를 담당한다. 세 Product ID는 `generateStaticParams`로 정적 생성하며 알려지지 않은 ID는 page의 `notFound()`와 Product 전용 not-found 화면으로 처리한다. 각 route에는 Demo 경계를 반복해서 설명하는 notice가 없다. `components/layout`, `components/ui`, `components/commerce`, `components/cart`에 역할별 component가 있고 각 component와 route는 CSS Module을 사용한다. Native CSS foundation은 계속 semantic token, global typography, responsive container, focus와 reduced motion만 제공한다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이다.
 
 **Proposed:** 최소 Shop route는 다음과 같다.
 
@@ -51,9 +51,9 @@ Toss Payments
    └─ [orderId]
 ```
 
-정적 layout, Product 목록과 설명은 Server Component를 우선한다. Cart 조작, toast, Wishlist와 image gallery처럼 browser state와 event가 필요한 작은 leaf만 Client Component 후보로 둔다. 실제 data fetching, cache와 mutation 경계는 API 구현 task에서 확정한다.
+정적 layout, Product 목록과 설명은 Server Component를 우선한다. Cart Context는 Client Component에서만 읽으며 browser state와 event가 필요한 작은 leaf만 client bundle에 포함한다. 실제 data fetching, cache와 mutation 경계는 API 구현 task에서 확정한다.
 
-IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 기준으로 한다. 위 구조에서 `/`와 `/products`만 Current이며 나머지 route는 아직 Proposed다.
+IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 기준으로 한다. 위 구조에서 `/`, `/products`, `/products/[productId]`와 `/cart`는 Current이며 나머지 route는 아직 Proposed다.
 
 ### NestJS
 
@@ -74,7 +74,9 @@ IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](.
 
 ## 요청이 통과하는 경로
 
-현재 구현된 Product 탐색 경로는 `Browser → Next.js SiteHeader·page Server Component → 정적 Product data → Browser`다. `/` 요청은 Home에, `/products` 요청은 ProductGrid와 ProductCard에, `/products/[productId]` 요청은 Product 상세 page와 전용 commerce component에 연결된다. Mobile navigation toggle은 SiteHeader의 browser state 안에서만 처리되며 Product data와 상세 조회는 계속 server rendering 경계에 남는다. Product Detail은 가격, 재고, Cart state와 API를 사용하지 않는다.
+현재 Product 탐색 요청은 `Browser → Next.js SiteHeader·page Server Component → 정적 Product data → Browser` 경로를 사용한다. `/` 요청은 Home에, `/products` 요청은 ProductGrid와 ProductCard에, `/products/[productId]` 요청은 Product 상세 page와 전용 commerce component에 연결된다. Product Detail의 `DIRECT_PURCHASE` 분기에는 Client leaf인 AddToCartButton만 추가된다.
+
+현재 Cart 조작과 복원 경로는 `Browser event → CartProvider reducer → browser memory → localStorage`다. 최초 server HTML과 첫 client render는 미복원 상태를 사용하고 mount effect에서 version 1 저장 data를 검증한 뒤 hydration을 완료한다. 존재하지 않거나 `DIRECT_PURCHASE`가 아닌 Product와 잘못된 수량은 제외한다. localStorage를 사용할 수 없으면 현재 tab의 memory state로 계속 동작한다. 이 저장소는 주문 금액, 재고와 판매 가능 여부의 신뢰 가능한 기준이 아니다.
 
 상품 조회의 초기 후보 흐름은 `Browser → Next.js → NestJS → PostgreSQL → NestJS → Next.js → Browser`다. 결제는 여기에 Toss Payments 인증과 NestJS의 서버 승인 요청이 추가된다. 캐싱, 직접 서버 렌더링 데이터 접근 또는 API 경계 변경은 아직 확정하지 않았다.
 
@@ -103,7 +105,7 @@ packages/
 
 - Next.js와 NestJS가 사용할 API 형식과 계약 생성 방식
 - ORM 또는 SQL 접근 방식
-- cart 저장 위치와 customer 식별 방식
+- 서버 Cart 저장 위치, Customer 식별 방식과 현재 localStorage Cart의 병합·이관 방식
 - 주문·결제 transaction 및 idempotency 경계
 - 로컬 Docker 구성과 개발용 seed 전략
 - web, API와 PostgreSQL의 배포 topology

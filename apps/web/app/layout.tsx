@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { CartProvider } from "@/components/cart/CartProvider";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 
 import "./globals.css";
@@ -15,8 +16,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko" data-scroll-behavior="smooth">
       <body>
-        <SiteHeader />
-        {children}
+        <CartProvider>
+          <SiteHeader />
+          {children}
+        </CartProvider>
       </body>
     </html>
   );

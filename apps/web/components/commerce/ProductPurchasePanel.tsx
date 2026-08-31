@@ -1,3 +1,4 @@
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { type CatalogPurchaseMode, purchaseModeLabels } from "@/data/products";
 
 import styles from "./ProductPurchasePanel.module.css";
@@ -5,10 +6,12 @@ import styles from "./ProductPurchasePanel.module.css";
 const officialInquiryUrl = "https://phyto-works.com/ko?source=nitro";
 
 type ProductPurchasePanelProps = {
+  productId: string;
   purchaseMode: CatalogPurchaseMode;
 };
 
 export function ProductPurchasePanel({
+  productId,
   purchaseMode,
 }: ProductPurchasePanelProps) {
   const isQuoteRequired = purchaseMode === "QUOTE_REQUIRED";
@@ -31,7 +34,9 @@ export function ProductPurchasePanel({
             PhytoWorks에 견적 문의
           </a>
         </>
-      ) : null}
+      ) : (
+        <AddToCartButton className={styles.cartButton} productId={productId} />
+      )}
     </section>
   );
 }

@@ -4,40 +4,76 @@
 
 Cart는 고객이 주문을 만들기 전에 구매할 Product와 수량을 임시로 모아 두는 영역이다. 주문이 아니므로 결제가 보장되지 않으며, Cart의 내용은 주문 생성 시 서버 규칙으로 다시 검증해야 한다.
 
-현재 Cart 모델은 **Proposed**다.
+현재 Cart domain 모델 전체는 **Proposed**다. `apps/web`에는 API와 Customer 식별 전의 **Current Demo 구현**으로 browser Cart가 있다.
 
-Cart에는 `DIRECT_PURCHASE`로 명시된 Demo Product만 담을 수 있다. `QUOTE_REQUIRED` Product는 견적 문의 대상으로 남기며 CartItem을 만들지 않는 것을 **Proposed** 규칙으로 둔다. Product의 판매 방식과 CTA 경계는 [`product.md`](./product.md)와 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 함께 확인한다.
+Cart에는 `DIRECT_PURCHASE`로 명시된 Demo Product만 담을 수 있다. `QUOTE_REQUIRED` Product는 견적 문의 대상으로 남기며 CartItem을 만들지 않는다. Product의 판매 방식과 CTA 경계는 [`product.md`](./product.md)와 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 함께 확인한다.
 
 ## CartItem
 
 CartItem은 하나의 Product와 고객이 원하는 수량을 연결한다.
 
-- 같은 Product를 여러 줄로 둘지 한 줄의 수량으로 합칠지는 **Proposed: 한 줄로 합침**이다.
-- Product 이름과 현재 가격을 매번 조회할지 Cart snapshot으로 보관할지는 `TBD`다.
-- CartItem이 존재하더라도 상품이 활성 상태이고 재고가 충분하다는 보장은 없다.
+- **Proposed:** 같은 Product는 Product ID별로 한 줄만 둔다. Product Detail에서 같은 Product를 다시 담으면 기존 수량을 1 늘린다.
+- **Current Demo:** CartItem에는 Product ID와 수량만 저장한다. Product 이름, category와 판매 방식은 현재 정적 Product data에서 다시 조회한다.
+- 가격 data가 없으므로 현재 browser Cart에는 단가와 가격 snapshot을 저장하지 않는다.
+- CartItem이 존재하더라도 Product가 활성 상태이고 재고가 충분하거나 주문 가능한 상태라는 보장은 없다.
+- 향후 Product option이 생기면 Product ID만으로 같은 CartItem을 판단하지 않고 option 조합을 포함한 identity를 다시 결정한다.
 
-## 수량 변경
+## 수량 변경과 제거
 
 - **Proposed:** 수량은 1 이상의 정수여야 한다.
-- 수량을 0으로 변경하는 요청을 삭제로 볼지 오류로 볼지는 `TBD`다.
-- 최대 구매 수량과 재고 초과 시 응답 규칙은 `TBD`다.
-- 클라이언트 표시뿐 아니라 주문 생성 직전에 서버에서 다시 검증한다.
+- 수량 0, 음수, 소수와 숫자가 아닌 값은 유효한 수량 변경이 아니며 항목 삭제로 처리하지 않는다.
+- 증가는 현재 수량을 1 늘리고 감소는 현재 수량이 2 이상일 때 1 줄인다. 수량 1에서는 감소하지 않는다.
+- 항목 삭제는 수량 변경과 구분되는 명시적인 제거 동작으로 수행한다.
+- **Current Demo:** 단일 항목을 제거하면 마지막으로 제거한 항목 한 건을 memory에 보관하고 Undo로 같은 수량을 복원할 수 있다. 다른 Cart 변경이 발생하면 이전 Undo 기회는 종료한다.
+- 최대 구매 수량과 재고 초과 시 응답 규칙은 `TBD`다. JavaScript의 안전한 정수 조건은 browser data 손상을 막기 위한 기술 경계이며 판매 정책이 아니다.
+- 향후 주문을 생성하기 직전에 서버가 수량과 재고를 다시 검증해야 한다.
 
-## 합계 계산
+## 가격과 합계
 
-- **Proposed:** 기본 합계는 각 항목의 서버 기준 단가 × 수량의 합이다.
-- 브라우저가 계산한 합계는 화면 표시용이며 주문·결제의 신뢰 가능한 금액으로 사용하지 않는다.
-- 할인, 세금, 배송비와 통화 규칙은 아직 범위가 정해지지 않아 `TBD`다.
+현재 정적 Product data에는 가격과 통화가 없다. 따라서 **Current Demo Cart**는 소계, 합계, 무료, 할인, 세금, 배송비와 통화를 계산하거나 표시하지 않는다.
 
-## 저장 방식
+- Product 종류 수와 모든 CartItem의 총 수량처럼 가격과 무관한 값만 표시할 수 있다.
+- Checkout과 Order가 없으므로 현재 Cart에는 Checkout CTA를 제공하지 않는다.
+- 가격이 추가되는 향후 단계에서는 각 항목의 서버 기준 단가와 수량을 사용해 합계를 계산하는 방안을 검토한다.
+- 브라우저가 계산하거나 저장한 합계는 화면 표시용일 뿐 주문·결제의 신뢰 가능한 금액으로 사용하지 않는다.
+- 할인, 세금, 배송비, 통화와 반올림 규칙은 `TBD`다.
 
-Cart를 어디에 저장할지는 `TBD`다. 초기 task에서 다음 후보를 비교한다.
+## Current Demo 저장 방식
 
-- 브라우저 저장소: 시작은 단순하지만 기기 간 공유와 서버 검증에 한계가 있다.
-- 서버 세션: 비회원 Cart를 서버에서 관리할 수 있지만 세션 운영이 필요하다.
-- PostgreSQL: 지속성과 분석에 유리하지만 Customer 식별과 정리 정책이 필요하다.
-- 혼합 방식: 편의성이 높을 수 있지만 동기화 규칙이 복잡해진다.
+현재 browser Cart는 같은 browser에서 route 이동과 새로고침 뒤 선택을 복원하기 위해 `localStorage`를 사용한다.
 
-## 주문으로 전환할 때
+```text
+key: phytoworks-shop.cart.v1
 
-Cart는 주문 생성의 입력일 뿐이다. Order를 만들기 전에 서버는 Product의 존재, 활성 여부, 최신 가격, 수량과 재고를 다시 확인해야 한다. 주문 생성 후 Cart를 비울 시점과 실패 시 유지 여부는 `TBD`다.
+value:
+{
+  "version": 1,
+  "items": [
+    { "productId": "thermal-imaging", "quantity": 2 }
+  ]
+}
+```
+
+- `localStorage`는 browser 편의를 위한 임시 저장소이며 주문 금액, 재고와 판매 가능 여부의 신뢰 가능한 기준이 아니다.
+- 저장 data는 사용자가 변경할 수 있는 외부 입력으로 취급한다.
+- Server와 첫 client render는 저장 data를 사용하지 않으며 Client hydration 뒤에 저장 값을 읽는다.
+- JSON이 손상되었거나 지원하지 않는 schema version이면 빈 Cart로 복구한다.
+- 일부 항목이 잘못되었으면 유효한 항목만 유지한다.
+- 중복 Product ID는 수량을 안전하게 합쳐 한 줄로 정규화한다.
+- 존재하지 않거나 현재 `DIRECT_PURCHASE`가 아닌 Product ID는 복원 과정에서 제외한다.
+- `localStorage`에 접근하거나 저장할 수 없으면 현재 tab의 memory state로 계속 동작하며 새로고침 유지가 보장되지 않는다고 알린다.
+- 여러 tab, 다른 browser 및 기기 사이의 동기화, 만료와 Customer Cart 병합은 현재 범위에 없다.
+
+## 향후 서버 Cart로 전환할 때
+
+현재 localStorage Cart는 API 기반 Cart의 최종 저장 모델이 아니다. 서버 Cart를 도입할 때 다음 항목을 다시 결정한다.
+
+- Customer 또는 비회원 session의 Cart 소유 방식
+- Cart ID와 CartItem ID
+- Product option을 포함한 line identity
+- localStorage Cart와 서버 Cart의 병합, 만료와 정리 정책
+- 최신 Product 정보 조회와 Cart snapshot 범위
+- 서버 mutation의 validation, optimistic update와 오류 응답
+- 여러 기기 및 tab 사이의 동기화
+
+Cart는 주문 생성의 입력일 뿐이다. Order를 만들기 전에 서버는 Product의 존재, 활성 여부, `DIRECT_PURCHASE`, 최신 가격, 수량과 재고를 다시 확인해야 한다. 주문 생성 후 Cart를 비울 시점과 실패 시 유지 여부는 `TBD`다.

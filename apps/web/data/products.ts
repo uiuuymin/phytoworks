@@ -80,3 +80,9 @@ export const products = [
 export function getProductById(productId: string) {
   return products.find((product) => product.id === productId);
 }
+
+export function getDirectPurchaseProductById(productId: string) {
+  const product = getProductById(productId);
+
+  return product?.purchaseMode === "DIRECT_PURCHASE" ? product : undefined;
+}

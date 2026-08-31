@@ -76,7 +76,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <p className={styles.lead}>{product.description}</p>
             </div>
 
-            <ProductPurchasePanel purchaseMode={product.purchaseMode} />
+            <ProductPurchasePanel
+              productId={product.id}
+              purchaseMode={product.purchaseMode}
+            />
           </div>
         </div>
 

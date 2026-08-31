@@ -6,6 +6,8 @@ Product는 PhytoWorks Shop에서 연구자나 기관 담당자가 조회하는 �
 
 현재 Product 모델 전체는 **Proposed**다.
 
+`apps/web/data/products.ts`의 정적 목록과 판매 방식은 API 이전 단계의 **Current Demo 구현**이다. 실제 판매 정책이나 공식 가격·재고 정보로 취급하지 않는다.
+
 ## 근거와 정보 상태
 
 - `Confirmed` — 공식 사이트에서 확인한 제품명, 기술과 사양
@@ -36,9 +38,9 @@ SKU, 장비 옵션 조합, 납기, 설치와 유지보수 정보는 실제 구�
 
 아래는 공식 사이트에서 확인한 정보로부터 가져온 초기 후보이며 온라인 판매 여부는 확정된 사실이 아니다.
 
-- `NITRO Plant Growth System` — 생육·표현형 분석 시스템, `QUOTE_REQUIRED` 후보
-- `Thermal Imaging Module` — 열화상 이미징 모듈, 판매 방식 TBD
-- `Chlorophyll Fluorescence Module` — 엽록소 형광 이미징 모듈, 판매 방식 TBD
+- `NITRO Plant Growth System` — 생육·표현형 분석 시스템, Current Demo `QUOTE_REQUIRED`
+- `Thermal Imaging Module` — 열화상 이미징 모듈, Current Demo `DIRECT_PURCHASE`
+- `Chlorophyll Fluorescence Module` — 엽록소 형광 이미징 모듈, Current Demo `DIRECT_PURCHASE`
 - 환경·관수 옵션 — Drip, Mist, Sub-irrigation 등, 구체적인 Product 분리 방식 TBD
 - AI 분석 서비스 — Phenos 맥락을 참고하지만 상품·요금제 존재 여부는 Demo로만 검토
 
@@ -68,8 +70,10 @@ SKU, 장비 옵션 조합, 납기, 설치와 유지보수 정보는 실제 구�
 ## 탐색과 구매 전환
 
 - **Proposed:** 활성 Product는 `/products` 목록에서 탐색하고 `/products/[productId]` 상세 화면에서 설명, 사양과 판매 방식을 확인한다.
-- **Proposed:** `QUOTE_REQUIRED` Product의 주 CTA는 `견적 문의`이며 Cart에 담지 않는다. 자체 문의 form과 개인정보 처리를 설계하기 전에는 공식 PhytoWorks 문의 경로로 연결한다.
-- **Proposed:** `DIRECT_PURCHASE` Product만 `장바구니 담기` CTA를 제공한다. 가격, 재고와 직접 구매 가능 여부는 실제 회사 정책이 아닌 Demo임을 화면에서 표시한다.
+- **Proposed domain rule / Current Demo:** `QUOTE_REQUIRED` Product의 주 CTA는 `견적 문의`이며 Cart에 담지 않는다. 자체 문의 form과 개인정보 처리를 설계하기 전에는 공식 PhytoWorks 문의 경로로 연결한다.
+- **Proposed domain rule / Current Demo:** `DIRECT_PURCHASE` Product만 `장바구니 담기` CTA를 제공한다.
+- Current Demo의 직접 구매 가능 여부는 실제 회사 정책이 아니다. 화면에서는 공통 SiteHeader의 `Shop Demo` label로 이 경계를 알리고 route마다 장문의 안내를 반복하지 않는다.
+- 저장된 Cart를 복원할 때 Product가 존재하지 않거나 더 이상 `DIRECT_PURCHASE`가 아니면 해당 항목을 제외한다.
 - Product card와 browser가 가진 가격은 표시값이며 주문 금액의 신뢰 가능한 기준이 아니다.
 - IA, Product card와 CTA 표현 원칙은 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 함께 확인한다.
 

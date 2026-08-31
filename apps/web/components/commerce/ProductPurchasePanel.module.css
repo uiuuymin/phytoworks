@@ -29,7 +29,8 @@
   color: var(--color-text-muted);
 }
 
-.inquiryLink {
+.inquiryLink,
+.cartButton {
   display: inline-flex;
   width: 100%;
   min-width: 0;
@@ -49,6 +50,10 @@
   transition:
     background-color var(--duration-fast) var(--easing-standard),
     color var(--duration-fast) var(--easing-standard);
+}
+
+.cartButton {
+  width: 100%;
 }
 
 .inquiryLink:hover {

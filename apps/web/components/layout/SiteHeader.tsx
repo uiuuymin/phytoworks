@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type KeyboardEvent, useRef, useState } from "react";
 
+import { useCart } from "@/components/cart/CartProvider";
 import { Button } from "@/components/ui/Button";
 
 import styles from "./SiteHeader.module.css";
@@ -11,18 +12,20 @@ import styles from "./SiteHeader.module.css";
 const navigationItems = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Products" },
+  { href: "/cart", label: "Cart" },
 ] as const;
 
 function isCurrentRoute(pathname: string, href: string) {
-  if (href === "/products") {
-    return pathname === href || pathname.startsWith(`${href}/`);
+  if (href === "/") {
+    return pathname === href;
   }
 
-  return pathname === href;
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const { totalQuantity, hasHydrated } = useCart();
   const [isNavigationOpen, setIsNavigationOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -76,13 +79,23 @@ export function SiteHeader() {
                 <Link
                   className={styles.navigationLink}
                   href={item.href}
+                  aria-label={
+                    item.href === "/cart" && hasHydrated && totalQuantity > 0
+                      ? `장바구니, 총 ${totalQuantity}개`
+                      : undefined
+                  }
                   aria-current={
                     isCurrentRoute(pathname, item.href) ? "page" : undefined
                   }
                   onClick={closeNavigation}
                   onKeyDown={handleHeaderKeyDown}
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  {item.href === "/cart" && hasHydrated && totalQuantity > 0 ? (
+                    <span className={styles.cartCount} aria-hidden="true">
+                      {totalQuantity}
+                    </span>
+                  ) : null}
                 </Link>
               </li>
             ))}
