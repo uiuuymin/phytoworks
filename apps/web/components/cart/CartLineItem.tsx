@@ -27,6 +27,7 @@ export function CartLineItem({ product, quantity }: CartLineItemProps) {
     decrementItem,
     removeItem,
     announceInvalidQuantity,
+    isPending,
   } = useCart();
   const quantityInputId = useId();
   const quantityHintId = useId();
@@ -41,7 +42,7 @@ export function CartLineItem({ product, quantity }: CartLineItemProps) {
     setDraftQuantity(event.currentTarget.value);
   }
 
-  function commitQuantity() {
+  async function commitQuantity() {
     if (draftQuantity === "") {
       setDraftQuantity(String(quantity));
       announceInvalidQuantity();
@@ -50,7 +51,7 @@ export function CartLineItem({ product, quantity }: CartLineItemProps) {
 
     const nextQuantity = Number(draftQuantity);
 
-    if (!setQuantity(product.id, nextQuantity)) {
+    if (!(await setQuantity(product.id, nextQuantity))) {
       setDraftQuantity(String(quantity));
       return;
     }
@@ -90,9 +91,9 @@ export function CartLineItem({ product, quantity }: CartLineItemProps) {
             <Button
               className={styles.quantityButton}
               variant="secondary"
-              disabled={quantity <= 1}
               aria-label={`${product.name} 수량 줄이기`}
-              onClick={() => decrementItem(product.id)}
+              disabled={isPending || quantity <= 1}
+              onClick={() => void decrementItem(product.id)}
             >
               감소
             </Button>
@@ -104,6 +105,7 @@ export function CartLineItem({ product, quantity }: CartLineItemProps) {
               step="1"
               inputMode="numeric"
               value={draftQuantity}
+              disabled={isPending}
               aria-describedby={quantityHintId}
               onBlur={commitQuantity}
               onChange={handleQuantityChange}
@@ -112,9 +114,9 @@ export function CartLineItem({ product, quantity }: CartLineItemProps) {
             <Button
               className={styles.quantityButton}
               variant="secondary"
-              disabled={quantity >= Number.MAX_SAFE_INTEGER}
+              disabled={isPending || quantity >= Number.MAX_SAFE_INTEGER}
               aria-label={`${product.name} 수량 늘리기`}
-              onClick={() => incrementItem(product.id)}
+              onClick={() => void incrementItem(product.id)}
             >
               증가
             </Button>
@@ -128,7 +130,8 @@ export function CartLineItem({ product, quantity }: CartLineItemProps) {
           className={styles.removeButton}
           variant="secondary"
           aria-label={`${product.name} 제거`}
-          onClick={() => removeItem(product.id)}
+          disabled={isPending}
+          onClick={() => void removeItem(product.id)}
         >
           제거
         </Button>

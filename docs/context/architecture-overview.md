@@ -28,7 +28,7 @@ Toss Payments
 
 ### Next.js 16
 
-**Current:** `apps/web`에 Next.js 16.3.3 App Router가 생성되었고 `/`, `/products`, Product Detail 세 건과 `/cart`를 정적으로 렌더링한다. Home, Product 목록, card, detail과 Cart page shell은 Server Component이며 API나 DB data를 사용하지 않는다. Root CartProvider, SiteHeader, AddToCartButton, CartView와 CartLineItem은 browser state, event와 localStorage가 필요하므로 Client Component다.
+**Current:** `apps/web`에 Next.js 16.3.3 App Router가 생성되었고 `/`, `/products`, Product Detail 세 건과 `/cart`를 렌더링한다. Home, Product 목록, card, detail과 Cart page shell은 Server Component이며 Product data는 API를 사용한다. Root CartProvider, SiteHeader, AddToCartButton, CartView와 CartLineItem은 browser state, event와 Cart API 호출이 필요하므로 Client Component다. Cart 항목은 API와 PostgreSQL에 저장하고 browser에는 익명 Cart session ID만 저장한다.
 
 **Proposed:** 이후 상품·장바구니·주문·결제 결과 화면을 제공하고 NestJS API와 통신한다. 어떤 기능을 Server Component, Server Action 또는 브라우저 코드에서 처리할지는 기능별 task에서 결정한다.
 
@@ -57,7 +57,7 @@ IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](.
 
 ### NestJS
 
-**Current:** `apps/api`에 NestJS 12.0.1과 ESM 기반 application 경계가 있다. `AppModule`은 `HealthModule`, `ProductModule`과 `CartModule`을 조합한다. `HealthModule`과 `HealthController`는 `GET /health`만 담당하며, 이 endpoint는 application이 기동하고 HTTP 요청에 응답할 수 있다는 사실만 나타낸다. `ProductModule`과 `ProductController`는 Prisma 7 PostgreSQL repository를 통해 `GET /api/products`와 `GET /api/products/:productId`를 제공한다. `CartModule`과 `CartController`는 `X-Cart-Session-Id`로 식별한 익명 Cart의 `GET /api/cart`, item POST, PATCH와 DELETE를 제공한다. Product 상세 조회에서 없는 ID는 404로 응답하며 Cart에는 `DIRECT_PURCHASE` Product만 추가할 수 있다. API는 기본 port 3001을 사용하고 유효한 `PORT` 환경변수로 변경할 수 있다. 현재 web의 Product와 Cart는 API Cart mutation을 호출하지 않는다.
+**Current:** `apps/api`에 NestJS 12.0.1과 ESM 기반 application 경계가 있다. `AppModule`은 `HealthModule`, `ProductModule`과 `CartModule`을 조합한다. `HealthModule`과 `HealthController`는 `GET /health`만 담당하며, 이 endpoint는 application이 기동하고 HTTP 요청에 응답할 수 있다는 사실만 나타낸다. `ProductModule`과 `ProductController`는 Prisma 7 PostgreSQL repository를 통해 `GET /api/products`와 `GET /api/products/:productId`를 제공한다. `CartModule`과 `CartController`는 `X-Cart-Session-Id`로 식별한 익명 Cart의 `GET /api/cart`, item POST, PATCH와 DELETE를 제공한다. Product 상세 조회에서 없는 ID는 404로 응답하며 Cart에는 `DIRECT_PURCHASE` Product만 추가할 수 있다. API는 기본 port 3001을 사용하고 유효한 `PORT` 환경변수로 변경할 수 있다. Web Cart는 same-origin Next.js route handler를 통해 Cart API mutation과 hydrate를 호출한다.
 
 **Proposed:** 이후 서비스 규칙과 신뢰 경계를 담당하는 feature module을 추가한다. 입력 검증, 상품·주문·결제 규칙 적용, PostgreSQL 접근과 Toss Payments 서버 승인 요청은 각 기능을 구현할 때 경계를 확정한다. 브라우저가 보낸 금액이나 결제 결과를 그대로 신뢰하지 않는다.
 
@@ -77,13 +77,13 @@ IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](.
 
 ## 요청이 통과하는 경로
 
-현재 Product 탐색 요청은 `Browser → Next.js SiteHeader·page Server Component → 정적 Product data → Browser` 경로를 사용한다. `/` 요청은 Home에, `/products` 요청은 ProductGrid와 ProductCard에, `/products/[productId]` 요청은 Product 상세 page와 전용 commerce component에 연결된다. Product Detail의 `DIRECT_PURCHASE` 분기에는 Client leaf인 AddToCartButton만 추가된다.
+현재 Product 탐색 요청은 `Browser → Next.js SiteHeader·page Server Component → Product Read API → Browser` 경로를 사용한다. `/` 요청은 Home에, `/products` 요청은 ProductGrid와 ProductCard에, `/products/[productId]` 요청은 Product 상세 page와 전용 commerce component에 연결된다. Product Detail의 `DIRECT_PURCHASE` 분기에는 Client leaf인 AddToCartButton만 추가된다.
 
-현재 browser Cart 조작과 복원 경로는 `Browser event → CartProvider reducer → browser memory → localStorage`다. API Cart의 요청 경로는 `HTTP client → CartController → CartService → ProductService·CartRepository → Prisma7Service → PostgreSQL`이다. 최초 server HTML과 첫 client render는 미복원 상태를 사용하고 mount effect에서 version 1 저장 data를 검증한 뒤 hydration을 완료한다. 존재하지 않거나 `DIRECT_PURCHASE`가 아닌 Product와 잘못된 수량은 제외한다. localStorage를 사용할 수 없으면 현재 tab의 memory state로 계속 동작한다. browser와 API Cart는 아직 자동 병합하지 않으며, 어느 저장소도 주문 금액, 재고와 판매 가능 여부의 신뢰 가능한 기준이 아니다.
+현재 browser Cart 조작과 복원 경로는 `Browser event → CartProvider → same-origin Next.js route handler → CartController → CartService → ProductService·CartRepository → Prisma7Service → PostgreSQL`이다. browser에는 `phytoworks-shop.cart-session.v1` session ID만 저장하며 Cart item과 수량은 API 응답으로 hydrate한다. API 성공 뒤 CartProvider는 서버 응답으로 전체 item state를 교체하고, 요청 중에는 중복 조작을 막는다. 기존 `phytoworks-shop.cart.v1` localStorage Cart는 자동 병합하지 않는다. 존재하지 않거나 `DIRECT_PURCHASE`가 아닌 Product와 잘못된 수량은 API에서 거부한다. 어느 저장소도 주문 금액, 재고와 판매 가능 여부의 신뢰 가능한 기준이 아니다.
 
-현재 API health 요청은 `HTTP client → NestJS HTTP adapter → HealthController → JSON response` 경로를 사용한다. `GET /health`는 HTTP 200과 `{ "status": "ok" }`를 반환한다. Product read 요청은 `HTTP client → NestJS HTTP adapter → ProductController → ProductService → PrismaProductRepository → PostgreSQL → JSON response` 경로를 사용한다. Cart 요청은 위의 Cart module 경로를 사용한다. Product와 Cart controller의 `api/*` route prefix는 전역 prefix 설정이 아니며, API versioning과 web의 Cart API mutation 연결은 아직 없다.
+현재 API health 요청은 `HTTP client → NestJS HTTP adapter → HealthController → JSON response` 경로를 사용한다. `GET /health`는 HTTP 200과 `{ "status": "ok" }`를 반환한다. Product read 요청은 `HTTP client → NestJS HTTP adapter → ProductController → ProductService → PrismaProductRepository → PostgreSQL → JSON response` 경로를 사용한다. Cart 요청은 Web에서는 same-origin proxy를 거쳐 위의 Cart module 경로를 사용한다. Product와 Cart controller의 `api/*` route prefix는 전역 prefix 설정이 아니며, API versioning과 Web/API shared contract 방식은 아직 확정하지 않았다.
 
-현재 Product와 Cart API는 Prisma 7을 통해 PostgreSQL을 읽고 쓴다. 장기 후보 흐름은 `Browser → Next.js → NestJS → PostgreSQL → NestJS → Next.js → Browser`이며, browser Cart와 API Cart의 병합, 인증 ownership과 web mutation 연결은 아직 확정하지 않았다. 결제는 여기에 Toss Payments 인증과 NestJS의 서버 승인 요청이 추가된다. web 캐싱, 직접 서버 렌더링 데이터 접근 또는 API contract 공유 방식은 아직 확정하지 않았다.
+현재 Product와 Cart API는 Prisma 7을 통해 PostgreSQL을 읽고 쓴다. Web Cart의 현재 흐름은 `Browser → Next.js route handler → NestJS → PostgreSQL → NestJS → Next.js → Browser`이며, browser Cart와 API Cart의 자동 병합과 인증 ownership은 아직 확정하지 않았다. 결제는 여기에 Toss Payments 인증과 NestJS의 서버 승인 요청이 추가된다. web 캐싱, 직접 서버 렌더링 데이터 접근 또는 API contract 공유 방식은 아직 확정하지 않았다.
 
 ## Monorepo 구조
 

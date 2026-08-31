@@ -13,13 +13,13 @@ export function AddToCartButton({
   productId,
   className,
 }: AddToCartButtonProps) {
-  const { addItem, hasHydrated } = useCart();
+  const { addItem, hasHydrated, apiStatus, isPending } = useCart();
 
   return (
     <Button
       className={className}
-      disabled={!hasHydrated}
-      onClick={() => addItem(productId)}
+      disabled={!hasHydrated || apiStatus !== "available" || isPending}
+      onClick={() => void addItem(productId)}
     >
       장바구니 담기
     </Button>
