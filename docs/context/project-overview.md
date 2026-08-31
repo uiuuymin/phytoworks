@@ -94,12 +94,12 @@ Current IA, 전체 Proposed route, responsive와 interaction 기준은 [`../desi
 - 브라우저에서 확인 가능한 `/` 학습 화면
 - Native CSS semantic token, dark Demo palette와 system font
 - Global typography, responsive container, visible focus와 reduced motion 기준
-- 공통 SiteHeader, Home·Products·Cart navigation, Cart 총 수량과 mobile disclosure
+- 공통 SiteHeader, 상단 `KR | EN`, Search, Cart·Login utility와 구분선, 확대된 PhytoWorks 홈 link, Products·About navigation, Cart 총 수량과 mobile disclosure
 - 동작과 내부 이동의 의미를 분리한 Button·LinkButton
 - Shop 진입 역할의 Home과 Product 비교 역할의 `/products`
 - 정적 Catalog data, ProductCard와 1열·2열·3열 responsive ProductGrid
 - ProductCard의 상세 진입 link와 `/products/[productId]` 정적 상세 route 세 건
-- Product별 요약·주요 기능, 권한 확인 전 media placeholder와 판매 방식 panel
+- Product별 카탈로그 이미지, 요약·주요 기능과 판매 방식 panel
 - `QUOTE_REQUIRED`의 공식 문의 link와 `DIRECT_PURCHASE`의 실제 Add to Cart CTA
 - Product 전용 not-found 화면과 Catalog 복귀 경로
 - `/cart`의 hydration, empty state, Product별 수량 변경, 제거와 한 건 Undo
@@ -109,7 +109,7 @@ Current IA, 전체 Proposed route, responsive와 interaction 기준은 [`../desi
 - 가격과 Checkout이 없는 단계의 Product 및 수량 관리 경계
 - Component·route별 CSS Modules와 skip link
 
-현재 `/`는 Shop을 간결하게 소개하고 `/products`로 안내한다. `/products`는 정적 Product 세 건을 비교 가능한 card로 렌더링하고 각 `/products/[productId]` 상세 화면으로 연결한다. NITRO는 기존 공식 문의 경로를 유지하며, 두 `DIRECT_PURCHASE` Product는 실제 `장바구니 담기` button을 제공한다. `/cart`는 Product와 수량을 관리하고 같은 Product를 한 줄로 합치며, route 이동과 새로고침 뒤 browser Cart를 복원한다. 학습용 Shop이라는 표시는 공통 SiteHeader의 `Shop Demo` label로 한정하며 각 route에는 별도 해설 notice를 두지 않는다. 가격, 재고, 합계, Checkout, Payment result와 Order status는 아직 구현되지 않았다.
+현재 `/`는 NITRO chamber cutout image를 제품 중심 hero에 배치하고 `/products`로 안내한다. `/about`은 정적 브랜드 소개를, `/search`는 정적 Product fixture를 대상으로 하는 검색 Demo를 제공한다. SiteHeader는 상단 utility row에 `KR | EN`, Search, Cart·Login과 구분선을, 두 번째 row에 PhytoWorks 홈 link와 Products·About을 제공한다. `/login`은 인증 API 연결 전 Email과 Password 입력 및 `/signup` 진입 링크를 제공하며, `/signup`은 계정 생성 API 연결 전 Name, Email과 Password 입력 및 `/login` 진입 링크를 제공한다. 두 화면의 패널과 진입 링크는 가운데 정렬한다. `/products`는 정적 Product 세 건을 비교 가능한 card로 렌더링하고 각 `/products/[productId]` 상세 화면으로 연결한다. NITRO는 기존 공식 문의 경로를 유지하며, 두 `DIRECT_PURCHASE` Product는 실제 `장바구니 담기` button을 제공한다. `/cart`는 Product와 수량을 관리하고 같은 Product를 한 줄로 합치며, route 이동과 새로고침 뒤 browser Cart를 복원한다. 학습용 Shop이라는 표시는 공통 SiteHeader의 `Shop Demo` label로 한정하며 각 route에는 별도 해설 notice를 두지 않는다. 언어 전환과 실제 API 연동은 아직 구현되지 않았으며 `TBD`다. 가격, 재고, 합계, Checkout, Payment result와 Order status는 아직 구현되지 않았다.
 
 NestJS API에는 `HealthModule`과 sibling인 `ProductModule`이 있으며, Product API는 API 내부 정적 fixture를 읽는다. web은 아직 API를 호출하지 않는다. Product 화면 요청은 계속 `Browser → Next.js Server Component → 정적 Product data → Browser` 경로를 사용하며 Cart 조작은 `Browser event → CartProvider reducer → browser memory → localStorage` 안에서만 처리한다. API Product 요청은 `HTTP client → NestJS HTTP adapter → ProductController → ProductService → API static fixture → JSON response` 경로를 사용하고, health 요청은 기존 `HealthController` 경계를 사용한다. PostgreSQL, Docker, Toss Payments와 Vercel 설정은 아직 존재하지 않는다.
 

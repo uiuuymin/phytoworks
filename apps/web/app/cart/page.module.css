@@ -1,26 +1,10 @@
 .main {
   display: grid;
   max-width: 68rem;
-  gap: clamp(var(--space-8), 6vw, var(--space-12));
   padding-block: clamp(var(--space-12), 7vw, var(--space-20));
 }
 
-.pageHeader {
+.sections {
   display: grid;
-  max-width: 52rem;
-  gap: var(--space-4);
-}
-
-.eyebrow {
-  color: var(--color-action);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.lead {
-  max-width: 43rem;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-lg);
+  gap: clamp(var(--space-12), 7vw, var(--space-20));
 }

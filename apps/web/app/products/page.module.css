@@ -10,6 +10,14 @@
   gap: var(--space-4);
 }
 
+.pageHeader h1 {
+  word-break: keep-all;
+}
+
+.pageHeader h1 span {
+  display: block;
+}
+
 .eyebrow {
   color: var(--color-action);
   font-size: var(--font-size-sm);

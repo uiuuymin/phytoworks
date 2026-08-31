@@ -10,9 +10,8 @@ import { Button } from "@/components/ui/Button";
 import styles from "./SiteHeader.module.css";
 
 const navigationItems = [
-  { href: "/", label: "Home" },
   { href: "/products", label: "Products" },
-  { href: "/cart", label: "Cart" },
+  { href: "/about", label: "About" },
 ] as const;
 
 function isCurrentRoute(pathname: string, href: string) {
@@ -54,18 +53,6 @@ export function SiteHeader() {
           <span className={styles.brandLabel}>Shop Demo</span>
         </Link>
 
-        <Button
-          ref={menuButtonRef}
-          className={styles.menuButton}
-          variant="secondary"
-          aria-controls="primary-navigation"
-          aria-expanded={isNavigationOpen}
-          onClick={() => setIsNavigationOpen((isOpen) => !isOpen)}
-          onKeyDown={handleHeaderKeyDown}
-        >
-          {isNavigationOpen ? "메뉴 닫기" : "메뉴"}
-        </Button>
-
         <nav
           id="primary-navigation"
           className={`${styles.navigation} ${
@@ -79,11 +66,6 @@ export function SiteHeader() {
                 <Link
                   className={styles.navigationLink}
                   href={item.href}
-                  aria-label={
-                    item.href === "/cart" && hasHydrated && totalQuantity > 0
-                      ? `장바구니, 총 ${totalQuantity}개`
-                      : undefined
-                  }
                   aria-current={
                     isCurrentRoute(pathname, item.href) ? "page" : undefined
                   }
@@ -91,16 +73,85 @@ export function SiteHeader() {
                   onKeyDown={handleHeaderKeyDown}
                 >
                   <span>{item.label}</span>
-                  {item.href === "/cart" && hasHydrated && totalQuantity > 0 ? (
-                    <span className={styles.cartCount} aria-hidden="true">
-                      {totalQuantity}
-                    </span>
-                  ) : null}
                 </Link>
               </li>
             ))}
           </ul>
         </nav>
+
+        <div className={styles.utilities}>
+          <nav className={styles.language} aria-label="Language selection">
+            <span className={styles.languageActive}>KR</span>
+            <span className={styles.divider} aria-hidden="true" />
+            <span aria-disabled="true">EN</span>
+          </nav>
+
+          <Link
+            className={styles.searchLink}
+            href="/search"
+            aria-current={
+              isCurrentRoute(pathname, "/search") ? "page" : undefined
+            }
+            onClick={closeNavigation}
+            onKeyDown={handleHeaderKeyDown}
+          >
+            Search
+          </Link>
+
+          <span className={styles.utilityDivider} aria-hidden="true">
+            |
+          </span>
+
+          <Link
+            className={styles.cartLink}
+            href="/cart"
+            aria-label={
+              hasHydrated && totalQuantity > 0
+                ? `장바구니, 총 ${totalQuantity}개`
+                : "장바구니"
+            }
+            aria-current={
+              isCurrentRoute(pathname, "/cart") ? "page" : undefined
+            }
+            onClick={closeNavigation}
+            onKeyDown={handleHeaderKeyDown}
+          >
+            <span>Cart</span>
+            {hasHydrated && totalQuantity > 0 ? (
+              <span className={styles.cartCount} aria-hidden="true">
+                {totalQuantity}
+              </span>
+            ) : null}
+          </Link>
+
+          <span className={styles.utilityDivider} aria-hidden="true">
+            |
+          </span>
+
+          <Link
+            className={styles.loginLink}
+            href="/login"
+            aria-current={
+              isCurrentRoute(pathname, "/login") ? "page" : undefined
+            }
+            onClick={closeNavigation}
+            onKeyDown={handleHeaderKeyDown}
+          >
+            Login
+          </Link>
+
+          <Button
+            ref={menuButtonRef}
+            className={styles.menuButton}
+            variant="secondary"
+            aria-controls="primary-navigation"
+            aria-expanded={isNavigationOpen}
+            onClick={() => setIsNavigationOpen((isOpen) => !isOpen)}
+            onKeyDown={handleHeaderKeyDown}
+          >
+            {isNavigationOpen ? "메뉴 닫기" : "메뉴"}
+          </Button>
+        </div>
       </div>
     </header>
   );

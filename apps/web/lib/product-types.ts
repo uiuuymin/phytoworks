@@ -29,6 +29,15 @@ export type ProductOptionGroup = {
   }[];
 };
 
+export type ProductSpecGroup = {
+  id: string;
+  label: string;
+  items: readonly {
+    label: string;
+    value: string;
+  }[];
+};
+
 export type CatalogProduct = {
   id: string;
   name: string;

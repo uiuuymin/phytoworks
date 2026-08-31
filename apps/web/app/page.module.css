@@ -4,8 +4,22 @@
 
 .hero {
   display: grid;
-  max-width: 52rem;
+  max-width: none;
+  align-items: start;
+}
+
+.heroCopy {
+  display: grid;
   gap: var(--space-6);
+  animation: hero-copy-reveal 2200ms cubic-bezier(0.22, 1, 0.36, 1) 240ms both;
+}
+
+.hero h1 {
+  word-break: keep-all;
+}
+
+.hero h1 span {
+  display: block;
 }
 
 .lead {
@@ -15,11 +29,134 @@
 }
 
 .catalogLink {
+  margin-block-start: calc(var(--space-6) + 0.375rem);
+  width: max-content;
+  padding-inline: var(--space-4);
+}
+
+.heroMedia {
+  position: relative;
+  width: min(100%, 36rem);
+  margin: 0;
+  justify-self: center;
+  isolation: isolate;
+  overflow: hidden;
+  animation: hero-media-fade-in 2200ms cubic-bezier(0.22, 1, 0.36, 1) 240ms both;
+}
+
+.heroMedia::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    135deg,
+    transparent 35%,
+    rgb(255 255 255 / 0.14) 47%,
+    rgb(255 255 255 / 0.44) 50%,
+    rgb(255 255 255 / 0.14) 53%,
+    transparent 65%
+  );
+  background-position: -100% -100%;
+  background-size: 220% 220%;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  -webkit-mask-image: url("/images/products/nitro-hero-cutout.png");
+  mask-image: url("/images/products/nitro-hero-cutout.png");
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  animation: hero-media-light-sweep 2200ms cubic-bezier(0.22, 1, 0.36, 1) 240ms
+    both;
+}
+
+.heroMedia img {
   width: 100%;
+  height: auto;
+  filter: drop-shadow(0 1.5rem 2rem rgb(0 0 0 / 0.24));
 }
 
 @media (min-width: 40rem) {
-  .catalogLink {
-    width: max-content;
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 1fr);
+    column-gap: clamp(var(--space-8), 8vw, var(--space-20));
+  }
+
+  .heroCopy {
+    grid-column: 1;
+    padding-block-start: clamp(var(--space-12), 8vw, var(--space-20));
+  }
+
+  .heroMedia {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+}
+
+@keyframes hero-media-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes hero-media-light-sweep {
+  0% {
+    opacity: 0;
+    background-position: -100% -100%;
+  }
+
+  18% {
+    opacity: 0.6;
+  }
+
+  55% {
+    opacity: 0.38;
+    background-position: 0 0;
+  }
+
+  100% {
+    opacity: 0;
+    background-position: 100% 100%;
+  }
+}
+
+@keyframes hero-copy-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroCopy {
+    animation: none;
+  }
+
+  .heroMedia {
+    animation: none;
+  }
+
+  .heroMedia::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+@supports not (mask-image: url("/images/products/nitro-hero-cutout.png")) {
+  .heroMedia::after {
+    display: none;
   }
 }

@@ -25,12 +25,15 @@ Product는 PhytoWorks Shop에서 연구자나 기관 담당자가 조회하는 �
 | `description` | 상품 설명 | Proposed — 필수 여부 TBD |
 | `category` | 생육 시스템, 이미징 모듈, 환경·관수 옵션, 분석 서비스 구분 | Proposed |
 | `purchaseMode` | 직접 구매 또는 견적 문의 구분 | Proposed — `DIRECT_PURCHASE`, `QUOTE_REQUIRED` 후보 |
-| `price` | 직접 구매 항목의 Demo 판매 가격 | Proposed — 견적 문의 항목에는 없을 수 있음 |
-| `stockQuantity` | 직접 구매 항목의 Demo 재고 수량 | Proposed — 장비·서비스에는 적용하지 않을 수 있음 |
+| `pricing` | 가격 표시값, 통화, 출처와 권위 여부 | Current Demo — 데이터에만 남아 있으며 현재 Web UI에는 표시하지 않음 |
+| `optionGroups` | 카탈로그에 기재된 선택 가능 구성 후보 | Current Demo — NITRO의 Depth Imaging, Irrigation과 Additional Options |
+| `specGroups` | 카탈로그의 기술 사양을 화면에서 그룹별로 표시하기 위한 값 | Current Demo — NITRO의 Chamber, Imaging, LED와 Plant 정보 |
+| `stockQuantity` | 직접 구매 항목의 재고 수량 | 현재 범위에서 제외 — 재고 모델은 TBD |
 | `isActive` | 현재 목록 노출 및 신규 구매가 가능한지 나타내는 값 | Proposed |
 | `sourceStatus` | 공식 정보 기반인지 학습용 Demo인지 나타내는 값 | Proposed |
 | `sourceUrl` | 공식 사실을 확인한 출처 | Proposed — 필요한 항목에만 사용 |
-| `image` 또는 `images` | 상품을 설명하는 이미지 정보 | TBD — 저장 방식과 저작권 기록 방식 미결정 |
+| `media` | Product Detail에 표시할 제품 또는 분석 결과 이미지와 alt text | Current Demo — 사용자 제공 카탈로그에서 추출한 이미지, 권리 상태는 TBD |
+| `thumbnail` | ProductCard에 표시할 실물 제품 썸네일과 alt text | Current Demo — NITRO만 있고 이미징 모듈은 실물 사진 확보 전까지 TBD |
 
 SKU, 장비 옵션 조합, 납기, 설치와 유지보수 정보는 실제 구현 범위를 정한 뒤 추가한다. 학습 목적과 관계없는 필드를 미리 늘리지 않는다.
 
@@ -47,6 +50,9 @@ SKU, 장비 옵션 조합, 납기, 설치와 유지보수 정보는 실제 구�
 ## 가격
 
 - 공식 사이트에서 실제 가격은 확인되지 않았다. 가격을 추가하면 반드시 `Demo`로 표시한다.
+- **Current Demo:** NITRO의 `도입·1년 운영비 2,000만 원부터`는 카탈로그 비교값이며 제품의 확정 판매 단가가 아니다.
+- **Current Demo:** Thermal Imaging Module `500만 원`, Chlorophyll Fluorescence Module `700만 원`은 UI 검증용 임시값이다.
+- **Current Demo:** Web은 가격 object의 `authoritative: false`로 위 경계를 보존하지만, 현재 화면에는 가격을 표시하지 않으며 실제 결제 금액이나 주문 단가로 사용하지 않는다.
 - **Proposed:** `DIRECT_PURCHASE` 항목의 표시 가격과 주문 금액은 서버가 관리하는 Product 가격을 기준으로 한다.
 - **Proposed:** `QUOTE_REQUIRED` 항목은 가격 없이 문의 흐름으로 보내며 Cart에 담지 않는다.
 - 브라우저나 Cart가 보낸 금액을 그대로 신뢰하지 않는다.
@@ -55,6 +61,7 @@ SKU, 장비 옵션 조합, 납기, 설치와 유지보수 정보는 실제 구�
 
 ## 재고
 
+- **Current:** 사용자 결정에 따라 현재 Product와 UI에 재고 필드를 추가하지 않는다.
 - `stockQuantity`는 모든 Product의 공통 필드라고 확정하지 않는다. 주문 제작 장비, 옵션과 분석 서비스의 가용성 모델은 서로 다를 수 있다.
 - 직접 구매형 재고 상품에는 재고가 음수가 되지 않아야 한다는 규칙을 초기 후보로 검토한다.
 - 장바구니에 담는 시점, 주문 생성 시점, 결제 승인 시점 중 언제 재고를 예약하거나 차감할지는 `TBD`다.
@@ -75,6 +82,7 @@ SKU, 장비 옵션 조합, 납기, 설치와 유지보수 정보는 실제 구�
 - Current Demo의 직접 구매 가능 여부는 실제 회사 정책이 아니다. 화면에서는 공통 SiteHeader의 `Shop Demo` label로 이 경계를 알리고 route마다 장문의 안내를 반복하지 않는다.
 - 저장된 Cart를 복원할 때 Product가 존재하지 않거나 더 이상 `DIRECT_PURCHASE`가 아니면 해당 항목을 제외한다.
 - Product card와 browser가 가진 가격은 표시값이며 주문 금액의 신뢰 가능한 기준이 아니다.
+- **Current Demo:** NITRO 카탈로그 옵션은 Product Detail에서 선택할 수 있으며, 선택한 구성은 browser 견적함에 임시 저장한다. 옵션별 추가 금액과 견적 전송은 아직 구현하지 않는다.
 - IA, Product card와 CTA 표현 원칙은 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 함께 확인한다.
 
 ## 향후 결정해야 할 규칙

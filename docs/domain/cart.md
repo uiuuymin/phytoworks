@@ -8,6 +8,8 @@ Cart는 고객이 주문을 만들기 전에 구매할 Product와 수량을 임�
 
 Cart에는 `DIRECT_PURCHASE`로 명시된 Demo Product만 담을 수 있다. `QUOTE_REQUIRED` Product는 견적 문의 대상으로 남기며 CartItem을 만들지 않는다. Product의 판매 방식과 CTA 경계는 [`product.md`](./product.md)와 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 함께 확인한다.
 
+**Current Demo:** `/cart`는 직접 구매 Product를 관리하는 구매 장바구니와 `QUOTE_REQUIRED` Product의 구성 후보를 관리하는 견적함을 별도 section으로 표시한다. 견적함은 주문 Cart가 아니며, 현재 NITRO 구성 한 건만 browser `localStorage`에 임시 저장한다.
+
 ## CartItem
 
 CartItem은 하나의 Product와 고객이 원하는 수량을 연결한다.
@@ -17,6 +19,7 @@ CartItem은 하나의 Product와 고객이 원하는 수량을 연결한다.
 - 가격 data가 없으므로 현재 browser Cart에는 단가와 가격 snapshot을 저장하지 않는다.
 - CartItem이 존재하더라도 Product가 활성 상태이고 재고가 충분하거나 주문 가능한 상태라는 보장은 없다.
 - 향후 Product option이 생기면 Product ID만으로 같은 CartItem을 판단하지 않고 option 조합을 포함한 identity를 다시 결정한다.
+- 견적함 항목은 Product ID와 선택한 option group 조합을 보관하지만, 현재는 실제 견적 제출이나 고객 정보와 연결하지 않는다.
 
 ## 수량 변경과 제거
 
@@ -56,6 +59,30 @@ value: web-generated-session-id
 - 존재하지 않거나 현재 `DIRECT_PURCHASE`가 아닌 Product ID는 API가 변경 요청을 거부한다.
 - `localStorage`에 접근하거나 저장할 수 없으면 현재 tab의 memory session ID로 API를 사용하며 새로고침 뒤 같은 Cart가 유지되지 않을 수 있다.
 - 여러 tab, 다른 browser 및 기기 사이의 동기화, 만료와 Customer Cart 병합은 현재 범위에 없다.
+
+견적함은 구매 장바구니와 별도 storage key를 사용한다.
+
+```text
+key: phytoworks-shop.quote.v1
+
+value:
+{
+  "version": 1,
+  "items": [
+    {
+      "productId": "nitro",
+      "selections": [
+        { "groupId": "depth-imaging", "optionIds": ["lidar"] }
+      ]
+    }
+  ]
+}
+```
+
+- 견적함의 단일 선택 group은 반드시 한 option을 선택해야 복원한다.
+- 추가 옵션처럼 다중 선택 group은 선택하지 않은 상태도 허용한다.
+- 현재 같은 Product의 새 구성은 기존 견적함 항목을 대체한다.
+- 견적함 저장값도 사용자가 변경할 수 있는 외부 입력으로 취급한다.
 
 ## 현재 서버 Cart API 경계
 

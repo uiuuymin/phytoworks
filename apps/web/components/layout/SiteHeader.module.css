@@ -29,19 +29,24 @@
 .inner {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "utilities utilities"
+    "brand brand"
+    "navigation navigation";
   align-items: center;
   gap: var(--space-3) var(--space-4);
-  min-height: 4.5rem;
+  min-height: 6.5rem;
   padding-block: var(--space-3);
 }
 
 .brand {
+  grid-area: brand;
   display: flex;
   min-width: 0;
   align-items: baseline;
   gap: var(--space-2);
   color: var(--color-text);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-heading);
   text-decoration: none;
@@ -64,8 +69,8 @@
 }
 
 .navigation {
+  grid-area: navigation;
   display: none;
-  grid-column: 1 / -1;
   padding-block-end: var(--space-2);
 }
 
@@ -82,14 +87,96 @@
 
 .navigationLink {
   display: flex;
-  min-height: 2.75rem;
+  min-height: 2.25rem;
   align-items: center;
   gap: var(--space-2);
-  padding-inline: var(--space-3);
+  padding-inline: 0 var(--space-3);
   border-radius: var(--radius-sm);
   color: var(--color-text);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
+}
+
+.utilities {
+  display: flex;
+  grid-area: utilities;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  min-height: 1.75rem;
+}
+
+.language {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-end: auto;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.2;
+  opacity: 0.62;
+}
+
+.languageActive {
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+.divider {
+  width: 1px;
+  height: 0.9em;
+  background: var(--color-border);
+}
+
+.cartLink {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  gap: var(--space-2);
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.cartLink:hover {
+  background: var(--color-surface);
+  color: var(--color-action-hover);
+}
+
+.cartLink[aria-current="page"] {
+  background: var(--color-surface-raised);
+  color: var(--color-action);
+  text-decoration: underline;
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.25em;
+}
+
+.loginLink {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.loginLink:hover {
+  background: var(--color-surface);
+  color: var(--color-action-hover);
+}
+
+.loginLink[aria-current="page"] {
+  background: var(--color-surface-raised);
+  color: var(--color-action);
+  text-decoration: underline;
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.25em;
 }
 
 .cartCount {
@@ -107,13 +194,40 @@
   line-height: 1;
 }
 
+.searchLink {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  padding-inline: var(--space-2);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.searchLink:hover {
+  color: var(--color-action-hover);
+}
+
+.searchLink[aria-current="page"] {
+  color: var(--color-action);
+  text-decoration: underline;
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.25em;
+}
+
+.utilityDivider {
+  color: var(--color-border);
+  font-size: var(--font-size-sm);
+  line-height: 1;
+}
+
 .navigationLink:hover {
   background: var(--color-surface);
   color: var(--color-action-hover);
 }
 
 .navigationLink[aria-current="page"] {
-  background: var(--color-surface-raised);
   color: var(--color-action);
   text-decoration: underline;
   text-decoration-thickness: 0.12em;
@@ -122,8 +236,14 @@
 
 @media (min-width: 40rem) {
   .inner {
-    display: flex;
-    justify-content: space-between;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "utilities utilities"
+      "brand brand"
+      "navigation navigation";
+    align-items: center;
+    gap: var(--space-2) var(--space-8);
+    min-height: 8.5rem;
   }
 
   .menuButton {
@@ -132,16 +252,24 @@
 
   .navigation {
     display: block;
-    padding-block-end: 0;
+    padding-block-end: var(--space-2);
   }
 
   .navigationList {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-4);
   }
 
   .navigationLink {
-    padding-inline: var(--space-4);
+    padding-inline: 0;
+  }
+
+  .cartLink {
+    padding-inline: var(--space-2);
+  }
+
+  .loginLink {
+    padding-inline: var(--space-2);
   }
 }

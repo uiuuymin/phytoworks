@@ -1,0 +1,51 @@
+.main {
+  display: grid;
+  min-height: calc(100svh - 7.5rem);
+  align-items: start;
+  justify-items: center;
+  padding-block: clamp(var(--space-12), 10vw, var(--space-20));
+}
+
+.panel {
+  display: grid;
+  width: min(100%, 30rem);
+  gap: var(--space-8);
+  padding: clamp(var(--space-6), 6vw, var(--space-8));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.headingGroup {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.eyebrow {
+  color: var(--color-action);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.description,
+.loginPrompt {
+  color: var(--color-text-muted);
+}
+
+.loginPrompt {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  width: min(100%, 30rem);
+  margin-top: var(--space-6);
+  text-align: center;
+}
+
+.loginPrompt a {
+  color: var(--color-action);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}

@@ -1,0 +1,135 @@
+.section {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.header {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.overview {
+  color: var(--color-text-muted);
+}
+
+.overview {
+  margin-block-start: var(--space-2);
+}
+
+.clearButton {
+  width: max-content;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--color-action);
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.clearButton:hover {
+  color: var(--color-action-hover);
+  text-decoration: underline;
+}
+
+.list {
+  display: grid;
+  gap: var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.emptyState,
+.quoteItem {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.emptyState {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6);
+}
+
+.emptyState p {
+  color: var(--color-text-muted);
+}
+
+.catalogLink {
+  width: max-content;
+}
+
+.quoteItem {
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-6);
+}
+
+.quoteInfo {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-2);
+}
+
+.category {
+  color: var(--color-action);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.productName {
+  overflow-wrap: anywhere;
+}
+
+.productLink {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.productLink:hover {
+  color: var(--color-action-hover);
+  text-decoration: underline;
+}
+
+.selectedOptions {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.selectedOptions div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.selectedOptions dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.selectedOptions dd {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+}
+
+.removeQuoteButton {
+  width: 100%;
+}
+
+@media (min-width: 40rem) {
+  .header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .quoteItem {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .removeQuoteButton {
+    width: max-content;
+  }
+}

@@ -18,6 +18,7 @@ import {
   setCartItemQuantity,
 } from "@/lib/cart-api";
 import { getOrCreateCartSessionId } from "@/lib/cart-session";
+import type { ProductOptionGroup } from "@/lib/product-types";
 
 import styles from "./CartProvider.module.css";
 import {
@@ -28,6 +29,13 @@ import {
   initialCartState,
   isValidCartQuantity,
 } from "./cart-state";
+import {
+  initialQuoteState,
+  type QuoteItem,
+  type QuoteSelection,
+  quoteReducer,
+} from "./quote-state";
+import { readQuoteFromStorage, writeQuoteToStorage } from "./quote-storage";
 
 type ApiStatus = "loading" | "available" | "unavailable";
 
@@ -45,6 +53,15 @@ type CartContextValue = {
   removeItem: (productId: string) => Promise<void>;
   undoRemove: () => Promise<void>;
   announceInvalidQuantity: () => void;
+  quoteItems: readonly QuoteItem[];
+  quoteCount: number;
+  addQuoteItem: (
+    productId: string,
+    selections: readonly QuoteSelection[],
+    optionGroups: readonly ProductOptionGroup[],
+  ) => boolean;
+  removeQuoteItem: (productId: string) => void;
+  clearQuoteItems: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -55,9 +72,14 @@ type CartProviderProps = {
 
 export function CartProvider({ children }: CartProviderProps) {
   const [state, dispatch] = useReducer(cartReducer, initialCartState);
+  const [quoteState, quoteDispatch] = useReducer(
+    quoteReducer,
+    initialQuoteState,
+  );
   const [apiStatus, setApiStatus] = useState<ApiStatus>("loading");
   const [isPending, setIsPending] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [quoteStorageAvailable, setQuoteStorageAvailable] = useState(true);
   const [announcement, setAnnouncement] = useState({ id: 0, message: "" });
 
   const announce = useCallback((message: string) => {
@@ -68,6 +90,10 @@ export function CartProvider({ children }: CartProviderProps) {
     let cancelled = false;
     const nextSessionId = getOrCreateCartSessionId();
     setSessionId(nextSessionId);
+
+    const storedQuote = readQuoteFromStorage();
+    quoteDispatch({ type: "hydrate", items: storedQuote.items });
+    setQuoteStorageAvailable(storedQuote.isAvailable);
 
     getCart(nextSessionId)
       .then((cart) => {
@@ -93,6 +119,24 @@ export function CartProvider({ children }: CartProviderProps) {
     };
   }, [announce]);
 
+  useEffect(() => {
+    if (!quoteState.hasHydrated || !quoteStorageAvailable) {
+      return;
+    }
+
+    if (!writeQuoteToStorage(quoteState.items)) {
+      setQuoteStorageAvailable(false);
+      announce(
+        "견적함을 이 브라우저에 저장할 수 없습니다. 현재 화면을 사용하는 동안만 유지됩니다.",
+      );
+    }
+  }, [
+    announce,
+    quoteState.hasHydrated,
+    quoteState.items,
+    quoteStorageAvailable,
+  ]);
+
   const runMutation = useCallback(
     async (
       operation: (currentSessionId: string) => Promise<CartApiResponse>,
@@ -112,17 +156,13 @@ export function CartProvider({ children }: CartProviderProps) {
 
       try {
         const cart = await operation(sessionId);
-        dispatch({
-          type: "sync",
-          items: cart.items,
-          lastRemovedItem,
-        });
+        dispatch({ type: "sync", items: cart.items, lastRemovedItem });
         setApiStatus("available");
         announce(successMessage);
         return true;
       } catch {
         setApiStatus("unavailable");
-        announce("Cart API를 사용할 수 없습니다. 잠시 후 다시 시도하세요.");
+        announce("Cart API를 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.");
         return false;
       } finally {
         setIsPending(false);
@@ -163,27 +203,20 @@ export function CartProvider({ children }: CartProviderProps) {
 
   async function incrementItem(productId: string) {
     const currentItem = getCartItem(state.items, productId);
-
-    if (!currentItem) {
-      return;
+    if (currentItem) {
+      await setQuantity(productId, currentItem.quantity + 1);
     }
-
-    await setQuantity(productId, currentItem.quantity + 1);
   }
 
   async function decrementItem(productId: string) {
     const currentItem = getCartItem(state.items, productId);
-
-    if (!currentItem || currentItem.quantity <= 1) {
-      return;
+    if (currentItem && currentItem.quantity > 1) {
+      await setQuantity(productId, currentItem.quantity - 1);
     }
-
-    await setQuantity(productId, currentItem.quantity - 1);
   }
 
   async function removeItem(productId: string) {
     const currentItem = getCartItem(state.items, productId);
-
     if (!currentItem) {
       return;
     }
@@ -197,7 +230,6 @@ export function CartProvider({ children }: CartProviderProps) {
 
   async function undoRemove() {
     const removedItem = state.lastRemovedItem;
-
     if (!removedItem) {
       return;
     }
@@ -217,11 +249,70 @@ export function CartProvider({ children }: CartProviderProps) {
     announce("수량은 1 이상의 정수여야 합니다.");
   }, [announce]);
 
+  function addQuoteItem(
+    productId: string,
+    selections: readonly QuoteSelection[],
+    optionGroups: readonly ProductOptionGroup[],
+  ) {
+    const normalizedSelections = optionGroups.map((group) => {
+      const selection = selections.find(
+        (candidate) => candidate.groupId === group.id,
+      );
+      const optionIds = [
+        ...new Set(
+          selection?.optionIds.filter((optionId) =>
+            group.options.some((option) => option.id === optionId),
+          ) ?? [],
+        ),
+      ];
+
+      return { groupId: group.id, optionIds };
+    });
+    const missingRequiredGroups = optionGroups.filter((group) => {
+      if (group.selection !== "single") {
+        return false;
+      }
+
+      return (
+        normalizedSelections.find((selection) => selection.groupId === group.id)
+          ?.optionIds.length !== 1
+      );
+    });
+
+    if (missingRequiredGroups.length > 0) {
+      announce(
+        `${missingRequiredGroups.map((group) => group.label).join(", ")} 옵션을 하나씩 선택해 주세요.`,
+      );
+      return false;
+    }
+
+    quoteDispatch({
+      type: "add",
+      item: { productId, selections: normalizedSelections },
+    });
+    announce("구성을 견적함에 담았습니다.");
+    return true;
+  }
+
+  function removeQuoteItem(productId: string) {
+    quoteDispatch({ type: "remove", productId });
+    announce("구성을 견적함에서 제거했습니다.");
+  }
+
+  function clearQuoteItems() {
+    if (quoteState.items.length === 0) {
+      return;
+    }
+
+    quoteDispatch({ type: "clear" });
+    announce("견적함을 비웠습니다.");
+  }
+
   const contextValue: CartContextValue = {
     items: state.items,
     lastRemovedItem: state.lastRemovedItem,
     totalQuantity: getCartTotalQuantity(state.items),
-    hasHydrated: state.hasHydrated,
+    hasHydrated: state.hasHydrated && quoteState.hasHydrated,
     apiStatus,
     isPending,
     addItem,
@@ -231,6 +322,11 @@ export function CartProvider({ children }: CartProviderProps) {
     removeItem,
     undoRemove,
     announceInvalidQuantity,
+    quoteItems: quoteState.items,
+    quoteCount: quoteState.items.length,
+    addQuoteItem,
+    removeQuoteItem,
+    clearQuoteItems,
   };
 
   return (
