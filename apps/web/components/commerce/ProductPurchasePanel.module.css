@@ -29,6 +29,23 @@
   color: var(--color-text-muted);
 }
 
+.pricing {
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-4);
+  border-block: 1px solid var(--color-border);
+}
+
+.priceLabel,
+.priceSource {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.pricing strong {
+  font-size: var(--font-size-2xl);
+}
+
 .inquiryLink,
 .cartButton {
   display: inline-flex;

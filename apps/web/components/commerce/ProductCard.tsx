@@ -20,6 +20,15 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <div className={styles.footer}>
+        <div className={styles.pricing}>
+          <span className={styles.purchaseModeLabel}>가격 참고</span>
+          <strong>{product.pricing.displayLabel}</strong>
+          <span className={styles.priceSource}>
+            {product.pricing.source === "DEMO"
+              ? "UI 검증용 Demo 가격"
+              : "카탈로그 참고 금액, 실제 가격은 견적 확정"}
+          </span>
+        </div>
         <p className={styles.purchaseMode}>
           <span className={styles.purchaseModeLabel}>구매 방법</span>
           <span>{purchaseModeLabels[product.purchaseMode]}</span>

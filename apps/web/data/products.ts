@@ -1,5 +1,43 @@
 export type CatalogPurchaseMode = "QUOTE_REQUIRED" | "DIRECT_PURCHASE";
 
+export type ProductPricing =
+  | {
+      mode: "QUOTE_REFERENCE";
+      currency: "KRW";
+      amountFrom: number;
+      displayLabel: string;
+      source: "BROCHURE_REFERENCE";
+      authoritative: false;
+    }
+  | {
+      mode: "DEMO";
+      currency: "KRW";
+      amount: number;
+      displayLabel: string;
+      source: "DEMO";
+      authoritative: false;
+    };
+
+export type ProductOptionGroup = {
+  id: string;
+  label: string;
+  selection: "single" | "multiple";
+  source: "BROCHURE";
+  options: readonly {
+    id: string;
+    label: string;
+  }[];
+};
+
+export type ProductSpecGroup = {
+  id: string;
+  label: string;
+  items: readonly {
+    label: string;
+    value: string;
+  }[];
+};
+
 export type ProductDetails = {
   summary: string;
   features: readonly string[];
@@ -12,6 +50,9 @@ export type CatalogProduct = {
   category: string;
   description: string;
   purchaseMode: CatalogPurchaseMode;
+  pricing: ProductPricing;
+  optionGroups: readonly ProductOptionGroup[];
+  specGroups: readonly ProductSpecGroup[];
   details: ProductDetails;
 };
 
@@ -28,6 +69,91 @@ export const products = [
     description:
       "환경 제어, 멀티모달 이미징과 AI 기반 형질 분석을 연결하는 연구 플랫폼입니다.",
     purchaseMode: "QUOTE_REQUIRED",
+    pricing: {
+      mode: "QUOTE_REFERENCE",
+      currency: "KRW",
+      amountFrom: 20_000_000,
+      displayLabel: "도입·1년 운영비 2,000만 원부터",
+      source: "BROCHURE_REFERENCE",
+      authoritative: false,
+    },
+    optionGroups: [
+      {
+        id: "depth-imaging",
+        label: "Depth 이미징",
+        selection: "single",
+        source: "BROCHURE",
+        options: [
+          { id: "lidar", label: "Lidar" },
+          { id: "stereo", label: "Stereo" },
+        ],
+      },
+      {
+        id: "irrigation",
+        label: "관수",
+        selection: "single",
+        source: "BROCHURE",
+        options: [
+          { id: "drip", label: "점적 관수" },
+          { id: "mist", label: "분무경" },
+          { id: "sub-irrigation", label: "저면 관수" },
+        ],
+      },
+      {
+        id: "add-ons",
+        label: "추가 옵션",
+        selection: "multiple",
+        source: "BROCHURE",
+        options: [
+          { id: "ec-ph-sensor", label: "EC/pH 센서" },
+          { id: "load-cell-sensor", label: "로드셀 센서" },
+          { id: "power-meter", label: "전력량계" },
+          { id: "humidifier", label: "가습 장치" },
+        ],
+      },
+    ],
+    specGroups: [
+      {
+        id: "chamber",
+        label: "Chamber H/W",
+        items: [
+          { label: "외부 치수", value: "800 x 500 x 1400 mm" },
+          { label: "내부 치수", value: "600 x 400 x 1100 mm" },
+          { label: "중량", value: "120 kg, 옵션 선택 시 +20 kg" },
+          { label: "온도 제어", value: "Peltier, -6/-10 ~ +30 °C" },
+          { label: "소비전력", value: ">1 kW @ 110V-220V" },
+          { label: "연결", value: "Ethernet (RJ-45), 필수" },
+        ],
+      },
+      {
+        id: "imaging",
+        label: "Imaging",
+        items: [
+          { label: "RGB", value: "4608 x 2592 / FOV 66(H)" },
+          { label: "Thermal (LWIR)", value: "160 x 120 / FOV 57(H)" },
+          { label: "Chlorophyll FL", value: "1280 x 1024 / FOV 62.1(H)" },
+          { label: "분석 지표", value: "Fv/Fm, NvPQ, ETR 등" },
+        ],
+      },
+      {
+        id: "lighting",
+        label: "LED Lighting",
+        items: [
+          { label: "Red", value: "620 nm, 약 500 µmol/m²/s" },
+          { label: "Blue", value: "450 nm, 약 2000 µmol/m²/s" },
+          { label: "Far-red", value: "730 nm, 약 500 µmol/m²/s" },
+          { label: "Sun-like White", value: "약 300 µmol/m²/s" },
+        ],
+      },
+      {
+        id: "plant-area",
+        label: "Plant & Area",
+        items: [
+          { label: "최대 식물 높이", value: "260 mm 이하" },
+          { label: "이미징 영역", value: "580 x 380 mm" },
+        ],
+      },
+    ],
     details: {
       summary:
         "독립적인 생육 환경 제어와 반복 촬영으로 식물의 반응을 관찰하고, 수집한 데이터를 정량적인 형질 분석으로 연결합니다.",
@@ -46,6 +172,16 @@ export const products = [
     description:
       "적외선 열화상으로 식물의 온도 변화와 스트레스 패턴을 관찰합니다.",
     purchaseMode: "DIRECT_PURCHASE",
+    pricing: {
+      mode: "DEMO",
+      currency: "KRW",
+      amount: 5_000_000,
+      displayLabel: "500만 원",
+      source: "DEMO",
+      authoritative: false,
+    },
+    optionGroups: [],
+    specGroups: [],
     details: {
       summary:
         "식물에서 나타나는 온도 차이를 열화상 데이터로 확인하여 생육 반응과 스트레스 변화를 비교할 수 있습니다.",
@@ -64,6 +200,16 @@ export const products = [
     description:
       "엽록소 형광 정보를 촬영해 눈으로 보기 어려운 식물의 생리 상태를 분석합니다.",
     purchaseMode: "DIRECT_PURCHASE",
+    pricing: {
+      mode: "DEMO",
+      currency: "KRW",
+      amount: 7_000_000,
+      displayLabel: "700만 원",
+      source: "DEMO",
+      authoritative: false,
+    },
+    optionGroups: [],
+    specGroups: [],
     details: {
       summary:
         "엽록소 형광 정보를 촬영하여 가시광 이미지만으로 확인하기 어려운 식물의 생리 반응을 관찰합니다.",

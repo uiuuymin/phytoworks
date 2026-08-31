@@ -76,6 +76,14 @@ export function CartLineItem({ product, quantity }: CartLineItemProps) {
             {product.name}
           </Link>
         </h3>
+        <p className={styles.price}>
+          <span>{product.pricing.displayLabel}</span>
+          <span className={styles.priceNote}>
+            {product.pricing.source === "DEMO"
+              ? "UI 검증용 가격"
+              : "카탈로그 참고 금액"}
+          </span>
+        </p>
       </div>
 
       <div className={styles.itemActions}>

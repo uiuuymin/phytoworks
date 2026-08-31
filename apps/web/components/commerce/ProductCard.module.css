@@ -32,6 +32,20 @@
   border-top: 1px solid var(--color-border);
 }
 
+.pricing {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.pricing strong {
+  font-size: var(--font-size-lg);
+}
+
+.priceSource {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
 .purchaseMode {
   display: grid;
   gap: var(--space-1);

@@ -3,7 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ProductMediaPlaceholder } from "@/components/commerce/ProductMediaPlaceholder";
+import { ProductOptionSummary } from "@/components/commerce/ProductOptionSummary";
 import { ProductPurchasePanel } from "@/components/commerce/ProductPurchasePanel";
+import { ProductSpecSummary } from "@/components/commerce/ProductSpecSummary";
 import { getProductById, products } from "@/data/products";
 
 import styles from "./page.module.css";
@@ -79,6 +81,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <ProductPurchasePanel
               productId={product.id}
               purchaseMode={product.purchaseMode}
+              pricing={product.pricing}
             />
           </div>
         </div>
@@ -97,6 +100,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
               ))}
             </ul>
           </section>
+
+          <ProductOptionSummary optionGroups={product.optionGroups} />
+          <ProductSpecSummary specGroups={product.specGroups} />
         </div>
       </article>
     </main>
