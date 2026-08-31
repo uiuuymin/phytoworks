@@ -2,7 +2,7 @@
 
 ## 문서 상태
 
-- **Current:** pnpm workspace에 `apps/web` Next.js 애플리케이션과 `apps/api` NestJS 애플리케이션이 있다. web에서는 Home, Product Catalog, Product Detail과 browser Cart가 실행되며 API에서는 Health, Product read, 익명 session Cart, Cart 기반 Demo Order API와 Toss confirm 기반 Payment API가 실행된다.
+- **Current:** pnpm workspace에 `apps/web` Next.js 애플리케이션과 `apps/api` NestJS 애플리케이션이 있다. web에서는 Home, Product Catalog, Product Detail, browser Cart와 Demo checkout이 실행되며 API에서는 Health, Product read, 익명 session Cart, Cart 기반 Demo Order API와 Toss confirm 기반 Payment API가 실행된다.
 - **Proposed:** 결제창, redirect와 운영 수준의 외부 서비스 연동은 아직 별도 task에서 확정한다.
 - **TBD:** 구체적인 도구나 책임 경계를 추가 조사해야 한다.
 
@@ -30,11 +30,13 @@ Toss Payments
 
 **Current:** `apps/web`에 Next.js 16.3.3 App Router가 생성되었고 `/`, `/products`, Product Detail 세 건과 `/cart`를 렌더링한다. Home, Product 목록, card, detail과 Cart page shell은 Server Component이며 Product data는 API를 사용한다. Root CartProvider, SiteHeader, AddToCartButton, CartView와 CartLineItem은 browser state, event와 Cart API 호출이 필요하므로 Client Component다. Cart 항목은 API와 PostgreSQL에 저장하고 browser에는 익명 Cart session ID만 저장한다.
 
-**Proposed:** 이후 상품·장바구니·주문·결제 결과 화면을 제공하고 NestJS API와 통신한다. 어떤 기능을 Server Component, Server Action 또는 브라우저 코드에서 처리할지는 기능별 task에서 결정한다.
+**Current:** `/checkout`에서 서버 Order를 준비하고 Toss Payments V2 SDK 결제 UI를 렌더링한다. `/checkout/success`는 redirect query를 same-origin Payment API에 전달하고, `/checkout/fail`은 실패 코드와 재시도 경로를 표시한다.
+
+**Proposed:** 이후 상품·장바구니·주문·결제 결과 화면을 확장하고 NestJS API와 통신한다. 어떤 기능을 Server Component, Server Action 또는 브라우저 코드에서 처리할지는 기능별 task에서 결정한다.
 
 ### Web route와 component 경계
 
-**Current:** 직접 작성된 route는 `/`, `/products`, `/products/[productId]`와 `/cart`다. Root layout의 CartProvider는 SiteHeader와 route content를 감싸며 Product Detail, SiteHeader와 Cart가 같은 browser state를 사용하게 한다. Server Component `children`은 CartProvider 안에서도 server rendering 경계를 유지한다. SiteHeader는 Home·Products·Cart link, `Shop Demo` label, Cart 총 수량, 현재 route와 mobile disclosure state를 소유한다. Home은 Shop 소개와 Catalog 진입을, `/products`는 정적 Product 탐색을, Product Detail은 정적 data 조회, 설명, placeholder와 판매 방식 표현을 담당한다. `/cart` page는 metadata와 page shell을, CartView와 CartLineItem은 hydration, empty state, 수량 변경, 제거와 Undo를 담당한다. 세 Product ID는 `generateStaticParams`로 정적 생성하며 알려지지 않은 ID는 page의 `notFound()`와 Product 전용 not-found 화면으로 처리한다. 각 route에는 Demo 경계를 반복해서 설명하는 notice가 없다. `components/layout`, `components/ui`, `components/commerce`, `components/cart`에 역할별 component가 있고 각 component와 route는 CSS Module을 사용한다. Native CSS foundation은 계속 semantic token, global typography, responsive container, focus와 reduced motion만 제공한다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이다.
+**Current:** 직접 작성된 route는 `/`, `/products`, `/products/[productId]`, `/cart`, `/checkout`, `/checkout/success`와 `/checkout/fail`이다. Root layout의 CartProvider는 SiteHeader와 route content를 감싸며 Product Detail, SiteHeader와 Cart가 같은 browser state를 사용하게 한다. Server Component `children`은 CartProvider 안에서도 server rendering 경계를 유지한다. SiteHeader는 Home·Products·Cart link, `Shop Demo` label, Cart 총 수량, 현재 route와 mobile disclosure state를 소유한다. Home은 Shop 소개와 Catalog 진입을, `/products`는 정적 Product 탐색을, Product Detail은 정적 data 조회, 설명, placeholder와 판매 방식 표현을 담당한다. `/cart` page는 metadata와 page shell을, CartView와 CartLineItem은 hydration, empty state, 수량 변경, 제거와 Undo를 담당한다. `/checkout`은 서버 Order 준비와 Toss 결제 UI를, success/fail page는 결제 결과와 재시도 안내를 담당한다. 세 Product ID는 `generateStaticParams`로 정적 생성하며 알려지지 않은 ID는 page의 `notFound()`와 Product 전용 not-found 화면으로 처리한다. 각 route에는 Demo 경계를 반복해서 설명하는 notice가 없다. `components/layout`, `components/ui`, `components/commerce`, `components/cart`와 `components/checkout`에 역할별 component가 있고 각 component와 route는 CSS Module을 사용한다. Native CSS foundation은 계속 semantic token, global typography, responsive container, focus와 reduced motion만 제공한다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이다.
 
 **Proposed:** 최소 Shop route는 다음과 같다.
 
@@ -68,7 +70,7 @@ IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](.
 
 ### Toss Payments
 
-**Current:** 테스트 환경의 서버 승인 단계는 `TossPaymentsGateway`가 담당하며 secret key를 사용하는 통신은 NestJS의 서버 경계 안에서만 수행한다. 결제창과 성공·실패 redirect를 포함한 Web 흐름은 아직 구현하지 않았다. 실제 연동 시 공식 문서를 다시 확인한다.
+**Current:** 테스트 환경의 서버 승인 단계는 `TossPaymentsGateway`가 담당하며 secret key를 사용하는 통신은 NestJS의 서버 경계 안에서만 수행한다. Web은 V2 standard SDK로 결제 UI를 렌더링하고 success/fail redirect를 사용한다. 실제 연동 시 공식 문서를 다시 확인한다.
 
 ### Docker와 Vercel
 
@@ -83,7 +85,7 @@ IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](.
 
 현재 API health 요청은 `HTTP client → NestJS HTTP adapter → HealthController → JSON response` 경로를 사용한다. `GET /health`는 HTTP 200과 `{ "status": "ok" }`를 반환한다. Product read 요청은 `HTTP client → NestJS HTTP adapter → ProductController → ProductService → PrismaProductRepository → PostgreSQL → JSON response` 경로를 사용한다. Cart 요청은 Web에서는 same-origin proxy를 거쳐 위의 Cart module 경로를 사용한다. Order 생성 요청은 `HTTP client → OrderController → OrderService → CartService·ProductService → PrismaOrderRepository → PostgreSQL transaction → JSON response` 경로를 사용한다. Payment 승인 요청은 `HTTP client → PaymentController → PaymentService → PaymentRepository → PostgreSQL(PENDING) → PaymentGateway → Toss Payments → PaymentRepository → PostgreSQL transaction(DONE·PAID) → JSON response` 경로를 사용한다. OrderItem snapshot과 총액은 서버가 만들며 브라우저 금액을 받지 않는다. Product와 Cart·Order·Payment controller의 `api/*` route prefix는 전역 prefix 설정이 아니며, API versioning과 Web/API shared contract 방식은 아직 확정하지 않았다.
 
-현재 Product, Cart, Order와 Payment API는 Prisma 7을 통해 PostgreSQL을 읽고 쓴다. Web Cart의 현재 흐름은 `Browser → Next.js route handler → NestJS → PostgreSQL → NestJS → Next.js → Browser`이며, Order와 Payment API는 아직 Web checkout에서 호출하지 않는다. browser Cart와 API Cart의 자동 병합과 인증 ownership은 아직 확정하지 않았다. Payment confirm API에는 Toss Payments 서버 승인 요청이 구현되어 있지만, 결제창과 redirect를 포함한 Web 흐름은 별도 작업이다. web 캐싱, 직접 서버 렌더링 데이터 접근 또는 API contract 공유 방식은 아직 확정하지 않았다.
+현재 Product, Cart, Order와 Payment API는 Prisma 7을 통해 PostgreSQL을 읽고 쓴다. Web Cart의 현재 흐름은 `Browser → Next.js route handler → NestJS → PostgreSQL → NestJS → Next.js → Browser`이며, Web checkout은 `/api/orders`와 `/api/payments/confirm` same-origin proxy를 사용한다. 결제창은 Toss Payments V2 SDK가 담당하고 서버 secret key는 API에만 존재한다. browser Cart와 API Cart의 자동 병합과 인증 ownership은 아직 확정하지 않았다. web 캐싱, 직접 서버 렌더링 데이터 접근 또는 API contract 공유 방식은 아직 확정하지 않았다.
 
 ## Monorepo 구조
 
