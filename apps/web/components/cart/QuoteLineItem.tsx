@@ -32,10 +32,6 @@ export function QuoteLineItem({ item, product, onRemove }: QuoteLineItemProps) {
             {product.name}
           </Link>
         </h3>
-        <p className={styles.quotePrice}>{product.pricing.displayLabel}</p>
-        <p className={styles.quoteNote}>
-          카탈로그 참고 금액이며, 실제 가격은 견적에서 확정됩니다.
-        </p>
       </div>
 
       <dl className={styles.selectedOptions}>

@@ -41,6 +41,14 @@ export type ProductSpecGroup = {
 export type ProductDetails = {
   summary: string;
   features: readonly string[];
+  media: {
+    src: string;
+    alt: string;
+  };
+  thumbnail?: {
+    src: string;
+    alt: string;
+  };
   mediaLabel: string;
 };
 
@@ -80,7 +88,7 @@ export const products = [
     optionGroups: [
       {
         id: "depth-imaging",
-        label: "Depth 이미징",
+        label: "Depth Imaging",
         selection: "single",
         source: "BROCHURE",
         options: [
@@ -90,25 +98,25 @@ export const products = [
       },
       {
         id: "irrigation",
-        label: "관수",
+        label: "Irrigation",
         selection: "single",
         source: "BROCHURE",
         options: [
-          { id: "drip", label: "점적 관수" },
-          { id: "mist", label: "분무경" },
-          { id: "sub-irrigation", label: "저면 관수" },
+          { id: "drip", label: "Drip Irrigation" },
+          { id: "mist", label: "Mist Irrigation" },
+          { id: "sub-irrigation", label: "Sub-irrigation" },
         ],
       },
       {
         id: "add-ons",
-        label: "추가 옵션",
+        label: "Additional Options",
         selection: "multiple",
         source: "BROCHURE",
         options: [
-          { id: "ec-ph-sensor", label: "EC/pH 센서" },
-          { id: "load-cell-sensor", label: "로드셀 센서" },
-          { id: "power-meter", label: "전력량계" },
-          { id: "humidifier", label: "가습 장치" },
+          { id: "ec-ph-sensor", label: "EC/pH Sensor" },
+          { id: "load-cell-sensor", label: "Load Cell Sensor" },
+          { id: "power-meter", label: "Power Meter" },
+          { id: "humidifier", label: "Humidifier" },
         ],
       },
     ],
@@ -162,6 +170,14 @@ export const products = [
         "RGB, 열화상과 엽록소 형광으로 식물을 비파괴 방식으로 반복 관찰합니다.",
         "촬영한 이미지와 환경 데이터를 AI 기반 형질 분석과 연결합니다.",
       ],
+      media: {
+        src: "/images/products/nitro-chamber.jpeg",
+        alt: "NITRO 생육 챔버 내부에서 자라는 식물",
+      },
+      thumbnail: {
+        src: "/images/products/nitro-chamber.jpeg",
+        alt: "NITRO 생육 챔버 내부에서 자라는 식물",
+      },
       mediaLabel: "NITRO",
     },
   },
@@ -190,6 +206,10 @@ export const products = [
         "눈에 보이는 변화 전후의 스트레스 패턴을 비교해 관찰합니다.",
         "반복 촬영한 결과를 시간의 흐름에 따라 살펴볼 수 있습니다.",
       ],
+      media: {
+        src: "/images/products/thermal-imaging-module.png",
+        alt: "열화상 이미지로 촬영한 식물의 시간별 변화",
+      },
       mediaLabel: "THERMAL",
     },
   },
@@ -218,6 +238,10 @@ export const products = [
         "눈으로 보기 어려운 생리 상태와 변화를 분석합니다.",
         "반복 관찰한 형광 정보를 생육 상태 비교에 활용합니다.",
       ],
+      media: {
+        src: "/images/products/chlorophyll-fluorescence-module.png",
+        alt: "엽록소 형광 이미지로 촬영한 식물의 시간별 변화",
+      },
       mediaLabel: "CHLOROPHYLL FLUORESCENCE",
     },
   },

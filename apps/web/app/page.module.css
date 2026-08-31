@@ -8,6 +8,14 @@
   gap: var(--space-6);
 }
 
+.hero h1 {
+  word-break: keep-all;
+}
+
+.hero h1 span {
+  display: block;
+}
+
 .lead {
   max-width: 43rem;
   color: var(--color-text-muted);

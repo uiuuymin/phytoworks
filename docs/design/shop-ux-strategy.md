@@ -19,20 +19,22 @@
 Root layout
 ├─ CartProvider
 │  ├─ SiteHeader
-│  │  ├─ Home·Products·Cart navigation과 Cart 총 수량
+│  │  ├─ PhytoWorks 홈 링크
+│  │  ├─ PhytoWorks 아래 Products navigation
+│  │  └─ 우측 Cart utility
 │  │  └─ Mobile disclosure
 │  └─ route content
 ├─ / Home
 │  ├─ Shop 소개
 │  └─ Catalog CTA
-├─ /products Product Catalog
-   ├─ Catalog 설명
-   ├─ responsive ProductGrid
-   │  ├─ NITRO Plant Growth System
+├─ /products Products
+   ├─ 생육·표현형 분석 시스템
+   │  └─ NITRO Plant Growth System
+   ├─ 이미징 모듈
    │  ├─ Thermal Imaging Module
    │  └─ Chlorophyll Fluorescence Module
    └─ /products/[productId] Product Detail
-      ├─ ProductMediaPlaceholder
+      ├─ ProductMedia
       ├─ 제품 설명과 주요 기능
       ├─ ProductPurchasePanel
       └─ Product 전용 not-found
@@ -54,12 +56,12 @@ Home
    → Cart에서 수량 변경·제거
 ```
 
-- 공통 SiteHeader, Home·Products·Cart navigation, Cart 총 수량, 현재 route 표시와 mobile disclosure가 있다. Footer는 아직 없다.
+- 공통 SiteHeader, PhytoWorks 홈 링크, Products navigation, Cart utility, Cart 총 수량, 현재 route 표시와 mobile disclosure가 있다. Footer는 아직 없다.
 - Product Detail과 `/cart`가 있으며 Checkout, Payment result와 Order status route는 없다.
 - Product는 `apps/web/data/products.ts`의 정적 TypeScript 배열이며 API와 DB를 사용하지 않는다. 세 Product Detail은 `generateStaticParams`로 생성하며 CartProvider, SiteHeader와 Cart 전용 leaf만 client state를 사용한다.
 - Home의 LinkButton과 SiteHeader로 내부 route를 이동한다. 학습용 Shop이라는 맥락은 SiteHeader의 `Shop Demo` label에서 한 번만 알린다.
 - Native CSS foundation 위에 component·route별 CSS Module, 1열·2열·3열 ProductGrid, responsive SiteHeader와 1열·2열 Product Detail이 구현되었다.
-- ProductCard는 `상세 보기` link로 각 detail에 연결한다. NITRO의 `QUOTE_REQUIRED`는 공식 문의 link를 유지하고, 두 `DIRECT_PURCHASE` detail은 실제 `장바구니 담기` button을 제공한다.
+- Product 목록은 생육·표현형 분석 시스템과 이미징 모듈을 별도 section으로 나누며, ProductCard는 승인된 제품 thumbnail이 있을 때만 이를 표시하고 제품명, 설명과 다음 행동을 함께 제공한다. NITRO의 `QUOTE_REQUIRED`는 견적 구성과 공식 문의로 연결하고, 두 `DIRECT_PURCHASE` detail은 실제 `장바구니 담기` button을 제공한다.
 - `/cart`는 Product ID와 수량만 localStorage에 저장하고 hydration 뒤 검증한다. 같은 Product는 한 줄로 합치며 존재하지 않거나 직접 구매할 수 없는 Product는 제외한다.
 - 현재 semantic markup은 `lang="ko"`, SiteHeader, navigation과 breadcrumb list, skip link, `main`, heading hierarchy, `section`, `article`, Product 및 Cart list, `fieldset`, label, `role="status"`, `aria-labelledby`와 `aria-current`를 사용한다.
 
@@ -76,7 +78,7 @@ Home
 
 | 문제 | 사용자 영향 |
 | --- | --- |
-| 실제 Product image와 상세 사양이 없음 | 자체 placeholder와 확인된 주요 기능은 제공하지만 실제 장비 형태와 구체적인 기술 차이를 충분히 판단하기 어렵다. |
+| Product image 범위가 제한됨 | 사용자 제공 NITRO 카탈로그에서 추출한 이미지와 분석 결과 이미지를 사용하지만, 모듈 실물 사진과 image gallery는 아직 없다. |
 | Checkout 이후의 responsive 규칙이 구현되지 않음 | Cart까지 검증되었지만 Checkout 이후의 구조 변화는 아직 없다. |
 | 공통 Loading, Empty, Error pattern이 없음 | Cart에는 기능 전용 hydration·empty·저장 실패 상태가 있지만 API 연결 후 사용할 공통 pattern은 아직 없다. |
 
@@ -110,7 +112,7 @@ Home
 | --- | --- | --- |
 | Home `/` | Current | 브랜드 맥락과 Shop 진입점을 제공한다. |
 | Products `/products` | Current | Product 탐색과 비교를 담당한다. |
-| Product Detail `/products/[productId]` | Current | 자체 media placeholder, 설명, 주요 기능, 판매 방식과 CTA를 제공한다. |
+| Product Detail `/products/[productId]` | Current | 카탈로그 이미지, 설명, 주요 기능, 판매 방식과 CTA를 제공한다. |
 | Cart `/cart` | Current | `DIRECT_PURCHASE` Demo Product를 browser에 임시 저장하고 수량을 관리한다. 가격이 없으므로 합계와 Checkout은 제공하지 않는다. |
 | Checkout `/checkout` | Proposed | 주문 입력을 확인하고 서버에 Order 생성을 요청한다. |
 | Payment success/fail | Proposed | 브라우저 인증 결과와 서버 승인 결과를 혼동하지 않도록 분리한다. |
@@ -171,16 +173,16 @@ Home 또는 Products
 ### Shop에 적용할 Proposed 원칙
 
 - Home은 공식 사이트의 기술 narrative와 여백을 참고하되 문구와 layout을 그대로 복제하지 않는다.
-- Product List는 category, 판매 방식, 짧은 설명과 CTA를 비교하기 쉬운 card로 바꾼다.
+- Product List는 생육·표현형 분석 시스템과 이미징 모듈을 별도 section으로 나누고, 승인된 제품 thumbnail 또는 정직한 이미지 준비 상태, 짧은 설명과 CTA를 비교하기 쉬운 card로 표시한다.
 - Product Detail은 제품 이미지와 기술 사양을 중심에 두고 `견적 문의` 또는 `장바구니 담기`를 명확히 분기한다.
-- 가격을 추가할 때에는 허구의 판매 조건을 실제 회사 정책처럼 보이게 하지 않는다. 현재 가격은 카드와 상세에서 출처가 표시된 Demo 또는 카탈로그 참고값으로만 사용한다.
+- 가격 데이터는 실제 판매 계약이 확정되기 전까지 화면에 노출하지 않는다. 주문과 견적 API가 준비되면 source와 authoritative 경계를 확인한 뒤 별도 UI를 설계한다.
 - 재고는 현재 Shop 범위에서 제공하지 않으며, 품절·재고 부족 상태도 표시하지 않는다.
 - 소비재식 할인 압박, 마감 임박과 과장된 판매 문구는 사용하지 않는다.
 - 학습용 Shop이라는 경계는 SiteHeader의 `Shop Demo` label로 유지하고, 공식 자료의 출처와 실제 판매 정책과의 차이는 사용자 화면이 아니라 context와 task 문서에 기록한다.
 
 ### Brand asset 정책
 
-공개 웹사이트에 보인다는 이유만으로 로고와 이미지를 repository에 복제하지 않는다. 사용 권한이 확인되기 전에는 비율과 역할만 표현하는 자체 placeholder를 사용한다.
+공개 웹사이트에 보인다는 이유만으로 로고와 이미지를 repository에 복제하지 않는다. 사용 권한이 확인되기 전에는 비율과 역할만 표현하는 자체 placeholder를 사용한다. 사용자가 제공한 카탈로그에서 추출한 현재 Demo 이미지는 원본 출처와 권리 상태를 task 문서에 기록한다.
 
 필요한 자산 후보:
 
@@ -279,14 +281,14 @@ Motion은 상태 변화와 공간 관계를 설명할 때만 사용한다. 단�
 
 ### Current Catalog, Product Detail과 Cart component 및 responsive 동작
 
-- SiteHeader는 Home·Products·Cart navigation, Cart 총 수량, `aria-current`, skip link와 mobile disclosure를 제공한다. 현재 route, disclosure와 Cart state가 필요하므로 Client Component다.
+- SiteHeader는 PhytoWorks 홈 링크, Products navigation, Cart utility, Cart 총 수량, `aria-current`, skip link와 mobile disclosure를 제공한다. 현재 route, disclosure와 Cart state가 필요하므로 Client Component다.
 - Button은 현재 문서의 동작, LinkButton은 내부 route 이동을 담당하며 `primary`와 `secondary` variant만 사용한다.
 - Home은 Product 목록을 중복하지 않고 간결한 Shop 소개와 `/products` 진입만 제공한다.
-- `/products`는 정적 Catalog data 세 건을 ProductGrid와 ProductCard Server Component로 렌더링한다.
-- ProductCard의 `상세 보기` link는 세 `/products/[productId]` route로 연결된다. 각 detail은 ProductMediaPlaceholder와 ProductPurchasePanel을 포함한 Server Component 구조다.
+- `/products`는 정적 Catalog data 세 건을 생육·표현형 분석 시스템과 이미징 모듈 section으로 나누어 ProductGrid와 ProductCard Server Component로 렌더링한다.
+- ProductCard의 `자세히 보기` link는 세 `/products/[productId]` route로 연결된다. 각 detail은 제품 또는 분석 결과 media와 ProductPurchasePanel을 포함한 Server Component 구조다.
 - Home, `/products`와 Product Detail에는 프로젝트 성격을 해설하는 별도 notice를 두지 않으며 ProductCard와 detail의 구매 방법은 `견적 문의`와 `온라인 구매`로 간결하게 표시한다.
 - NITRO detail은 공식 문의 외부 link를 제공한다. 두 `DIRECT_PURCHASE` detail은 Client leaf인 AddToCartButton을 통해 실제 Cart state를 갱신한다.
-- 실제 Product image 대신 image role과 가짜 alt text가 없는 자체 placeholder를 사용한다. 알려지지 않은 ID는 Product 전용 not-found와 Catalog 복귀 link로 처리한다.
+- 사용자가 제공한 NITRO 카탈로그에서 추출한 이미지를 사용한다. 분석 결과 crop은 상세 페이지에만 사용하며, 모듈 실물 사진과 image gallery는 아직 없다. 알려지지 않은 ID는 Product 전용 not-found와 Products 복귀 link로 처리한다.
 - ProductGrid는 375px에서 1열, 768px에서 2열, 1280px에서 3열이며 각 viewport와 200% text 확대에서 horizontal overflow가 없다.
 - Product Detail은 375px에서 한 열, 768px에서 균등한 2열, 1280px에서 약 7:5의 2열을 사용한다. 세 viewport와 375px의 200% text 확대에서 horizontal overflow가 없다.
 - Root CartProvider는 Context와 reducer를 제공하고 Product ID 및 수량만 version 1 localStorage에 저장한다. Server와 첫 client render는 미복원 상태로 일치시키고 mount effect에서 저장 data를 검증한다.
@@ -322,7 +324,7 @@ apps/web/
 │  ├─ commerce/
 │  │  ├─ ProductCard
 │  │  ├─ ProductGrid
-│  │  ├─ ProductMediaPlaceholder
+│  │  ├─ ProductMedia, 카탈로그 이미지
 │  │  └─ ProductPurchasePanel
 │  ├─ cart/
 │  │  ├─ AddToCartButton
@@ -341,7 +343,7 @@ apps/web/
 - `app/globals.css`: **Current** — token, reset, global typography, focus와 responsive container
 - `app/cart/`: **Current** — Cart metadata와 Server Component page shell
 - `components/layout/`: **Current** — SiteHeader와 Cart navigation 및 총 수량. SiteFooter와 별도 Container component는 아직 없다.
-- `components/commerce/`: **Current** — ProductCard, ProductGrid, ProductMediaPlaceholder와 ProductPurchasePanel
+- `components/commerce/`: **Current** — ProductCard, ProductGrid, ProductMedia와 ProductPurchasePanel. 제품 이미지는 `public/images/products/`에 둔다.
 - `components/cart/`: **Current** — Cart Context·reducer·storage, Add to Cart, Cart view와 line item
 - `components/ui/`: **Current** — Button과 LinkButton. 별도 범용 Badge component는 없다.
 - `data/products.ts`: **Current** — API·DB 이전 단계의 정적 Catalog 및 Product Detail data와 UI용 type
@@ -357,7 +359,7 @@ apps/web/
 - `LinkButton`
 - `ProductCard`
 - `ProductGrid`
-- `ProductMediaPlaceholder`
+- `ProductMedia`
 - `ProductPurchasePanel`
 - `AddToCartButton`
 - `CartProvider`
@@ -402,7 +404,7 @@ UI foundation과 Shop Catalog는 각각 독립된 worktree에서 구현되었다
 | --- | --- | --- | --- | --- |
 | 1 | `ui-foundation` | token, typography, container, focus와 reduced motion | bootstrap commit | lint, typecheck, build, contrast, keyboard |
 | 2 | `shop-catalog` | Button, SiteHeader, Home 역할 정리, `/products`, responsive ProductGrid | 1 | route 이동, 375/768/1280px, keyboard |
-| 3 | `product-detail` | `/products/[productId]`, media placeholder와 판매 방식별 정보 및 유효한 CTA | Product ID와 purchaseMode 결정 | 정상·없는 ID, 판매 방식 분기, responsive detail |
+| 3 | `product-detail` | `/products/[productId]`, Product media와 판매 방식별 정보 및 유효한 CTA | Product ID와 purchaseMode 결정 | 정상·없는 ID, 판매 방식 분기, responsive detail |
 | 4 | `browser-cart` | localStorage 기반 Add to Cart, count, 수량, 삭제와 Undo | Product Detail | reload, 손상 data, mobile, accessibility |
 | 5 | `api-bootstrap` | NestJS application 경계 생성 | bootstrap 안정화 | lint, typecheck, health API |
 | 6 | `product-read-api` | Product read model과 정적 API 연결 | API bootstrap | API unit·application test와 실제 HTTP 요청 |

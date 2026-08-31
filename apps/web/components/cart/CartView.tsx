@@ -55,7 +55,7 @@ export function CartView() {
       {cartLines.length === 0 ? (
         <section className={styles.emptyState} aria-labelledby="empty-heading">
           <h2 id="empty-heading">장바구니가 비어 있습니다</h2>
-          <p>Product Catalog에서 온라인 구매 대상 제품을 담아 보세요.</p>
+          <p>상품 목록에서 온라인 구매 대상 제품을 담아 보세요.</p>
           <LinkButton className={styles.catalogLink} href="/products">
             제품 둘러보기
           </LinkButton>

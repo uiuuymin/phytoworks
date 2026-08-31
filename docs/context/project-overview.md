@@ -94,12 +94,12 @@ Current IA, 전체 Proposed route, responsive와 interaction 기준은 [`../desi
 - 브라우저에서 확인 가능한 `/` 학습 화면
 - Native CSS semantic token, dark Demo palette와 system font
 - Global typography, responsive container, visible focus와 reduced motion 기준
-- 공통 SiteHeader, Home·Products·Cart navigation, Cart 총 수량과 mobile disclosure
+- 공통 SiteHeader, PhytoWorks 홈 link, Products navigation, Cart utility, Cart 총 수량과 mobile disclosure
 - 동작과 내부 이동의 의미를 분리한 Button·LinkButton
 - Shop 진입 역할의 Home과 Product 비교 역할의 `/products`
 - 정적 Catalog data, ProductCard와 1열·2열·3열 responsive ProductGrid
 - ProductCard의 상세 진입 link와 `/products/[productId]` 정적 상세 route 세 건
-- Product별 요약·주요 기능, 권한 확인 전 media placeholder와 판매 방식 panel
+- Product별 카탈로그 이미지, 요약·주요 기능과 판매 방식 panel
 - `QUOTE_REQUIRED`의 공식 문의 link와 `DIRECT_PURCHASE`의 실제 Add to Cart CTA
 - Product 전용 not-found 화면과 Catalog 복귀 경로
 - `/cart`의 hydration, empty state, Product별 수량 변경, 제거와 한 건 Undo

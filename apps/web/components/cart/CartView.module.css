@@ -85,18 +85,6 @@
   overflow-wrap: anywhere;
 }
 
-.price {
-  display: grid;
-  gap: var(--space-1);
-  font-weight: var(--font-weight-semibold);
-}
-
-.priceNote {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-regular);
-}
-
 .productLink {
   display: inline-flex;
   min-height: 2.75rem;

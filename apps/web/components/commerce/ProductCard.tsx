@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { type CatalogProduct, purchaseModeLabels } from "@/data/products";
@@ -10,31 +11,37 @@ type ProductCardProps = {
 
 export function ProductCard({ product }: ProductCardProps) {
   const headingId = `product-${product.id}-heading`;
+  const thumbnail = product.details.thumbnail;
 
   return (
     <article className={styles.card} aria-labelledby={headingId}>
+      <div className={styles.media}>
+        {thumbnail ? (
+          <Image
+            fill
+            src={thumbnail.src}
+            alt={thumbnail.alt}
+            loading="lazy"
+            sizes="(min-width: 64rem) 33vw, (min-width: 40rem) 50vw, 100vw"
+          />
+        ) : (
+          <div className={styles.mediaPlaceholder}>
+            <span>제품 사진 준비 중</span>
+          </div>
+        )}
+      </div>
+
       <div className={styles.content}>
-        <p className={styles.category}>{product.category}</p>
         <h3 id={headingId}>{product.name}</h3>
         <p className={styles.description}>{product.description}</p>
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.pricing}>
-          <span className={styles.purchaseModeLabel}>가격 참고</span>
-          <strong>{product.pricing.displayLabel}</strong>
-          <span className={styles.priceSource}>
-            {product.pricing.source === "DEMO"
-              ? "UI 검증용 Demo 가격"
-              : "카탈로그 참고 금액, 실제 가격은 견적 확정"}
-          </span>
-        </div>
         <p className={styles.purchaseMode}>
-          <span className={styles.purchaseModeLabel}>구매 방법</span>
-          <span>{purchaseModeLabels[product.purchaseMode]}</span>
+          {purchaseModeLabels[product.purchaseMode]}
         </p>
         <Link className={styles.detailLink} href={`/products/${product.id}`}>
-          상세 보기
+          자세히 보기
         </Link>
       </div>
     </article>

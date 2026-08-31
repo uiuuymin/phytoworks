@@ -1,0 +1,124 @@
+.story {
+  display: grid;
+  gap: clamp(var(--space-16), 10vw, var(--space-20));
+}
+
+.manifesto {
+  display: grid;
+  max-width: 62rem;
+  gap: var(--space-4);
+  padding-block: clamp(var(--space-8), 8vw, var(--space-16));
+  border-block: 1px solid var(--color-border);
+}
+
+.manifesto h2 {
+  max-width: none;
+  font-size: clamp(var(--font-size-xl), 2.6vw, 2rem);
+  line-height: var(--line-height-tight);
+  word-break: keep-all;
+}
+
+.manifesto h2 span {
+  display: block;
+}
+
+.eyebrow {
+  color: var(--color-action);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workflow,
+.analysis {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.sectionHeading {
+  display: grid;
+  max-width: 48rem;
+  gap: var(--space-3);
+}
+
+.workflowList {
+  display: grid;
+  gap: var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.workflowList li {
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.stepNumber {
+  color: var(--color-action);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+}
+
+.workflowList p,
+.analysisCard p {
+  color: var(--color-text-muted);
+}
+
+.analysisGrid {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.analysisCard {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.analysisMedia {
+  position: relative;
+  display: grid;
+  aspect-ratio: 4 / 3;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-raised);
+}
+
+.analysisMedia img {
+  width: 100%;
+  height: 100%;
+  padding: var(--space-4);
+  object-fit: contain;
+}
+
+.analysisCard figcaption {
+  display: grid;
+  gap: var(--space-2);
+}
+
+@media (min-width: 40rem) {
+  .workflowList {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  .workflowList li {
+    min-height: 12rem;
+  }
+
+  .analysisGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .manifesto h2 span {
+    white-space: nowrap;
+  }
+}

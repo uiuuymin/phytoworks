@@ -2,7 +2,7 @@
 
 ## 문서 상태
 
-- **Current:** pnpm workspace에 `apps/web` Next.js 애플리케이션과 `apps/api` NestJS 애플리케이션이 있다. web에서는 Home, Product Catalog, Product Detail과 browser Cart가 실행되며 API에서는 최소 health endpoint가 실행된다.
+- **Current:** pnpm workspace에 `apps/web` Next.js 애플리케이션과 `apps/api` NestJS 애플리케이션이 있다. web에서는 Home, Products, Product Detail과 browser Cart가 실행되며 API에서는 최소 health endpoint가 실행된다.
 - **Proposed:** Product persistence, Cart·Order·Payment API, PostgreSQL과 외부 서비스 연동은 아직 확정되지 않은 초기 목표이며, Product read API의 정적 fixture 이후 별도 task에서 결정한다.
 - **TBD:** 구체적인 도구나 책임 경계를 추가 조사해야 한다.
 
@@ -34,7 +34,7 @@ Toss Payments
 
 ### Web route와 component 경계
 
-**Current:** 직접 작성된 route는 `/`, `/products`, `/products/[productId]`와 `/cart`다. Root layout의 CartProvider는 SiteHeader와 route content를 감싸며 Product Detail, SiteHeader와 Cart가 같은 browser state를 사용하게 한다. Server Component `children`은 CartProvider 안에서도 server rendering 경계를 유지한다. SiteHeader는 Home·Products·Cart link, `Shop Demo` label, Cart 총 수량, 현재 route와 mobile disclosure state를 소유한다. Home은 Shop 소개와 Catalog 진입을, `/products`는 정적 Product 탐색을, Product Detail은 정적 data 조회, 설명, placeholder와 판매 방식 표현을 담당한다. `/cart` page는 metadata와 page shell을, CartView와 CartLineItem은 hydration, empty state, 수량 변경, 제거와 Undo를 담당한다. 세 Product ID는 `generateStaticParams`로 정적 생성하며 알려지지 않은 ID는 page의 `notFound()`와 Product 전용 not-found 화면으로 처리한다. 각 route에는 Demo 경계를 반복해서 설명하는 notice가 없다. `components/layout`, `components/ui`, `components/commerce`, `components/cart`에 역할별 component가 있고 각 component와 route는 CSS Module을 사용한다. Native CSS foundation은 계속 semantic token, global typography, responsive container, focus와 reduced motion만 제공한다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이다.
+**Current:** 직접 작성된 route는 `/`, `/products`, `/products/[productId]`와 `/cart`다. Root layout의 CartProvider는 SiteHeader와 route content를 감싸며 Product Detail, SiteHeader와 Cart가 같은 browser state를 사용하게 한다. Server Component `children`은 CartProvider 안에서도 server rendering 경계를 유지한다. SiteHeader는 PhytoWorks 홈 link, Products link, Cart utility link, `Shop Demo` label, Cart 총 수량, 현재 route와 mobile disclosure state를 소유한다. Home은 Shop 소개와 Products 진입을, `/products`는 생육·표현형 분석 시스템과 이미징 모듈로 나눈 정적 Product 탐색을, Product Detail은 정적 data 조회, 카탈로그 이미지, 설명과 판매 방식 표현을 담당한다. `/cart` page는 두 section을, CartView와 CartLineItem은 구매 장바구니의 hydration, empty state, 수량 변경, 제거와 Undo를 담당하며 QuoteView와 QuoteLineItem은 견적함을 담당한다. 세 Product ID는 `generateStaticParams`로 정적 생성하며 알려지지 않은 ID는 page의 `notFound()`와 Product 전용 not-found 화면으로 처리한다. 각 route에는 Demo 경계를 반복해서 설명하는 notice가 없다. `components/layout`, `components/ui`, `components/commerce`, `components/cart`에 역할별 component가 있고 각 component와 route는 CSS Module을 사용한다. Native CSS foundation은 계속 semantic token, global typography, responsive container, focus와 reduced motion만 제공한다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이다.
 
 **Proposed:** 최소 Shop route는 다음과 같다.
 

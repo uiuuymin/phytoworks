@@ -72,8 +72,8 @@ export function QuoteConfigurator({
             <legend>{group.label}</legend>
             <p className={styles.selectionHint}>
               {group.selection === "single"
-                ? "하나를 선택하세요."
-                : "필요한 항목을 선택하세요."}
+                ? "Select one."
+                : "Select all that apply."}
             </p>
             <div className={styles.options}>
               {group.options.map((option) => {
@@ -109,16 +109,16 @@ export function QuoteConfigurator({
       </div>
 
       <p className={styles.note}>
-        선택한 구성은 이 브라우저의 견적함에 임시 저장됩니다. 옵션별 추가 금액은
-        견적에서 확정됩니다.
+        Your configuration is temporarily saved in this browser. Final option
+        pricing is confirmed during the quote.
       </p>
 
       <div className={styles.actions}>
         <Button type="submit" disabled={!hasHydrated}>
-          견적함에 담기
+          Save to quote box
         </Button>
         <LinkButton variant="secondary" href="/cart#quote-box">
-          견적함 보기
+          View quote box
         </LinkButton>
       </div>
     </form>

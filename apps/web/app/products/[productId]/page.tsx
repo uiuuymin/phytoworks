@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-
-import { ProductMediaPlaceholder } from "@/components/commerce/ProductMediaPlaceholder";
+import { NitroProductStory } from "@/components/commerce/NitroProductStory";
+import { ProductMedia } from "@/components/commerce/ProductMedia";
 import { ProductPurchasePanel } from "@/components/commerce/ProductPurchasePanel";
 import { ProductSpecSummary } from "@/components/commerce/ProductSpecSummary";
 import { getProductById, products } from "@/data/products";
@@ -43,6 +43,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
+  const isNitro = product.id === "nitro";
+  const isQuoteRequired = product.purchaseMode === "QUOTE_REQUIRED";
+
   return (
     <main
       id="main-content"
@@ -64,44 +67,84 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </nav>
 
       <article className={styles.article} aria-labelledby="product-heading">
-        <div className={styles.productLayout}>
-          <ProductMediaPlaceholder
-            category={product.category}
-            label={product.details.mediaLabel}
-          />
+        <div className={styles.hero}>
+          <ProductMedia media={product.details.media} />
 
-          <div className={styles.summary}>
+          <div className={styles.heroContent}>
             <div className={styles.headingGroup}>
-              <p className={styles.category}>{product.category}</p>
               <h1 id="product-heading">{product.name}</h1>
               <p className={styles.lead}>{product.description}</p>
             </div>
 
-            <ProductPurchasePanel
-              productId={product.id}
-              purchaseMode={product.purchaseMode}
-              pricing={product.pricing}
-              optionGroups={product.optionGroups}
-            />
+            <div className={styles.heroActions}>
+              <a className={styles.primaryAction} href="#configure">
+                {isQuoteRequired ? "Customize" : "Buy online"}
+              </a>
+              {isQuoteRequired ? (
+                <a
+                  className={styles.secondaryAction}
+                  href="https://phyto-works.com/ko?source=nitro"
+                >
+                  Request a quote
+                </a>
+              ) : null}
+            </div>
           </div>
         </div>
 
-        <div className={styles.detailSections}>
-          <section className={styles.detailSection}>
-            <h2>제품 개요</h2>
-            <p>{product.details.summary}</p>
-          </section>
+        {isNitro ? (
+          <NitroProductStory
+            summary={product.details.summary}
+            features={product.details.features}
+          />
+        ) : null}
 
-          <section className={styles.detailSection}>
-            <h2>주요 기능</h2>
-            <ul className={styles.featureList}>
-              {product.details.features.map((feature) => (
-                <li key={feature}>{feature}</li>
-              ))}
-            </ul>
-          </section>
+        <div className={styles.detailSections}>
+          {!isNitro ? (
+            <>
+              <section className={styles.detailSection}>
+                <h2>제품 개요</h2>
+                <p>{product.details.summary}</p>
+              </section>
+
+              <section className={styles.detailSection}>
+                <h2>주요 기능</h2>
+                <ul className={styles.featureList}>
+                  {product.details.features.map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                </ul>
+              </section>
+            </>
+          ) : null}
 
           <ProductSpecSummary specGroups={product.specGroups} />
+
+          <section id="configure" className={styles.configureSection}>
+            <ProductPurchasePanel
+              productId={product.id}
+              purchaseMode={product.purchaseMode}
+              optionGroups={product.optionGroups}
+            />
+          </section>
+
+          {isQuoteRequired ? (
+            <section
+              className={styles.finalCta}
+              aria-labelledby="final-cta-heading"
+            >
+              <p className={styles.finalEyebrow}>Start your research setup</p>
+              <h2 id="final-cta-heading">
+                연구 목적에 맞는 NITRO 구성을 상담해 보세요.
+              </h2>
+              <a
+                className={styles.primaryAction}
+                href="https://phyto-works.com/ko?source=nitro"
+              >
+                Request a quote
+              </a>
+            </section>
+          ) : null}
         </div>
       </article>
     </main>

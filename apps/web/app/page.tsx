@@ -10,7 +10,10 @@ export default function Home() {
       tabIndex={-1}
     >
       <section className={styles.hero} aria-labelledby="home-heading">
-        <h1 id="home-heading">식물 연구와 육종을 위한 기술을 탐색합니다</h1>
+        <h1 id="home-heading">
+          <span>식물 연구와 육종을 위한</span>
+          <span>기술을 탐색합니다</span>
+        </h1>
         <p className={styles.lead}>
           연구 목적에 맞는 생육 시스템과 이미징 모듈을 비교하고 필요한 기술을
           찾아보세요.
