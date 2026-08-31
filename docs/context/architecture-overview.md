@@ -77,7 +77,7 @@ IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](.
 ### Docker와 Vercel
 
 - **Docker — Proposed:** 로컬 PostgreSQL 등 재현 가능한 개발 의존성을 실행하는 용도로 검토한다. Docker Compose와 서비스 범위는 아직 만들지 않았다.
-- **Vercel — Proposed:** 우선 Next.js 배포 대상으로 고려한다. NestJS API와 PostgreSQL을 어디에 배포할지는 `TBD`이며 별도 ADR이 필요할 수 있다.
+- **Vercel — Current:** Web(`apps/web`)과 NestJS API(`apps/api`)를 별도 Vercel 프로젝트로 배포한다. Web은 `API_BASE_URL`로 API를 연결하고, API Production의 `/health`는 200을 반환한다. PostgreSQL의 운영 위치, migration과 seed 실행 방식은 `TBD`다.
 
 ## 요청이 통과하는 경로
 

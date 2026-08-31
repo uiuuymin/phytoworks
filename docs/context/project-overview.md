@@ -29,7 +29,7 @@
 | 데이터베이스 | PostgreSQL | Proposed — 미설치·미설계 |
 | 개발 환경 | Docker | Proposed — 미구성 |
 | 결제 | Toss Payments 테스트 연동 | Proposed — 미연동 |
-| 배포 | Vercel | Proposed — 미설정 |
+| 배포 | Vercel | Current — Web(`apps/web`)과 API(`apps/api`)를 별도 프로젝트로 배포, PostgreSQL 운영은 TBD |
 | 작업 방식 | Git, Git worktree, Orca, Codex, LLM Wiki | Current — bootstrap worktree에서 적용 중 |
 
 ## 구현 예정 기능
