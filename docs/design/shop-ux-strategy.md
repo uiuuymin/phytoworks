@@ -181,7 +181,7 @@ Home 또는 Products
 - Home은 공식 사이트의 기술 narrative와 여백을 참고하되 문구와 layout을 그대로 복제하지 않는다.
 - Product List는 생육·표현형 분석 시스템과 이미징 모듈을 별도 section으로 나누고, 승인된 제품 thumbnail 또는 정직한 이미지 준비 상태, 짧은 설명과 CTA를 비교하기 쉬운 card로 표시한다.
 - Product Detail은 제품 이미지와 기술 사양을 중심에 두고 `견적 문의` 또는 `장바구니 담기`를 명확히 분기한다.
-- 가격 데이터는 `authoritative: false`인 Demo 표시값으로만 화면에 노출한다. 실제 판매 계약과 주문 가격으로 사용하지 않으며, 운영 가격 UI는 source와 authoritative 경계를 확정한 뒤 별도 설계한다.
+- 가격 데이터는 `authoritative: false`인 Demo 표시값으로만 직접 구매 이미징 모듈 카드에 노출한다. `QUOTE_REQUIRED`인 NITRO 카드에는 운영비 비교값을 표시하지 않는다. Demo 값은 실제 판매 계약과 주문 가격으로 사용하지 않으며, 운영 가격 UI는 source와 authoritative 경계를 확정한 뒤 별도 설계한다.
 - 재고는 현재 Shop 범위에서 제공하지 않으며, 품절·재고 부족 상태도 표시하지 않는다.
 - 소비재식 할인 압박, 마감 임박과 과장된 판매 문구는 사용하지 않는다.
 - 학습용 Shop이라는 경계는 SiteHeader의 `Shop Demo` label로 유지하고, 공식 자료의 출처와 실제 판매 정책과의 차이는 사용자 화면이 아니라 context와 task 문서에 기록한다.
@@ -292,9 +292,10 @@ Motion은 상태 변화와 공간 관계를 설명할 때만 사용한다. 단�
 - Button은 현재 문서의 동작, LinkButton은 내부 route 이동을 담당하며 `primary`와 `secondary` variant만 사용한다.
 - Home은 Product 목록을 중복하지 않고 간결한 Shop 소개와 `/products` 진입만 제공한다.
 - `/products`는 정적 Catalog data 세 건을 생육·표현형 분석 시스템과 이미징 모듈 section으로 나누어 ProductGrid와 ProductCard Server Component로 렌더링한다.
-- ProductCard의 `자세히 보기` link는 세 `/products/[productId]` route로 연결된다. 각 detail은 제품 또는 분석 결과 media와 ProductPurchasePanel을 포함한 Server Component 구조다.
+- ProductCard의 `자세히 보기` link는 세 `/products/[productId]` route로 연결되며 구매 방식 표시와 같은 action group에 둔다. NITRO 카드는 `nitro-chamber.jpeg`를 기본 이미지로, `nitro-hero-cutout.png`를 hover 이미지로 사용한다. 각 detail은 제품 또는 분석 결과 media와 ProductPurchasePanel을 포함한 Server Component 구조다.
 - Home, `/products`와 Product Detail에는 프로젝트 성격을 해설하는 별도 notice를 두지 않으며 ProductCard와 detail의 구매 방법은 `견적 문의`와 `온라인 구매`로 간결하게 표시한다.
 - NITRO detail은 공식 문의 외부 link를 제공한다. 두 `DIRECT_PURCHASE` detail은 Client leaf인 AddToCartButton을 통해 실제 Cart state를 갱신한다.
+- AddToCartButton은 Cart 초기화 또는 mutation 중에만 disabled이며, Cart API가 unavailable인 경우에도 재시도할 수 있다.
 - 사용자가 제공한 NITRO 카탈로그에서 추출한 이미지를 사용한다. 분석 결과 crop은 상세 페이지에만 사용하며, 모듈 실물 사진은 아직 없어 ProductCard에서는 `제품 사진 준비 중` placeholder를 표시한다. 알려지지 않은 ID는 Product 전용 not-found와 Products 복귀 link로 처리한다.
 - ProductGrid는 375px에서 1열, 768px에서 2열, 1280px에서 3열이며 각 viewport와 200% text 확대에서 horizontal overflow가 없다.
 - Product Detail은 375px에서 한 열, 768px에서 균등한 2열, 1280px에서 약 7:5의 2열을 사용한다. 세 viewport와 375px의 200% text 확대에서 horizontal overflow가 없다.
