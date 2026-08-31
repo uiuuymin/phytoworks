@@ -19,8 +19,11 @@ Reorganize the Shop header into a small utility bar and a larger product-navigat
 - Enlarged the PhytoWorks wordmark and kept Products and About in the main navigation row below it.
 - Added `/about` as a minimal company context page.
 - The About CTA now links to the official PhytoWorks homepage at `https://phyto-works.com/ko`.
+- Reduced the language placeholder emphasis, removed the separator before Search, and kept the separator after Search in the utility row.
 - Added `/search` using the static Product fixture as Demo data. It filters product name, category, and description through a GET query.
 - Created `nitro-hero-cutout.png` from the provided photo with the background removed and used it as the home hero image.
+- Grouped the home hero copy into one compact rhythm and changed the hero image entrance to a slower anchored scale reveal.
+- Used the transparent NITRO cutout for the catalog thumbnail and the chamber photo for hover and keyboard focus states.
 
 ## Boundaries
 

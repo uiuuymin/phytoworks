@@ -6,7 +6,11 @@
   display: grid;
   max-width: none;
   align-items: center;
-  gap: var(--space-4);
+}
+
+.heroCopy {
+  display: grid;
+  gap: var(--space-3);
 }
 
 .hero h1 {
@@ -32,6 +36,7 @@
   width: min(100%, 36rem);
   margin: 0;
   justify-self: center;
+  animation: hero-media-reveal 1400ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .heroMedia img {
@@ -46,15 +51,31 @@
     column-gap: clamp(var(--space-8), 8vw, var(--space-20));
   }
 
-  .hero h1,
-  .hero .lead,
-  .hero .catalogLink {
+  .heroCopy {
     grid-column: 1;
   }
 
   .heroMedia {
     grid-column: 2;
-    grid-row: 1 / span 3;
+    grid-row: 1;
     justify-self: end;
+  }
+}
+
+@keyframes hero-media-reveal {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroMedia {
+    animation: none;
   }
 }

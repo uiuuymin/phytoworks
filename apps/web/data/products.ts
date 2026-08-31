@@ -175,8 +175,8 @@ export const products = [
         alt: "NITRO 생육 챔버 내부에서 자라는 식물",
       },
       thumbnail: {
-        src: "/images/products/nitro-chamber.jpeg",
-        alt: "NITRO 생육 챔버 내부에서 자라는 식물",
+        src: "/images/products/nitro-hero-cutout.png",
+        alt: "NITRO Plant Growth System chamber",
       },
       mediaLabel: "NITRO",
     },

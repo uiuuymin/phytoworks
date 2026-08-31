@@ -27,6 +27,25 @@
   object-fit: contain;
 }
 
+.thumbnail,
+.hoverMedia {
+  transition: opacity 240ms var(--easing-standard);
+}
+
+.hoverMedia {
+  opacity: 0;
+}
+
+.card:hover .thumbnail,
+.card:focus-within .thumbnail {
+  opacity: 0;
+}
+
+.card:hover .hoverMedia,
+.card:focus-within .hoverMedia {
+  opacity: 1;
+}
+
 .mediaPlaceholder {
   display: grid;
   width: 100%;
@@ -69,4 +88,11 @@
   min-height: 2.75rem;
   align-items: center;
   font-weight: var(--font-weight-semibold);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thumbnail,
+  .hoverMedia {
+    transition: none;
+  }
 }

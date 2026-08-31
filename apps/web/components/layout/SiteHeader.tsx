@@ -86,10 +86,6 @@ export function SiteHeader() {
             <span aria-disabled="true">EN</span>
           </nav>
 
-          <span className={styles.utilityDivider} aria-hidden="true">
-            |
-          </span>
-
           <Link
             className={styles.searchLink}
             href="/search"

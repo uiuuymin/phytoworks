@@ -12,18 +12,36 @@ type ProductCardProps = {
 export function ProductCard({ product }: ProductCardProps) {
   const headingId = `product-${product.id}-heading`;
   const thumbnail = product.details.thumbnail;
+  const hoverMedia =
+    thumbnail && product.details.media.src !== thumbnail.src
+      ? product.details.media
+      : undefined;
 
   return (
     <article className={styles.card} aria-labelledby={headingId}>
       <div className={styles.media}>
         {thumbnail ? (
-          <Image
-            fill
-            src={thumbnail.src}
-            alt={thumbnail.alt}
-            loading="lazy"
-            sizes="(min-width: 64rem) 33vw, (min-width: 40rem) 50vw, 100vw"
-          />
+          <>
+            <Image
+              className={styles.thumbnail}
+              fill
+              src={thumbnail.src}
+              alt={thumbnail.alt}
+              loading="lazy"
+              sizes="(min-width: 64rem) 33vw, (min-width: 40rem) 50vw, 100vw"
+            />
+            {hoverMedia ? (
+              <Image
+                className={styles.hoverMedia}
+                fill
+                src={hoverMedia.src}
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                sizes="(min-width: 64rem) 33vw, (min-width: 40rem) 50vw, 100vw"
+              />
+            ) : null}
+          </>
         ) : (
           <div className={styles.mediaPlaceholder}>
             <span>제품 사진 준비 중</span>
