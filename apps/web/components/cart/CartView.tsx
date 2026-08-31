@@ -91,6 +91,7 @@ export function CartView({ products }: CartViewProps) {
             <LinkButton variant="secondary" href="/products">
               제품 더 둘러보기
             </LinkButton>
+            <LinkButton href="/checkout">결제 진행</LinkButton>
           </div>
 
           <ul className={styles.list}>
