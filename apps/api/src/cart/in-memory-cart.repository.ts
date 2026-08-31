@@ -4,6 +4,10 @@ import type { CartReadModel } from "./cart.types.js";
 export class InMemoryCartRepository implements CartRepository {
   private readonly carts = new Map<string, Map<string, number>>();
 
+  async clear(sessionId: string): Promise<void> {
+    this.carts.get(sessionId)?.clear();
+  }
+
   async findBySessionId(sessionId: string): Promise<CartReadModel | null> {
     const items = this.carts.get(sessionId);
     return items ? toCartReadModel(items) : null;

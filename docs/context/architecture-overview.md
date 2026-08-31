@@ -2,8 +2,8 @@
 
 ## 문서 상태
 
-- **Current:** pnpm workspace에 `apps/web` Next.js 애플리케이션과 `apps/api` NestJS 애플리케이션이 있다. web에서는 Home, Product Catalog, Product Detail과 browser Cart가 실행되며 API에서는 Health, Product read와 익명 session Cart API가 실행된다.
-- **Proposed:** Order·Payment API와 외부 서비스 연동은 아직 확정되지 않은 초기 목표이며, Product와 Cart 이후 별도 task에서 결정한다.
+- **Current:** pnpm workspace에 `apps/web` Next.js 애플리케이션과 `apps/api` NestJS 애플리케이션이 있다. web에서는 Home, Product Catalog, Product Detail과 browser Cart가 실행되며 API에서는 Health, Product read, 익명 session Cart와 Cart 기반 Demo Order API가 실행된다.
+- **Proposed:** Payment API와 외부 서비스 연동은 아직 확정되지 않은 초기 목표이며, Order 이후 별도 task에서 결정한다.
 - **TBD:** 구체적인 도구나 책임 경계를 추가 조사해야 한다.
 
 ## 논리 구조
@@ -57,14 +57,14 @@ IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](.
 
 ### NestJS
 
-**Current:** `apps/api`에 NestJS 12.0.1과 ESM 기반 application 경계가 있다. `AppModule`은 `HealthModule`, `ProductModule`과 `CartModule`을 조합한다. `HealthModule`과 `HealthController`는 `GET /health`만 담당하며, 이 endpoint는 application이 기동하고 HTTP 요청에 응답할 수 있다는 사실만 나타낸다. `ProductModule`과 `ProductController`는 Prisma 7 PostgreSQL repository를 통해 `GET /api/products`와 `GET /api/products/:productId`를 제공한다. `CartModule`과 `CartController`는 `X-Cart-Session-Id`로 식별한 익명 Cart의 `GET /api/cart`, item POST, PATCH와 DELETE를 제공한다. Product 상세 조회에서 없는 ID는 404로 응답하며 Cart에는 `DIRECT_PURCHASE` Product만 추가할 수 있다. API는 기본 port 3001을 사용하고 유효한 `PORT` 환경변수로 변경할 수 있다. Web Cart는 same-origin Next.js route handler를 통해 Cart API mutation과 hydrate를 호출한다.
+**Current:** `apps/api`에 NestJS 12.0.1과 ESM 기반 application 경계가 있다. `AppModule`은 `HealthModule`, `ProductModule`, `CartModule`과 `OrderModule`을 조합한다. `HealthModule`과 `HealthController`는 `GET /health`만 담당하며, 이 endpoint는 application이 기동하고 HTTP 요청에 응답할 수 있다는 사실만 나타낸다. `ProductModule`과 `ProductController`는 Prisma 7 PostgreSQL repository를 통해 `GET /api/products`와 `GET /api/products/:productId`를 제공한다. `CartModule`과 `CartController`는 `X-Cart-Session-Id`로 식별한 익명 Cart의 `GET /api/cart`, item POST, PATCH와 DELETE를 제공한다. `OrderModule`과 `OrderController`는 같은 session Cart에서 `POST /api/orders`로 `PENDING` Demo Order를 생성하고 `GET /api/orders/:orderId`로 같은 session의 주문을 조회한다. OrderItem은 상품명과 Demo 단가를 snapshot으로 보존하며, Order 생성과 Cart 삭제는 PostgreSQL transaction으로 처리한다. Product 상세 조회에서 없는 ID는 404로 응답하며 Cart와 Order에는 `DIRECT_PURCHASE` Product만 허용한다. API는 기본 port 3001을 사용하고 유효한 `PORT` 환경변수로 변경할 수 있다. Web Cart는 same-origin Next.js route handler를 통해 Cart API mutation과 hydrate를 호출한다.
 
 **Proposed:** 이후 서비스 규칙과 신뢰 경계를 담당하는 feature module을 추가한다. 입력 검증, 상품·주문·결제 규칙 적용, PostgreSQL 접근과 Toss Payments 서버 승인 요청은 각 기능을 구현할 때 경계를 확정한다. 브라우저가 보낸 금액이나 결제 결과를 그대로 신뢰하지 않는다.
 
 ### PostgreSQL
 
-**Current:** Product, Cart와 CartItem이 `apps/api/prisma` schema와 migration으로 저장된다. CartItem은 Cart와 Product에 연결되고 Cart별 Product 중복을 unique constraint로 막는다. 익명 session ownership, 가격, 재고와 주문 relation은 `TBD`다.
-**Proposed:** 주문과 결제 등 지속적으로 보존해야 할 데이터를 추가한다. production ownership, 최종 relation, transaction과 migration 운영 방식은 `TBD`다.
+**Current:** Product, Cart, CartItem, Order와 OrderItem이 `apps/api/prisma` schema와 migration으로 저장된다. CartItem은 Cart와 Product에 연결되고 Cart별 Product 중복은 unique constraint로 막는다. OrderItem은 Product relation과 함께 상품명·단가·수량 snapshot을 저장하며 Order 생성과 Cart 삭제는 transaction으로 묶는다. 익명 session ownership, authoritative price와 재고는 `TBD`다.
+**Proposed:** 결제 결과와 운영 수준의 주문 보존 규칙을 추가한다. production ownership, 최종 relation, transaction, idempotency와 migration 운영 방식은 `TBD`다.
 
 ### Toss Payments
 
@@ -81,9 +81,9 @@ IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](.
 
 현재 browser Cart 조작과 복원 경로는 `Browser event → CartProvider → same-origin Next.js route handler → CartController → CartService → ProductService·CartRepository → Prisma7Service → PostgreSQL`이다. browser에는 `phytoworks-shop.cart-session.v1` session ID만 저장하며 Cart item과 수량은 API 응답으로 hydrate한다. API 성공 뒤 CartProvider는 서버 응답으로 전체 item state를 교체하고, 요청 중에는 중복 조작을 막는다. 기존 `phytoworks-shop.cart.v1` localStorage Cart는 자동 병합하지 않는다. 존재하지 않거나 `DIRECT_PURCHASE`가 아닌 Product와 잘못된 수량은 API에서 거부한다. 어느 저장소도 주문 금액, 재고와 판매 가능 여부의 신뢰 가능한 기준이 아니다.
 
-현재 API health 요청은 `HTTP client → NestJS HTTP adapter → HealthController → JSON response` 경로를 사용한다. `GET /health`는 HTTP 200과 `{ "status": "ok" }`를 반환한다. Product read 요청은 `HTTP client → NestJS HTTP adapter → ProductController → ProductService → PrismaProductRepository → PostgreSQL → JSON response` 경로를 사용한다. Cart 요청은 Web에서는 same-origin proxy를 거쳐 위의 Cart module 경로를 사용한다. Product와 Cart controller의 `api/*` route prefix는 전역 prefix 설정이 아니며, API versioning과 Web/API shared contract 방식은 아직 확정하지 않았다.
+현재 API health 요청은 `HTTP client → NestJS HTTP adapter → HealthController → JSON response` 경로를 사용한다. `GET /health`는 HTTP 200과 `{ "status": "ok" }`를 반환한다. Product read 요청은 `HTTP client → NestJS HTTP adapter → ProductController → ProductService → PrismaProductRepository → PostgreSQL → JSON response` 경로를 사용한다. Cart 요청은 Web에서는 same-origin proxy를 거쳐 위의 Cart module 경로를 사용한다. Order 생성 요청은 `HTTP client → OrderController → OrderService → CartService·ProductService → PrismaOrderRepository → PostgreSQL transaction → JSON response` 경로를 사용한다. OrderItem snapshot과 총액은 서버가 만들며 브라우저 금액을 받지 않는다. Product와 Cart·Order controller의 `api/*` route prefix는 전역 prefix 설정이 아니며, API versioning과 Web/API shared contract 방식은 아직 확정하지 않았다.
 
-현재 Product와 Cart API는 Prisma 7을 통해 PostgreSQL을 읽고 쓴다. Web Cart의 현재 흐름은 `Browser → Next.js route handler → NestJS → PostgreSQL → NestJS → Next.js → Browser`이며, browser Cart와 API Cart의 자동 병합과 인증 ownership은 아직 확정하지 않았다. 결제는 여기에 Toss Payments 인증과 NestJS의 서버 승인 요청이 추가된다. web 캐싱, 직접 서버 렌더링 데이터 접근 또는 API contract 공유 방식은 아직 확정하지 않았다.
+현재 Product, Cart와 Order API는 Prisma 7을 통해 PostgreSQL을 읽고 쓴다. Web Cart의 현재 흐름은 `Browser → Next.js route handler → NestJS → PostgreSQL → NestJS → Next.js → Browser`이며, Order API는 아직 Web checkout에서 호출하지 않는다. browser Cart와 API Cart의 자동 병합과 인증 ownership은 아직 확정하지 않았다. 결제는 여기에 Toss Payments 인증과 NestJS의 서버 승인 요청이 추가된다. web 캐싱, 직접 서버 렌더링 데이터 접근 또는 API contract 공유 방식은 아직 확정하지 않았다.
 
 ## Monorepo 구조
 
@@ -99,7 +99,7 @@ packages/
 ```
 
 - `apps/web/` — **Current:** Next.js 사용자 애플리케이션
-- `apps/api/` — **Current:** NestJS API application bootstrap과 독립적인 build·test 경계
+- `apps/api/` — **Current:** NestJS API application과 독립적인 build·test 경계
 - `packages/contracts/` — **Proposed:** web과 API가 합의해야 하는 타입 또는 schema의 공유 위치. 무엇을 공유할지는 `TBD`다.
 - `packages/database/` — **Proposed:** schema, migration 또는 DB 접근 코드의 후보 위치. ORM을 선택하기 전에는 생성하지 않는다.
 - `packages/config/` — **Proposed:** TypeScript, lint 등 반복 설정의 공유 후보 위치. 모든 설정을 무조건 공통화하지 않는다.
