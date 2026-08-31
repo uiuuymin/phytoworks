@@ -11,7 +11,7 @@ export type CartState = {
 
 export type CartAction =
   | { type: "hydrate"; items: readonly CartItem[] }
-  | { type: "retainProducts"; productIds: readonly string[] }
+  | { type: "sync"; items: readonly CartItem[]; lastRemovedItem?: CartItem }
   | { type: "add"; productId: string }
   | { type: "setQuantity"; productId: string; quantity: number }
   | { type: "remove"; productId: string }
@@ -44,22 +44,13 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
         hasHydrated: true,
       };
 
-    case "retainProducts": {
-      const availableProductIds = new Set(action.productIds);
-      const items = state.items.filter((item) =>
-        availableProductIds.has(item.productId),
-      );
-
-      if (items.length === state.items.length) {
-        return state;
-      }
-
+    case "sync":
       return {
         ...state,
-        items,
-        lastRemovedItem: null,
+        items: action.items,
+        lastRemovedItem: action.lastRemovedItem ?? null,
+        hasHydrated: true,
       };
-    }
 
     case "add": {
       const currentItem = getCartItem(state.items, action.productId);

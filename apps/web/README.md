@@ -19,11 +19,13 @@ pnpm dev
 - NestJS Product Read API에서 Product 목록과 상세를 조회
 - API의 가격 참고값과 brochure 옵션 그룹을 Product 화면에 표시
 - Product API가 일시적으로 unavailable할 때 안전한 안내 화면 제공
-- Cart에는 여전히 Product ID와 수량만 browser에 저장
+- Cart 항목과 수량은 Cart API와 PostgreSQL에 저장하고, browser에는 익명 Cart session ID만 저장
 
 Product 원본 데이터는 NestJS API와 PostgreSQL이 소유합니다. Web은 Product 데이터를 정적으로 복제하지 않습니다. API base URL은 서버 전용 `API_BASE_URL` 환경변수를 사용하며, 로컬 기본값은 `http://localhost:3001`입니다.
 
-현재 가격은 brochure 또는 Demo 참고값이며 실제 checkout 가격이 아닙니다. 재고, 옵션별 추가 금액, Cart API, Quote, Order와 Payment는 아직 구현하지 않았습니다.
+현재 가격은 brochure 또는 Demo 참고값이며 실제 checkout 가격이 아닙니다. 재고, 옵션별 추가 금액, Quote, Order와 Payment는 아직 구현하지 않았습니다. Cart 변경은 same-origin Next.js route handler를 거쳐 NestJS Cart API로 전달됩니다.
+
+Cart session ID는 `phytoworks-shop.cart-session.v1` localStorage key에 저장합니다. 기존 `phytoworks-shop.cart.v1` 정적 Cart data는 자동으로 API Cart에 병합하지 않으며, 이 정책은 후속 task에서 다시 결정합니다. NestJS API의 기본 주소는 서버 전용 `API_BASE_URL`로 지정하고, 기본값은 `http://localhost:3001`입니다.
 
 ## Product API 연결
 

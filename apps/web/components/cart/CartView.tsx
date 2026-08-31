@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { LinkButton } from "@/components/ui/LinkButton";
@@ -20,26 +20,15 @@ export function CartView({ products }: CartViewProps) {
     lastRemovedItem,
     totalQuantity,
     hasHydrated,
-    storageStatus,
+    apiStatus,
+    isPending,
     undoRemove,
-    retainProductIds,
   } = useCart();
   const directPurchaseProducts = useMemo(
     () =>
       products.filter((product) => product.purchaseMode === "DIRECT_PURCHASE"),
     [products],
   );
-  const directPurchaseProductIds = useMemo(
-    () => directPurchaseProducts.map((product) => product.id),
-    [directPurchaseProducts],
-  );
-
-  useEffect(() => {
-    if (hasHydrated) {
-      retainProductIds(directPurchaseProductIds);
-    }
-  }, [directPurchaseProductIds, hasHydrated, retainProductIds]);
-
   const cartLines = items.flatMap((item) => {
     const product = directPurchaseProducts.find(
       (candidate) => candidate.id === item.productId,
@@ -63,17 +52,20 @@ export function CartView({ products }: CartViewProps) {
 
   return (
     <div className={styles.view}>
-      {storageStatus === "unavailable" ? (
+      {apiStatus === "unavailable" ? (
         <p className={styles.storageNotice}>
-          장바구니를 이 브라우저에 저장할 수 없습니다. 현재 화면을 사용하는
-          동안만 유지됩니다.
+          Cart API를 사용할 수 없습니다. 잠시 후 다시 시도하세요.
         </p>
       ) : null}
 
       {lastRemovedItem && removedProduct ? (
         <div className={styles.undoNotice}>
           <p>{removedProduct.name}을 장바구니에서 제거했습니다.</p>
-          <Button variant="secondary" onClick={undoRemove}>
+          <Button
+            variant="secondary"
+            disabled={isPending}
+            onClick={() => void undoRemove()}
+          >
             삭제 취소
           </Button>
         </div>
