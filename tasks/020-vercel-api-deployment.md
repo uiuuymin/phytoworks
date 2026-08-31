@@ -12,11 +12,11 @@ Web 프로젝트는 Vercel에서 빌드되지만, `API_BASE_URL`이 없어 API �
 
 ## 선택
 
-`tsconfig.build.json`에서 배포 대상에 필요한 `node` 타입만 명시하고, TypeScript와 `@types/node`를 API의 build dependency로 이동합니다. Vitest 타입은 테스트 설정에만 남겨 배포 빌드 의존성을 줄입니다.
+`tsconfig.build.json`에서 배포 대상에 필요한 `node` 타입만 명시하고, 기본 `tsconfig.json`에서는 테스트 전용 `vitest/globals` 타입 지정을 제거합니다. TypeScript와 `@types/node`는 API의 build dependency로 이동합니다.
 
 ## 범위
 
-- 변경: `apps/api/tsconfig.build.json`, `apps/api/package.json`, `pnpm-lock.yaml`
+- 변경: `apps/api/tsconfig.json`, `apps/api/tsconfig.build.json`, `apps/api/package.json`, `pnpm-lock.yaml`
 - 기록: 이 task 문서
 - 변경하지 않음: Web API 프록시 동작, Prisma schema, 결제 로직
 
