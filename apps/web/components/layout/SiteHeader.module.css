@@ -128,6 +128,30 @@
   text-underline-offset: 0.25em;
 }
 
+.loginLink {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.loginLink:hover {
+  background: var(--color-surface);
+  color: var(--color-action-hover);
+}
+
+.loginLink[aria-current="page"] {
+  background: var(--color-surface-raised);
+  color: var(--color-action);
+  text-decoration: underline;
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.25em;
+}
+
 .cartCount {
   display: inline-flex;
   min-width: 1.5rem;
@@ -149,7 +173,6 @@
 }
 
 .navigationLink[aria-current="page"] {
-  background: var(--color-surface-raised);
   color: var(--color-action);
   text-decoration: underline;
   text-decoration-thickness: 0.12em;
@@ -186,6 +209,10 @@
   }
 
   .cartLink {
+    padding-inline: var(--space-4);
+  }
+
+  .loginLink {
     padding-inline: var(--space-4);
   }
 }

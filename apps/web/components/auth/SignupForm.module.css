@@ -1,0 +1,32 @@
+.form {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.field label {
+  font-weight: var(--font-weight-semibold);
+}
+
+.field input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-canvas);
+}
+
+.field input:focus-visible {
+  outline: 0.1875rem solid var(--color-focus);
+  outline-offset: 0.1875rem;
+}
+
+.status {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}

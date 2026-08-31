@@ -99,6 +99,18 @@ export function SiteHeader() {
             ) : null}
           </Link>
 
+          <Link
+            className={styles.loginLink}
+            href="/login"
+            aria-current={
+              isCurrentRoute(pathname, "/login") ? "page" : undefined
+            }
+            onClick={closeNavigation}
+            onKeyDown={handleHeaderKeyDown}
+          >
+            Login
+          </Link>
+
           <Button
             ref={menuButtonRef}
             className={styles.menuButton}

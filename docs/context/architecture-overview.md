@@ -28,13 +28,13 @@ Toss Payments
 
 ### Next.js 16
 
-**Current:** `apps/web`에 Next.js 16.3.3 App Router가 생성되었고 `/`, `/products`, Product Detail 세 건과 `/cart`를 정적으로 렌더링한다. Home, Product 목록, card, detail과 Cart page shell은 Server Component이며 API나 DB data를 사용하지 않는다. Root CartProvider, SiteHeader, AddToCartButton, CartView와 CartLineItem은 browser state, event와 localStorage가 필요하므로 Client Component다.
+**Current:** `apps/web`에 Next.js 16.3.3 App Router가 생성되었고 `/`, `/login`, `/signup`, `/products`, Product Detail 세 건과 `/cart`를 정적으로 렌더링한다. Home, Login page shell, Sign up page shell, Product 목록, card, detail과 Cart page shell은 Server Component이며 API나 DB data를 사용하지 않는다. Root CartProvider, SiteHeader, LoginForm, SignupForm, AddToCartButton, CartView와 CartLineItem은 browser state, event와 localStorage가 필요하므로 Client Component다.
 
 **Proposed:** 이후 상품·장바구니·주문·결제 결과 화면을 제공하고 NestJS API와 통신한다. 어떤 기능을 Server Component, Server Action 또는 브라우저 코드에서 처리할지는 기능별 task에서 결정한다.
 
 ### Web route와 component 경계
 
-**Current:** 직접 작성된 route는 `/`, `/products`, `/products/[productId]`와 `/cart`다. Root layout의 CartProvider는 SiteHeader와 route content를 감싸며 Product Detail, SiteHeader와 Cart가 같은 browser state를 사용하게 한다. Server Component `children`은 CartProvider 안에서도 server rendering 경계를 유지한다. SiteHeader는 PhytoWorks 홈 link, Products link, Cart utility link, `Shop Demo` label, Cart 총 수량, 현재 route와 mobile disclosure state를 소유한다. Home은 Shop 소개와 Products 진입을, `/products`는 생육·표현형 분석 시스템과 이미징 모듈로 나눈 정적 Product 탐색을, Product Detail은 정적 data 조회, 카탈로그 이미지, 설명과 판매 방식 표현을 담당한다. `/cart` page는 두 section을, CartView와 CartLineItem은 구매 장바구니의 hydration, empty state, 수량 변경, 제거와 Undo를 담당하며 QuoteView와 QuoteLineItem은 견적함을 담당한다. 세 Product ID는 `generateStaticParams`로 정적 생성하며 알려지지 않은 ID는 page의 `notFound()`와 Product 전용 not-found 화면으로 처리한다. 각 route에는 Demo 경계를 반복해서 설명하는 notice가 없다. `components/layout`, `components/ui`, `components/commerce`, `components/cart`에 역할별 component가 있고 각 component와 route는 CSS Module을 사용한다. Native CSS foundation은 계속 semantic token, global typography, responsive container, focus와 reduced motion만 제공한다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이다.
+**Current:** 직접 작성된 route는 `/`, `/login`, `/signup`, `/products`, `/products/[productId]`와 `/cart`다. Root layout의 CartProvider는 SiteHeader와 route content를 감싸며 Product Detail, SiteHeader와 Cart가 같은 browser state를 사용하게 한다. Server Component `children`은 CartProvider 안에서도 server rendering 경계를 유지한다. SiteHeader는 PhytoWorks 홈 link, Products link, Login link, Cart utility link, `Shop Demo` label, Cart 총 수량, 현재 route와 mobile disclosure state를 소유한다. Home은 Shop 소개와 Products 진입을, `/login`은 인증 API 연결 전 Email과 Password 입력 및 `/signup` 진입을, `/signup`은 계정 생성 API 연결 전 Name, Email과 Password 입력 및 `/login` 진입을, `/products`는 생육·표현형 분석 시스템과 이미징 모듈로 나눈 정적 Product 탐색을, Product Detail은 정적 data 조회, 카탈로그 이미지, 설명과 판매 방식 표현을 담당한다. `/cart` page는 두 section을, CartView와 CartLineItem은 구매 장바구니의 hydration, empty state, 수량 변경, 제거와 Undo를 담당하며 QuoteView와 QuoteLineItem은 견적함을 담당한다. 세 Product ID는 `generateStaticParams`로 정적 생성하며 알려지지 않은 ID는 page의 `notFound()`와 Product 전용 not-found 화면으로 처리한다. 각 route에는 Demo 경계를 반복해서 설명하는 notice가 없다. `components/layout`, `components/auth`, `components/ui`, `components/commerce`, `components/cart`에 역할별 component가 있고 각 component와 route는 CSS Module을 사용한다. Native CSS foundation은 계속 semantic token, global typography, responsive container, focus와 reduced motion만 제공한다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이다.
 
 **Proposed:** 최소 Shop route는 다음과 같다.
 
@@ -53,7 +53,7 @@ Toss Payments
 
 정적 layout, Product 목록과 설명은 Server Component를 우선한다. Cart Context는 Client Component에서만 읽으며 browser state와 event가 필요한 작은 leaf만 client bundle에 포함한다. 실제 data fetching, cache와 mutation 경계는 API 구현 task에서 확정한다.
 
-IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 기준으로 한다. 위 구조에서 `/`, `/products`, `/products/[productId]`와 `/cart`는 Current이며 나머지 route는 아직 Proposed다.
+IA, responsive와 공통 component 방향은 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 기준으로 한다. 위 구조에서 `/`, `/login`, `/signup`, `/products`, `/products/[productId]`와 `/cart`는 Current이며 나머지 route는 아직 Proposed다.
 
 ### NestJS
 

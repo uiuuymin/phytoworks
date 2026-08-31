@@ -13,7 +13,7 @@
 
 ## Current IA
 
-직접 작성된 route는 `/`, `/products`, `/products/[productId]`와 `/cart`다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이며 프로젝트가 설계한 사용자 화면으로 세지 않는다.
+직접 작성된 route는 `/`, `/login`, `/signup`, `/products`, `/products/[productId]`와 `/cart`다. Next.js가 생성한 `/_global-error`와 전체 application의 `/_not-found`는 framework fallback이며 프로젝트가 설계한 사용자 화면으로 세지 않는다.
 
 ```text
 Root layout
@@ -27,6 +27,8 @@ Root layout
 ├─ / Home
 │  ├─ Shop 소개
 │  └─ Catalog CTA
+├─ /login Login
+├─ /signup Sign up
 ├─ /products Products
    ├─ 생육·표현형 분석 시스템
    │  └─ NITRO Plant Growth System
@@ -56,7 +58,9 @@ Home
    → Cart에서 수량 변경·제거
 ```
 
-- 공통 SiteHeader, PhytoWorks 홈 링크, Products navigation, Cart utility, Cart 총 수량, 현재 route 표시와 mobile disclosure가 있다. Footer는 아직 없다.
+- 공통 SiteHeader, PhytoWorks 홈 링크, Products navigation, Login link, Cart utility, Cart 총 수량, 현재 route 표시와 mobile disclosure가 있다. Footer는 아직 없다.
+- `/login`은 Email과 Password를 받는 프런트엔드 화면이며 인증 API와 session은 아직 연결되지 않았다. 패널 아래에 `/signup` 진입 링크를 가운데 배치한다.
+- `/signup`은 Name, Email과 Password를 받는 프런트엔드 화면이며 계정 생성 API와 session은 아직 연결되지 않았다.
 - Product Detail과 `/cart`가 있으며 Checkout, Payment result와 Order status route는 없다.
 - Product는 `apps/web/data/products.ts`의 정적 TypeScript 배열이며 API와 DB를 사용하지 않는다. 세 Product Detail은 `generateStaticParams`로 생성하며 CartProvider, SiteHeader와 Cart 전용 leaf만 client state를 사용한다.
 - Home의 LinkButton과 SiteHeader로 내부 route를 이동한다. 학습용 Shop이라는 맥락은 SiteHeader의 `Shop Demo` label에서 한 번만 알린다.
@@ -111,6 +115,8 @@ Home
 | 영역 | 상태 | 역할과 이유 |
 | --- | --- | --- |
 | Home `/` | Current | 브랜드 맥락과 Shop 진입점을 제공한다. |
+| Login `/login` | Current Demo | 인증 API 연결 전 로그인 입력 화면과 가운데 정렬된 Sign up 진입 링크를 제공한다. |
+| Sign up `/signup` | Current Demo | 계정 생성 API 연결 전 회원가입 입력 화면과 로그인 진입 링크를 제공한다. |
 | Products `/products` | Current | Product 탐색과 비교를 담당한다. |
 | Product Detail `/products/[productId]` | Current | 카탈로그 이미지, 설명, 주요 기능, 판매 방식과 CTA를 제공한다. |
 | Cart `/cart` | Current | `DIRECT_PURCHASE` Demo Product를 browser에 임시 저장하고 수량을 관리한다. 가격이 없으므로 합계와 Checkout은 제공하지 않는다. |
@@ -281,7 +287,8 @@ Motion은 상태 변화와 공간 관계를 설명할 때만 사용한다. 단�
 
 ### Current Catalog, Product Detail과 Cart component 및 responsive 동작
 
-- SiteHeader는 PhytoWorks 홈 링크, Products navigation, Cart utility, Cart 총 수량, `aria-current`, skip link와 mobile disclosure를 제공한다. 현재 route, disclosure와 Cart state가 필요하므로 Client Component다.
+- SiteHeader는 PhytoWorks 홈 링크, Products navigation, Login link, Cart utility, Cart 총 수량, `aria-current`, skip link와 mobile disclosure를 제공한다. 현재 route, disclosure와 Cart state가 필요하므로 Client Component다.
+- `/login`은 Server Component page shell과 Client Component `LoginForm`으로 구성되며, 현재는 인증 API를 호출하지 않는다. `/signup`도 같은 패널 정렬 규칙을 사용하며 `SignupForm`은 계정 생성 API를 호출하지 않는다.
 - Button은 현재 문서의 동작, LinkButton은 내부 route 이동을 담당하며 `primary`와 `secondary` variant만 사용한다.
 - Home은 Product 목록을 중복하지 않고 간결한 Shop 소개와 `/products` 진입만 제공한다.
 - `/products`는 정적 Catalog data 세 건을 생육·표현형 분석 시스템과 이미징 모듈 section으로 나누어 ProductGrid와 ProductCard Server Component로 렌더링한다.
@@ -321,6 +328,9 @@ apps/web/
 ├─ components/
 │  ├─ layout/
 │  │  └─ SiteHeader
+│  ├─ auth/
+│  │  ├─ LoginForm
+│  │  └─ SignupForm
 │  ├─ commerce/
 │  │  ├─ ProductCard
 │  │  ├─ ProductGrid
