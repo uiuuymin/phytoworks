@@ -17,7 +17,7 @@
 
 네트워크 주소와 Web port는 실행 환경에 따라 바뀔 수 있으므로, 같은 컴퓨터에서는 터미널에 표시된 `http://localhost:3000` 또는 `http://localhost:3002`를 우선 사용합니다.
 
-로컬 Cart 프록시가 세션 쿠키를 만들려면 Git에서 무시되는 `apps/web/.env.local`에 `API_BASE_URL`과 32자 이상의 `CART_SESSION_SECRET`을 설정해야 합니다.
+로컬 Cart 프록시가 세션 쿠키를 만들고 API가 토큰을 검증하려면 Git에서 무시되는 `apps/web/.env.local`과 `apps/api/.env`에 같은 32자 이상의 `CART_SESSION_SECRET`을 설정해야 합니다. API의 로컬 데이터베이스 주소도 `apps/api/.env`에 설정해야 합니다.
 
 ## 검증
 
