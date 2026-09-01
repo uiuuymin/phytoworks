@@ -51,7 +51,7 @@ Root layout
 ```text
 Home
 → Products
-→ 정적 Product 세 건 비교
+→ API Product 세 건 비교
 → Product Detail
 ├─ NITRO는 공식 견적 문의
 └─ 직접 구매 Product는 Add to Cart
@@ -61,7 +61,7 @@ Home
 - 공통 SiteHeader는 상단 utility row의 `KR | EN` language button, Search, Cart·Login link와 구분선을, 두 번째 row의 확대된 PhytoWorks 홈 link와 Products·About navigation, mobile disclosure를 제공한다. Footer는 아직 없다.
 - `/login`은 Email과 Password를 받는 프런트엔드 화면이며 인증 API와 session은 아직 연결되지 않았다. 패널 아래에 `/signup` 진입 링크를 가운데 배치한다.
 - `/signup`은 Name, Email과 Password를 받는 프런트엔드 화면이며 계정 생성 API와 session은 아직 연결되지 않았다.
-- Product Detail과 `/cart`가 있으며 Checkout, Payment result와 Order status route는 없다.
+- Product Detail, `/cart`, `/checkout`, Payment result와 `/orders/[orderId]`가 있다. Orders 목록은 아직 없다.
 - Product는 NestJS Product Read API와 PostgreSQL read model에서 조회한다. 세 Product Detail은 동적 API 조회로 생성하며 CartProvider, SiteHeader와 Cart 전용 leaf만 client state를 사용한다.
 - Home은 제품 중심 hero에서 NITRO chamber cutout image와 `/products` 진입 CTA를 제공한다. `/about`은 정적 브랜드 소개, `/search`는 API Product 목록을 고정된 제품 순서로 표시하는 검색 Demo다. 언어 전환은 아직 동작하지 않으며 `KR | EN` button은 선택 상태만 표시한다. 실제 locale route와 번역은 `TBD`다.
 - Native CSS foundation 위에 component·route별 CSS Module, 1열·2열·3열 ProductGrid, responsive SiteHeader와 1열·2열 Product Detail이 구현되었다.
@@ -120,9 +120,9 @@ Home
 | Products `/products` | Current | Product 탐색과 비교를 담당한다. |
 | Product Detail `/products/[productId]` | Current | 카탈로그 이미지, 설명, 주요 기능, 판매 방식과 CTA를 제공한다. |
 | Cart `/cart` | Current | `DIRECT_PURCHASE` Demo Product를 browser에 임시 저장하고 수량을 관리한다. 가격이 없으므로 합계와 Checkout은 제공하지 않는다. |
-| Checkout `/checkout` | Proposed | 주문 입력을 확인하고 서버에 Order 생성을 요청한다. |
-| Payment success/fail | Proposed | 브라우저 인증 결과와 서버 승인 결과를 혼동하지 않도록 분리한다. |
-| Order status `/orders/[orderId]` | Proposed | 특정 Order와 Payment 상태를 확인한다. |
+| Checkout `/checkout` | Current Demo | 서버에서 Demo Order를 만들고 Toss Payments 테스트 결제창을 연다. |
+| Payment success/fail | Current Demo | 브라우저 인증 결과와 서버 승인 결과를 분리한다. |
+| Order status `/orders/[orderId]` | Current Demo | 현재 Cart session에 연결된 Order 상태와 상품을 확인한다. |
 | Orders 목록 | Deferred | Customer 식별과 인증 정책이 먼저 필요하다. |
 | Wishlist | Deferred | 주문·결제 기술 흐름에 필수적이지 않다. |
 | Admin | Excluded | 인증·권한·운영 규칙 없이 관리 화면을 만들지 않는다. |
@@ -426,7 +426,7 @@ UI foundation과 Shop Catalog는 각각 독립된 worktree에서 구현되었다
 | 11 | `wishlist` | 필요성이 남아 있을 때 관심 Product 저장 | Customer 또는 저장 방식 결정 | reload, keyboard, mobile |
 | 12 | `ui-a11y-polish` | 전체 접근성, motion과 성능 점검 | 핵심 흐름 완료 | keyboard, reduced motion, browser audit |
 
-1번부터 6번까지 Current이며 7번 이후는 Proposed다. 5번에서 추가한 `/health`와 6번에서 추가한 Product API는 사용자 화면이나 Shop navigation에 포함되지 않으며 현재 IA와 browser Cart 흐름을 변경하지 않는다. PostgreSQL과 ORM을 이용한 Product source 전환은 별도 database task로 남아 있다.
+1번부터 10번까지의 핵심 흐름은 Current Demo이며, Customer 인증·운영 가격·재고·주문 안정화는 후속 Proposed 범위다. 5번에서 추가한 `/health`와 6번에서 추가한 Product API는 사용자 화면이나 Shop navigation에 포함되지 않으며 현재 IA와 browser Cart 흐름을 변경하지 않는다. PostgreSQL과 ORM을 이용한 Product source 전환은 별도 database task로 남아 있다.
 
 Responsive와 접근성은 12번까지 미루지 않고 각 기능 task의 완료 조건에 포함한다. 12번은 누락된 전체 흐름을 다시 점검하는 단계다.
 

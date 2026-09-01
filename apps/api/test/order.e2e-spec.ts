@@ -1,9 +1,10 @@
 import type { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { AppModule } from "../src/app.module.js";
 import { CART_REPOSITORY } from "../src/cart/cart.repository.js";
+import { createCartSessionToken } from "../src/cart/cart-session.js";
 import { InMemoryCartRepository } from "../src/cart/in-memory-cart.repository.js";
 import { InMemoryOrderRepository } from "../src/order/in-memory-order.repository.js";
 import { ORDER_REPOSITORY } from "../src/order/order.repository.js";
@@ -12,7 +13,17 @@ import { StaticProductRepository } from "../src/product/static-product.repositor
 
 describe("Order endpoints", () => {
   let app: INestApplication;
-  const sessionId = "order-http-session";
+  const sessionId = "00000000-0000-4000-8000-000000000002";
+  const sessionToken = createCartSessionToken(
+    sessionId,
+    "test-cart-session-secret-32-characters",
+  );
+  const otherSessionToken = createCartSessionToken(
+    "00000000-0000-4000-8000-000000000003",
+    "test-cart-session-secret-32-characters",
+  );
+
+  vi.stubEnv("CART_SESSION_SECRET", "test-cart-session-secret-32-characters");
 
   beforeAll(async () => {
     const cartRepository = new InMemoryCartRepository();
@@ -35,7 +46,7 @@ describe("Order endpoints", () => {
 
   it("creates and reads a pending Order from Cart", async () => {
     const agent = request(app.getHttpServer());
-    const headers = { "x-cart-session-id": sessionId };
+    const headers = { "x-cart-session-token": sessionToken };
 
     await agent
       .post("/api/cart/items")
@@ -74,7 +85,7 @@ describe("Order endpoints", () => {
 
     await agent
       .get(`/api/orders/${response.body.id}`)
-      .set({ "x-cart-session-id": "other-session" })
+      .set({ "x-cart-session-token": otherSessionToken })
       .expect(404);
   });
 
@@ -84,7 +95,13 @@ describe("Order endpoints", () => {
     await agent.post("/api/orders").expect(400);
     await agent
       .post("/api/orders")
-      .set("x-cart-session-id", "empty-order-session")
+      .set(
+        "x-cart-session-token",
+        createCartSessionToken(
+          "00000000-0000-4000-8000-000000000004",
+          "test-cart-session-secret-32-characters",
+        ),
+      )
       .expect(400);
   });
 });

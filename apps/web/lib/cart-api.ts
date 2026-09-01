@@ -20,54 +20,43 @@ export class CartApiError extends Error {
 
 const CART_API_TIMEOUT_MS = 5_000;
 
-export async function getCart(sessionId: string): Promise<CartApiResponse> {
-  return requestCartApi("/api/cart", sessionId);
+export async function getCart(): Promise<CartApiResponse> {
+  return requestCartApi("/api/cart");
 }
 
 export async function addCartItem(
-  sessionId: string,
   productId: string,
   quantity = 1,
 ): Promise<CartApiResponse> {
-  return requestCartApi("/api/cart/items", sessionId, {
+  return requestCartApi("/api/cart/items", {
     method: "POST",
     body: JSON.stringify({ productId, quantity }),
   });
 }
 
 export async function setCartItemQuantity(
-  sessionId: string,
   productId: string,
   quantity: number,
 ): Promise<CartApiResponse> {
-  return requestCartApi(
-    `/api/cart/items/${encodeURIComponent(productId)}`,
-    sessionId,
-    {
-      method: "PATCH",
-      body: JSON.stringify({ quantity }),
-    },
-  );
+  return requestCartApi(`/api/cart/items/${encodeURIComponent(productId)}`, {
+    method: "PATCH",
+    body: JSON.stringify({ quantity }),
+  });
 }
 
 export async function removeCartItem(
-  sessionId: string,
   productId: string,
 ): Promise<CartApiResponse> {
-  return requestCartApi(
-    `/api/cart/items/${encodeURIComponent(productId)}`,
-    sessionId,
-    { method: "DELETE" },
-  );
+  return requestCartApi(`/api/cart/items/${encodeURIComponent(productId)}`, {
+    method: "DELETE",
+  });
 }
 
 async function requestCartApi(
   path: string,
-  sessionId: string,
   init: RequestInit = {},
 ): Promise<CartApiResponse> {
   const headers = new Headers(init.headers);
-  headers.set("X-Cart-Session-Id", sessionId);
 
   if (init.body) {
     headers.set("Content-Type", "application/json");

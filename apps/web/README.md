@@ -31,7 +31,11 @@ Order를 준비하고 Toss Payments 결제창을 렌더링합니다. 결제 succ
 Payment API를 호출해 서버 승인을 완료합니다. Cart·Order·Payment 변경은 same-origin Next.js
 route handler를 거쳐 NestJS API로 전달됩니다.
 
-Cart session ID는 `phytoworks-shop.cart-session.v1` localStorage key에 저장합니다. 기존 `phytoworks-shop.cart.v1` 정적 Cart data는 자동으로 API Cart에 병합하지 않으며, 이 정책은 후속 task에서 다시 결정합니다. NestJS API의 기본 주소는 서버 전용 `API_BASE_URL`로 지정하고, 기본값은 `http://localhost:3001`입니다.
+Cart session은 `phytoworks-cart-session` HttpOnly cookie에 저장하며 Web JavaScript에는 노출하지
+않습니다. Next.js same-origin proxy가 서명 token을 NestJS API에 전달하고, Web과 API는 같은
+`CART_SESSION_SECRET`을 사용해야 합니다. 기존 `phytoworks-shop.cart.v1` 정적 Cart data는
+자동으로 API Cart에 병합하지 않습니다. NestJS API의 기본 주소는 서버 전용 `API_BASE_URL`로
+지정하고, 기본값은 `http://localhost:3001`입니다.
 
 ## Product API 연결
 
@@ -53,6 +57,10 @@ pnpm --filter @phytoworks/web dev
 
 Web checkout은 Toss Payments 테스트 client key가 필요합니다. 실제 secret key는 Web에 설정하지
 않으며, 로컬 실행 시 `apps/web/.env.example`을 참고해 `NEXT_PUBLIC_TOSS_CLIENT_KEY`만 설정합니다.
+
+배포 시 Web에는 `API_BASE_URL`, `CART_SESSION_SECRET`, `NEXT_PUBLIC_TOSS_CLIENT_KEY`를,
+API에는 `DATABASE_URL`, `CART_SESSION_SECRET`, `TOSS_SECRET_KEY`를 등록합니다. `CART_SESSION_SECRET`은
+두 앱에서 같은 무작위 값이어야 하며 실제 값은 저장소에 기록하지 않습니다.
 
 ## 검증
 

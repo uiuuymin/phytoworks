@@ -17,7 +17,6 @@ import {
   removeCartItem,
   setCartItemQuantity,
 } from "@/lib/cart-api";
-import { getOrCreateCartSessionId } from "@/lib/cart-session";
 import type { ProductOptionGroup } from "@/lib/product-types";
 
 import styles from "./CartProvider.module.css";
@@ -78,7 +77,6 @@ export function CartProvider({ children }: CartProviderProps) {
   );
   const [apiStatus, setApiStatus] = useState<ApiStatus>("loading");
   const [isPending, setIsPending] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
   const [quoteStorageAvailable, setQuoteStorageAvailable] = useState(true);
   const [announcement, setAnnouncement] = useState({ id: 0, message: "" });
 
@@ -91,14 +89,11 @@ export function CartProvider({ children }: CartProviderProps) {
 
     async function initializeCart() {
       try {
-        const nextSessionId = getOrCreateCartSessionId();
-        setSessionId(nextSessionId);
-
         const storedQuote = readQuoteFromStorage();
         quoteDispatch({ type: "hydrate", items: storedQuote.items });
         setQuoteStorageAvailable(storedQuote.isAvailable);
 
-        const cart = await getCart(nextSessionId);
+        const cart = await getCart();
 
         if (cancelled) {
           return;
@@ -144,18 +139,18 @@ export function CartProvider({ children }: CartProviderProps) {
 
   const runMutation = useCallback(
     async (
-      operation: (currentSessionId: string) => Promise<CartApiResponse>,
+      operation: () => Promise<CartApiResponse>,
       successMessage: string,
       lastRemovedItem?: CartItem,
     ): Promise<boolean> => {
-      if (!sessionId || !state.hasHydrated || isPending) {
+      if (!state.hasHydrated || isPending) {
         return false;
       }
 
       setIsPending(true);
 
       try {
-        const cart = await operation(sessionId);
+        const cart = await operation();
         dispatch({ type: "sync", items: cart.items, lastRemovedItem });
         setApiStatus("available");
         announce(successMessage);
@@ -168,7 +163,7 @@ export function CartProvider({ children }: CartProviderProps) {
         setIsPending(false);
       }
     },
-    [announce, isPending, sessionId, state.hasHydrated],
+    [announce, isPending, state.hasHydrated],
   );
 
   async function addItem(productId: string) {
@@ -181,7 +176,7 @@ export function CartProvider({ children }: CartProviderProps) {
     }
 
     await runMutation(
-      (currentSessionId) => addCartItem(currentSessionId, productId),
+      () => addCartItem(productId),
       `상품을 장바구니에 담았습니다. 수량은 ${nextQuantity}개입니다.`,
     );
   }
@@ -195,8 +190,7 @@ export function CartProvider({ children }: CartProviderProps) {
     }
 
     return runMutation(
-      (currentSessionId) =>
-        setCartItemQuantity(currentSessionId, productId, quantity),
+      () => setCartItemQuantity(productId, quantity),
       `상품 수량을 ${quantity}개로 변경했습니다.`,
     );
   }
@@ -222,7 +216,7 @@ export function CartProvider({ children }: CartProviderProps) {
     }
 
     await runMutation(
-      (currentSessionId) => removeCartItem(currentSessionId, productId),
+      () => removeCartItem(productId),
       "상품을 장바구니에서 제거했습니다.",
       currentItem,
     );
@@ -235,12 +229,7 @@ export function CartProvider({ children }: CartProviderProps) {
     }
 
     await runMutation(
-      (currentSessionId) =>
-        addCartItem(
-          currentSessionId,
-          removedItem.productId,
-          removedItem.quantity,
-        ),
+      () => addCartItem(removedItem.productId, removedItem.quantity),
       `상품을 수량 ${removedItem.quantity}개로 복원했습니다.`,
     );
   }

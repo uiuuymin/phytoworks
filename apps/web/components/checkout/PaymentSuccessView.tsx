@@ -4,7 +4,6 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { LinkButton } from "@/components/ui/LinkButton";
-import { getOrCreateCartSessionId } from "@/lib/cart-session";
 import { type ConfirmPaymentResponse, confirmPayment } from "@/lib/payment-api";
 
 import styles from "./PaymentResultView.module.css";
@@ -31,7 +30,7 @@ export function PaymentSuccessView() {
     }
 
     let cancelled = false;
-    confirmPayment(getOrCreateCartSessionId(), { paymentKey, orderId, amount })
+    confirmPayment({ paymentKey, orderId, amount })
       .then((payment) => {
         if (!cancelled) {
           setState({ status: "success", payment });
@@ -82,7 +81,16 @@ export function PaymentSuccessView() {
           <dd>{state.payment.amount.toLocaleString("ko-KR")}원</dd>
         </div>
       </dl>
-      <LinkButton href="/">Shop으로 돌아가기</LinkButton>
+      <div className={styles.actions}>
+        <LinkButton
+          href={`/orders/${encodeURIComponent(state.payment.orderId)}`}
+        >
+          주문 상태 보기
+        </LinkButton>
+        <LinkButton href="/" variant="secondary">
+          Shop으로 돌아가기
+        </LinkButton>
+      </div>
     </section>
   );
 }

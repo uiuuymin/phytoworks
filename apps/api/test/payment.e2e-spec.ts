@@ -3,6 +3,7 @@ import { Test } from "@nestjs/testing";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { AppModule } from "../src/app.module.js";
+import { createCartSessionToken } from "../src/cart/cart-session.js";
 import { InMemoryPaymentRepository } from "../src/payment/in-memory-payment.repository.js";
 import {
   PAYMENT_GATEWAY,
@@ -12,7 +13,12 @@ import { PAYMENT_REPOSITORY } from "../src/payment/payment.repository.js";
 
 describe("Payment endpoints", () => {
   let app: INestApplication;
-  const sessionId = "payment-http-session";
+  const sessionId = "00000000-0000-4000-8000-000000000005";
+  const sessionToken = createCartSessionToken(
+    sessionId,
+    "test-cart-session-secret-32-characters",
+  );
+  vi.stubEnv("CART_SESSION_SECRET", "test-cart-session-secret-32-characters");
   const repository = new InMemoryPaymentRepository();
   const gateway: PaymentGateway & { confirm: ReturnType<typeof vi.fn> } = {
     confirm: vi.fn().mockResolvedValue({
@@ -56,7 +62,7 @@ describe("Payment endpoints", () => {
 
   it("confirms a payment and is idempotent for the same request", async () => {
     const agent = request(app.getHttpServer());
-    const headers = { "x-cart-session-id": sessionId };
+    const headers = { "x-cart-session-token": sessionToken };
     const body = {
       paymentKey: "payment-key-http",
       orderId: "order-http-payment",
@@ -95,7 +101,7 @@ describe("Payment endpoints", () => {
     await agent.post("/api/payments/confirm").send(body).expect(400);
     await agent
       .post("/api/payments/confirm")
-      .set("x-cart-session-id", sessionId)
+      .set("x-cart-session-token", sessionToken)
       .send(body)
       .expect(400);
   });

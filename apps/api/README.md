@@ -46,11 +46,12 @@ POST /api/payments/confirm
 
 두 응답은 기존 Product 필드를 유지하면서 `pricing`과 `optionGroups`를 추가로 반환합니다. 현재 가격은 NITRO의 brochure reference와 두 모듈의 demo reference이며, 모두 checkout을 확정하는 값이 아닙니다. Product API는 재고와 옵션별 추가 금액을 확정하지 않으며, 주문 금액은 Order API가 별도 규칙으로 계산합니다.
 
-Cart API는 인증 도입 전의 익명 session MVP입니다. 요청마다 `X-Cart-Session-Id` header를 보내야
-하며, Cart에는 Product ID와 수량만 저장합니다. 같은 Product를 다시 추가하면 수량을 합칩니다.
+Cart API는 Customer 인증 도입 전의 익명 session입니다. Web proxy가 발급한 서명 token을
+`X-Cart-Session-Token` header로 받아 검증하며, 평문 session ID는 받지 않습니다. Cart에는
+Product ID와 수량만 저장하고, 같은 Product를 다시 추가하면 수량을 합칩니다.
 
 ```http
-X-Cart-Session-Id: demo-session-1
+X-Cart-Session-Token: <signed-cart-session-token>
 ```
 
 ```json
@@ -86,8 +87,9 @@ OrderItem에는 주문 시점의 상품명, 단가와 수량을 snapshot으로 �
 }
 ```
 
-주문 조회에도 같은 `X-Cart-Session-Id` header가 필요합니다. 현재 익명 session ID는 운영 수준의
-소유권 증명이 아닙니다.
+주문 조회에도 같은 `X-Cart-Session-Token` header가 필요합니다. Web은 token을 HttpOnly
+cookie에 저장하고 API와 `CART_SESSION_SECRET`을 공유합니다. 이 방식은 익명 token 위조를
+막지만 Customer 계정 기반 ownership은 제공하지 않습니다.
 
 Payment confirm API는 Web 결제창에서 받은 `paymentKey`, `orderId`, `amount`를 전달받습니다.
 서버는 저장된 Order 금액을 다시 확인한 뒤 `TOSS_SECRET_KEY`로 Toss Payments confirm API를
@@ -96,7 +98,7 @@ Payment confirm API는 Web 결제창에서 받은 `paymentKey`, `orderId`, `amou
 
 ```http
 POST /api/payments/confirm
-X-Cart-Session-Id: demo-session-1
+X-Cart-Session-Token: <signed-cart-session-token>
 Content-Type: application/json
 ```
 
@@ -108,7 +110,8 @@ Content-Type: application/json
 }
 ```
 
-실제 Toss 결제창과 성공·실패 redirect를 연결하는 Web checkout은 아직 구현하지 않았습니다.
+Web checkout은 same-origin proxy를 통해 이 confirm endpoint를 호출합니다. Web의 결제창에는
+`NEXT_PUBLIC_TOSS_CLIENT_KEY`, API에는 `TOSS_SECRET_KEY`가 필요합니다.
 
 ## Prisma와 데이터베이스
 
@@ -139,6 +142,18 @@ pnpm --filter @phytoworks/api prisma:migrate:payment
 ```
 
 개발 데이터베이스의 생성과 실행 방법, Docker와 배포 환경 설정은 별도 작업 범위입니다.
+
+## 배포 환경변수
+
+Web과 API는 다음 값을 플랫폼의 secret/environment variable 설정에 등록해야 합니다.
+
+- Web: `API_BASE_URL`, `CART_SESSION_SECRET`, `NEXT_PUBLIC_TOSS_CLIENT_KEY`
+- API: `DATABASE_URL`, `CART_SESSION_SECRET`, `TOSS_SECRET_KEY`
+
+`CART_SESSION_SECRET`은 Web과 API에 같은 값으로 등록하고, 최소 32자 이상의 무작위 값으로
+생성합니다. 실제 값은 `.env.example`, 저장소와 로그에 기록하지 않습니다. 배포 순서는 API에
+Prisma migration을 적용하고 API를 기동한 뒤, Web의 `API_BASE_URL`을 API의 HTTPS 주소로
+설정하는 순서로 진행합니다.
 
 ## 검증
 
