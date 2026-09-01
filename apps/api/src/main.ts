@@ -3,7 +3,7 @@ import "dotenv/config";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module.js";
 
-const DEFAULT_PORT = 3000;
+const DEFAULT_PORT = 3001;
 
 function resolvePort(rawPort: string | undefined): number {
   if (rawPort === undefined) {
