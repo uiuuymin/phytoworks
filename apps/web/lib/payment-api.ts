@@ -19,10 +19,11 @@ export class PaymentApiError extends Error {
   }
 }
 
-export async function confirmPayment(
-  sessionId: string,
-  input: { paymentKey: string; orderId: string; amount: number },
-): Promise<ConfirmPaymentResponse> {
+export async function confirmPayment(input: {
+  paymentKey: string;
+  orderId: string;
+  amount: number;
+}): Promise<ConfirmPaymentResponse> {
   let response: Response;
 
   try {
@@ -30,7 +31,6 @@ export async function confirmPayment(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Cart-Session-Id": sessionId,
       },
       body: JSON.stringify(input),
       cache: "no-store",

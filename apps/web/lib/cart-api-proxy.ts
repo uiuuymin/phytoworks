@@ -1,3 +1,8 @@
+import {
+  CART_SESSION_TOKEN_HEADER,
+  getOrCreateCartSession,
+} from "./cart-session-cookie";
+
 const defaultApiBaseUrl = "http://localhost:3001";
 
 export async function proxyCartRequest(
@@ -5,12 +10,10 @@ export async function proxyCartRequest(
   apiPath: string,
 ): Promise<Response> {
   const headers = new Headers();
-  const sessionId = request.headers.get("x-cart-session-id");
+  const session = getOrCreateCartSession(request);
   const contentType = request.headers.get("content-type");
 
-  if (sessionId) {
-    headers.set("X-Cart-Session-Id", sessionId);
-  }
+  headers.set(CART_SESSION_TOKEN_HEADER, session.token);
 
   if (contentType) {
     headers.set("Content-Type", contentType);
@@ -28,6 +31,9 @@ export async function proxyCartRequest(
       "Content-Type",
       upstream.headers.get("content-type") ?? "application/json",
     );
+    if (session.setCookie) {
+      responseHeaders.set("Set-Cookie", session.setCookie);
+    }
 
     return new Response(await upstream.text(), {
       status: upstream.status,

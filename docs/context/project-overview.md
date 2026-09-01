@@ -26,9 +26,9 @@
 | 웹 | Next.js 16 | Current — 16.3.3, `apps/web` |
 | API | NestJS | Current — 12.0.1, `apps/api` |
 | monorepo | pnpm workspace | Current — pnpm 11.24.0 |
-| 데이터베이스 | PostgreSQL | Proposed — 미설치·미설계 |
+| 데이터베이스 | PostgreSQL | Current — Prisma 7 migration과 repository 연결 완료 |
 | 개발 환경 | Docker | Proposed — 미구성 |
-| 결제 | Toss Payments 테스트 연동 | Proposed — 미연동 |
+| 결제 | Toss Payments 테스트 연동 | Current — Web 결제창과 API 승인 흐름 연결 |
 | 배포 | Vercel | Current — Web(`apps/web`)과 API(`apps/api`)를 별도 프로젝트로 배포, PostgreSQL 운영은 TBD |
 | 작업 방식 | Git, Git worktree, Orca, Codex, LLM Wiki | Current — bootstrap worktree에서 적용 중 |
 
@@ -80,7 +80,7 @@ Current IA, 전체 Proposed route, responsive와 interaction 기준은 [`../desi
 
 ## 현재 프로젝트 단계
 
-현재는 **Stage 7: Product read API** 단계다. 다음 항목이 구현되었다.
+현재는 **Stage 10: Order status와 익명 Cart ownership Demo** 단계다. 다음 항목이 구현되었다.
 
 - pnpm workspace 루트와 단일 lockfile
 - Next.js 16 App Router 기반 `apps/web`
@@ -98,30 +98,31 @@ Current IA, 전체 Proposed route, responsive와 interaction 기준은 [`../desi
 - 동작과 내부 이동의 의미를 분리한 Button·LinkButton
 - Shop 진입 역할의 Home과 Product 비교 역할의 `/products`
 - 정적 Catalog data, ProductCard와 1열·2열·3열 responsive ProductGrid
-- ProductCard의 상세 진입 link와 `/products/[productId]` 정적 상세 route 세 건
+- ProductCard의 상세 진입 link와 `/products/[productId]` 동적 상세 route 세 건
 - Product별 카탈로그 이미지, 요약·주요 기능과 판매 방식 panel
 - `QUOTE_REQUIRED`의 공식 문의 link와 `DIRECT_PURCHASE`의 실제 Add to Cart CTA
 - Product 전용 not-found 화면과 Catalog 복귀 경로
 - `/cart`의 hydration, empty state, Product별 수량 변경, 제거와 한 건 Undo
-- 같은 Product의 한 줄 병합과 Product ID·수량만 저장하는 version 1 localStorage schema
+- 같은 Product의 한 줄 병합과 Product ID·수량만 API에 저장하는 Cart schema
 - 손상된 Cart data, 존재하지 않는 ID와 `QUOTE_REQUIRED` 저장 항목의 안전한 정리
-- localStorage 저장 실패 시 현재 tab의 memory state 유지와 사용자 상태 안내
-- 가격과 Checkout이 없는 단계의 Product 및 수량 관리 경계
+- HttpOnly Cart session cookie와 API의 HMAC 서명 검증
+- 서버 Order 생성, Toss Payments 테스트 승인과 결제 성공·실패 화면
+- `/orders/[orderId]`의 주문 상태·상품·금액 조회 화면
 - Component·route별 CSS Modules와 skip link
 
-현재 `/`는 NITRO chamber cutout image를 제품 중심 hero에 배치하고 `/products`로 안내한다. `/about`은 정적 브랜드 소개를, `/search`는 정적 Product fixture를 대상으로 하는 검색 Demo를 제공한다. SiteHeader는 상단 utility row에 `KR | EN`, Search, Cart·Login과 구분선을, 두 번째 row에 PhytoWorks 홈 link와 Products·About을 제공한다. `/login`은 인증 API 연결 전 Email과 Password 입력 및 `/signup` 진입 링크를 제공하며, `/signup`은 계정 생성 API 연결 전 Name, Email과 Password 입력 및 `/login` 진입 링크를 제공한다. 두 화면의 패널과 진입 링크는 가운데 정렬한다. `/products`는 정적 Product 세 건을 비교 가능한 card로 렌더링하고 각 `/products/[productId]` 상세 화면으로 연결한다. NITRO는 기존 공식 문의 경로를 유지하며, 두 `DIRECT_PURCHASE` Product는 실제 `장바구니 담기` button을 제공한다. `/cart`는 Product와 수량을 관리하고 같은 Product를 한 줄로 합치며, route 이동과 새로고침 뒤 browser Cart를 복원한다. 학습용 Shop이라는 표시는 공통 SiteHeader의 `Shop Demo` label로 한정하며 각 route에는 별도 해설 notice를 두지 않는다. 언어 전환과 실제 API 연동은 아직 구현되지 않았으며 `TBD`다. 가격, 재고, 합계, Checkout, Payment result와 Order status는 아직 구현되지 않았다.
+현재 `/`는 NITRO chamber cutout image를 제품 중심 hero에 배치하고 `/products`로 안내한다. `/about`은 정적 브랜드 소개를, `/search`는 Product API를 대상으로 하는 검색 Demo를 제공한다. SiteHeader는 상단 utility row에 `KR | EN`, Search, Cart·Login과 구분선을, 두 번째 row에 PhytoWorks 홈 link와 Products·About을 제공한다. `/login`과 `/signup`은 인증 API 연결 전 Demo 입력 화면이다. `/products`는 API에서 Product 세 건을 조회하고 각 `/products/[productId]` 상세 화면으로 연결한다. NITRO는 기존 공식 문의 경로를 유지하며, 두 `DIRECT_PURCHASE` Product는 실제 `장바구니 담기` button을 제공한다. `/cart`는 API와 PostgreSQL에서 Product별 수량을 관리하고, Web은 HttpOnly Cart session cookie만 사용한다. `/checkout`은 서버 Order를 준비하고 Toss Payments 테스트 결제창을 연다. `/checkout/success`와 `/checkout/fail`은 결제 결과를 표시하며, 성공 화면에서 `/orders/[orderId]`로 이동할 수 있다. 언어 전환, Customer 인증, authoritative 가격과 재고는 아직 구현되지 않았으며 `TBD`다.
 
-NestJS API에는 `HealthModule`과 sibling인 `ProductModule`이 있으며, Product API는 API 내부 정적 fixture를 읽는다. web은 아직 API를 호출하지 않는다. Product 화면 요청은 계속 `Browser → Next.js Server Component → 정적 Product data → Browser` 경로를 사용하며 Cart 조작은 `Browser event → CartProvider reducer → browser memory → localStorage` 안에서만 처리한다. API Product 요청은 `HTTP client → NestJS HTTP adapter → ProductController → ProductService → API static fixture → JSON response` 경로를 사용하고, health 요청은 기존 `HealthController` 경계를 사용한다. PostgreSQL, Docker, Toss Payments와 Vercel 설정은 아직 존재하지 않는다.
+NestJS API에는 `HealthModule`, `ProductModule`, `CartModule`, `OrderModule`과 `PaymentModule`이 있으며, Product·Cart·Order·Payment data를 PostgreSQL에 저장한다. Product 화면 요청은 `Browser → Next.js Server Component → Product API → PostgreSQL → Browser` 경로를 사용하며, Cart·Order·Payment mutation은 `Browser → HttpOnly cookie → Next.js same-origin proxy → signed session token → NestJS API → PostgreSQL` 경로를 사용한다. Toss Payments 결제창은 Web SDK가, secret key를 사용하는 승인 요청은 API가 담당한다. Docker와 Customer 인증, authoritative 가격·재고, PostgreSQL 운영 배포 구조는 아직 확정하지 않았다.
 
 ## 아직 결정되지 않은 사항
 
 - `TBD` — Next.js, TypeScript와 pnpm의 장기 업데이트 정책
-- `TBD` — ORM 또는 데이터 접근 방법과 migration 전략
+- `Current` — Prisma 7과 PostgreSQL migration. 운영 migration·seed 실행 방식은 TBD
 - `TBD` — API 방식과 web/API 간 계약 관리 방법
 - `TBD` — 고객 식별 및 인증 범위
-- `TBD` — 서버 Cart의 소유 방식, Customer 식별과 현재 localStorage Cart의 병합·이관 정책
+- `Current Demo` — 서명된 HttpOnly 익명 Cart session. Customer 식별과 기존 localStorage Cart의 병합·이관 정책은 TBD
 - `TBD` — 주문과 결제의 최종 상태 모델 및 취소·환불 범위
 - `TBD` — 재고 차감·예약 시점과 동시성 처리
 - `TBD` — Next.js test runner와 domain·integration test 데이터 전략
 - `TBD` — Docker가 담당할 로컬 서비스 범위
-- `TBD` — NestJS API와 PostgreSQL의 실제 배포 위치 및 Vercel 연결 구조
+- `Current` — Web과 NestJS API는 별도 Vercel 프로젝트 연결을 전제로 하며, PostgreSQL의 운영 위치와 migration·seed 실행 방식은 TBD

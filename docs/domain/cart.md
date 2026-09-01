@@ -4,7 +4,9 @@
 
 Cart는 고객이 주문을 만들기 전에 구매할 Product와 수량을 임시로 모아 두는 영역이다. 주문이 아니므로 결제가 보장되지 않으며, Cart의 내용은 주문 생성 시 서버 규칙으로 다시 검증해야 한다.
 
-서버 Cart domain 모델은 **Current Demo 구현**이며, Customer 인증과 ownership 보장은 **Proposed**다. `apps/web`의 Cart item과 수량은 현재 Cart API를 사용하는 **Current Demo 구현**이며, Customer 식별과 ownership은 아직 보장하지 않는다.
+서버 Cart domain 모델은 **Current Demo 구현**이다. Customer 인증은 아직 없지만, Web과 API가
+공유하는 secret으로 서명한 익명 session token을 `HttpOnly` cookie에 저장하고 API에서 검증한다.
+Customer 계정 기반 ownership과 session 병합은 **Proposed**다.
 
 Cart에는 `DIRECT_PURCHASE`로 명시된 Demo Product만 담을 수 있다. `QUOTE_REQUIRED` Product는 견적 문의 대상으로 남기며 CartItem을 만들지 않는다. Product의 판매 방식과 CTA 경계는 [`product.md`](./product.md)와 [`../design/shop-ux-strategy.md`](../design/shop-ux-strategy.md)를 함께 확인한다.
 
@@ -33,31 +35,30 @@ CartItem은 하나의 Product와 고객이 원하는 수량을 연결한다.
 
 ## 가격과 합계
 
-현재 정적 Product data에는 가격과 통화가 없다. 따라서 **Current Demo Cart**는 소계, 합계, 무료, 할인, 세금, 배송비와 통화를 계산하거나 표시하지 않는다.
+현재 Cart 화면에는 authoritative 가격과 통화가 없다. 따라서 **Current Demo Cart**는 소계, 합계, 무료, 할인, 세금, 배송비와 통화를 계산하거나 표시하지 않는다.
 
 - Product 종류 수와 모든 CartItem의 총 수량처럼 가격과 무관한 값만 표시할 수 있다.
-- Checkout과 Order가 없으므로 현재 Cart에는 Checkout CTA를 제공하지 않는다.
+- Cart는 가격을 확정하지 않지만 서버 Order 생성을 시작하는 Checkout CTA를 제공한다. Order 금액은 서버의 Demo pricing 규칙으로 다시 계산한다.
 - 가격이 추가되는 향후 단계에서는 각 항목의 서버 기준 단가와 수량을 사용해 합계를 계산하는 방안을 검토한다.
 - 브라우저가 계산하거나 저장한 합계는 화면 표시용일 뿐 주문·결제의 신뢰 가능한 금액으로 사용하지 않는다.
 - 할인, 세금, 배송비, 통화와 반올림 규칙은 `TBD`다.
 
 ## Current Demo 저장 방식
 
-현재 Web Cart는 Cart API와 PostgreSQL을 item과 수량의 source of truth로 사용한다. 같은 browser에서 route 이동과 새로고침 뒤 익명 Cart를 복원하기 위해 session ID만 `localStorage`에 저장한다.
+현재 Web Cart는 Cart API와 PostgreSQL을 item과 수량의 source of truth로 사용한다. 같은 browser에서
+route 이동과 새로고침 뒤 익명 Cart를 복원하기 위해 Web proxy가 서명 token을 `HttpOnly` cookie에
+저장한다.
 
 ```text
-key: phytoworks-shop.cart-session.v1
-
-value: web-generated-session-id
+cookie: phytoworks-cart-session
+header: X-Cart-Session-Token
 ```
 
-- `localStorage`는 익명 session 식별자를 browser에 유지하기 위한 임시 저장소이며 Cart item, 주문 금액, 재고와 판매 가능 여부의 신뢰 가능한 기준이 아니다.
-- session ID는 사용자가 변경할 수 있는 외부 입력으로 취급한다.
-- Server와 첫 client render는 session ID나 Cart item을 사용하지 않으며 Client hydration 뒤에 session ID로 API를 조회한다.
-- session ID가 비어 있거나 길이 제한을 벗어나면 새 session ID를 만든다.
+- cookie에는 random session ID와 HMAC 서명이 들어가며 JavaScript에는 노출하지 않는다.
+- Web과 API는 같은 `CART_SESSION_SECRET`을 사용하고, API는 서명이 유효할 때만 내부 session ID를 사용한다.
+- cookie는 `HttpOnly`, `SameSite=Lax`, `Path=/`이며 production에서는 `Secure`를 추가한다.
+- Server와 첫 client render는 Cart item을 사용하지 않으며 Client hydration 뒤 same-origin API를 조회한다.
 - API가 반환한 item과 수량은 Web에서 임의로 병합하지 않고 API 응답 전체로 교체한다.
-- 존재하지 않거나 현재 `DIRECT_PURCHASE`가 아닌 Product ID는 API가 변경 요청을 거부한다.
-- `localStorage`에 접근하거나 저장할 수 없으면 현재 tab의 memory session ID로 API를 사용하며 새로고침 뒤 같은 Cart가 유지되지 않을 수 있다.
 - 여러 tab, 다른 browser 및 기기 사이의 동기화, 만료와 Customer Cart 병합은 현재 범위에 없다.
 
 견적함은 구매 장바구니와 별도 storage key를 사용한다.
@@ -86,8 +87,9 @@ value:
 
 ## 현재 서버 Cart API 경계
 
-`apps/api`는 인증 도입 전의 익명 Cart API를 제공한다. 요청은 `X-Cart-Session-Id` header로
-session을 식별하며, 이 값은 사용자가 조작할 수 있으므로 Cart ownership을 보장하지 않는다.
+`apps/api`는 Customer 인증 도입 전의 익명 Cart API를 제공한다. 요청은 Web proxy가 전달하는
+`X-Cart-Session-Token` header로 session을 식별하며, API가 HMAC 서명을 검증한 뒤 내부 session
+ID를 사용한다.
 
 - `GET /api/cart`는 session의 Cart를 조회하고, 없으면 빈 Cart를 반환한다.
 - `POST /api/cart/items`는 `DIRECT_PURCHASE` Product를 추가하며 같은 Product의 수량을 합친다.
@@ -100,7 +102,8 @@ session을 식별하며, 이 값은 사용자가 조작할 수 있으므로 Cart
 
 ## 향후 서버 Cart를 확장할 때
 
-현재 session header 기반 API Cart는 최종 production ownership 모델이 아니다. 서버 Cart를 확장할 때 다음 항목을 다시 결정한다.
+현재 서명 token 기반 API Cart는 익명 session의 위조를 막지만 최종 Customer ownership 모델은
+아니다. 서버 Cart를 확장할 때 다음 항목을 다시 결정한다.
 
 - Customer 또는 비회원 session의 Cart 소유 방식
 - Cart ID와 CartItem ID

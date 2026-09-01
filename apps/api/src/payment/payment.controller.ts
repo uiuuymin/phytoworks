@@ -7,11 +7,12 @@ import {
   HttpStatus,
   Post,
 } from "@nestjs/common";
+import { requireCartSessionId } from "../cart/cart-session.js";
 // biome-ignore lint/style/useImportType: NestJS needs the runtime class for dependency injection.
 import { PaymentService } from "./payment.service.js";
 import type { ConfirmPaymentInput, PaymentReadModel } from "./payment.types.js";
 
-const SESSION_HEADER = "x-cart-session-id";
+const SESSION_TOKEN_HEADER = "x-cart-session-token";
 
 @Controller("api/payments")
 export class PaymentController {
@@ -20,13 +21,13 @@ export class PaymentController {
   @Post("confirm")
   @HttpCode(HttpStatus.OK)
   confirm(
-    @Headers(SESSION_HEADER) sessionId: string | undefined,
+    @Headers(SESSION_TOKEN_HEADER) sessionToken: string | undefined,
     @Body() body: unknown,
   ): Promise<PaymentReadModel> {
     const request = parseConfirmBody(body);
     return this.paymentService.confirm({
       ...request,
-      sessionId: requireSessionId(sessionId),
+      sessionId: requireCartSessionId(sessionToken),
     });
   }
 }
@@ -55,19 +56,6 @@ function parseConfirmBody(
   }
 
   return { paymentKey, orderId, amount };
-}
-
-function requireSessionId(sessionId: string | undefined): string {
-  if (!sessionId) {
-    throw new BadRequestException("Cart session is required");
-  }
-
-  const normalized = sessionId.trim();
-  if (normalized.length < 1 || normalized.length > 128) {
-    throw new BadRequestException("Cart session is invalid");
-  }
-
-  return normalized;
 }
 
 function readString(value: unknown): string | null {

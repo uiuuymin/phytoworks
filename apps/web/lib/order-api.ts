@@ -25,15 +25,12 @@ export class OrderApiError extends Error {
   }
 }
 
-export async function createPendingOrder(
-  sessionId: string,
-): Promise<OrderApiResponse> {
+export async function createPendingOrder(): Promise<OrderApiResponse> {
   let response: Response;
 
   try {
     response = await fetch("/api/orders", {
       method: "POST",
-      headers: { "X-Cart-Session-Id": sessionId },
       cache: "no-store",
     });
   } catch {
@@ -58,15 +55,11 @@ export async function createPendingOrder(
   }
 }
 
-export async function getOrder(
-  sessionId: string,
-  orderId: string,
-): Promise<OrderApiResponse> {
+export async function getOrder(orderId: string): Promise<OrderApiResponse> {
   let response: Response;
 
   try {
     response = await fetch(`/api/orders/${encodeURIComponent(orderId)}`, {
-      headers: { "X-Cart-Session-Id": sessionId },
       cache: "no-store",
     });
   } catch {

@@ -5,7 +5,6 @@ import Script from "next/script";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
-import { getOrCreateCartSessionId } from "@/lib/cart-session";
 import {
   createPendingOrder,
   getOrder,
@@ -50,7 +49,7 @@ export function CheckoutView() {
 
     let cancelled = false;
     setStatus("preparing");
-    getOrder(getOrCreateCartSessionId(), retryOrderId)
+    getOrder(retryOrderId)
       .then((nextOrder) => {
         if (cancelled) {
           return;
@@ -143,7 +142,7 @@ export function CheckoutView() {
     setMessage("");
 
     try {
-      const nextOrder = await createPendingOrder(getOrCreateCartSessionId());
+      const nextOrder = await createPendingOrder();
       setOrder(nextOrder);
     } catch {
       setStatus("error");

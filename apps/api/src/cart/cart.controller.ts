@@ -12,8 +12,9 @@ import {
 // biome-ignore lint/style/useImportType: NestJS needs the runtime class for dependency injection.
 import { CartService } from "./cart.service.js";
 import type { CartReadModel } from "./cart.types.js";
+import { requireCartSessionId } from "./cart-session.js";
 
-const SESSION_HEADER = "x-cart-session-id";
+const SESSION_TOKEN_HEADER = "x-cart-session-token";
 
 @Controller("api/cart")
 export class CartController {
@@ -21,19 +22,19 @@ export class CartController {
 
   @Get()
   getCart(
-    @Headers(SESSION_HEADER) sessionId: string | undefined,
+    @Headers(SESSION_TOKEN_HEADER) sessionToken: string | undefined,
   ): Promise<CartReadModel> {
-    return this.cartService.findBySessionId(requireSessionId(sessionId));
+    return this.cartService.findBySessionId(requireCartSessionId(sessionToken));
   }
 
   @Post("items")
   addItem(
-    @Headers(SESSION_HEADER) sessionId: string | undefined,
+    @Headers(SESSION_TOKEN_HEADER) sessionToken: string | undefined,
     @Body() body: unknown,
   ): Promise<CartReadModel> {
     const request = parseAddItemBody(body);
     return this.cartService.addItem(
-      requireSessionId(sessionId),
+      requireCartSessionId(sessionToken),
       request.productId,
       request.quantity,
     );
@@ -41,12 +42,12 @@ export class CartController {
 
   @Patch("items/:productId")
   setItemQuantity(
-    @Headers(SESSION_HEADER) sessionId: string | undefined,
+    @Headers(SESSION_TOKEN_HEADER) sessionToken: string | undefined,
     @Param("productId") productId: string,
     @Body() body: unknown,
   ): Promise<CartReadModel> {
     return this.cartService.setItemQuantity(
-      requireSessionId(sessionId),
+      requireCartSessionId(sessionToken),
       requireProductId(productId),
       parseQuantityBody(body),
     );
@@ -54,28 +55,14 @@ export class CartController {
 
   @Delete("items/:productId")
   removeItem(
-    @Headers(SESSION_HEADER) sessionId: string | undefined,
+    @Headers(SESSION_TOKEN_HEADER) sessionToken: string | undefined,
     @Param("productId") productId: string,
   ): Promise<CartReadModel> {
     return this.cartService.removeItem(
-      requireSessionId(sessionId),
+      requireCartSessionId(sessionToken),
       requireProductId(productId),
     );
   }
-}
-
-function requireSessionId(sessionId: string | undefined): string {
-  if (!sessionId) {
-    throw new BadRequestException("Cart session is required");
-  }
-
-  const normalized = sessionId.trim();
-
-  if (normalized.length < 1 || normalized.length > 128) {
-    throw new BadRequestException("Cart session is invalid");
-  }
-
-  return normalized;
 }
 
 function requireProductId(productId: string): string {

@@ -26,7 +26,7 @@ PhytoWorks의 식물 연구·육종용 생육 시스템, 이미징 모듈과 분
 
 ## 현재 상태
 
-현재는 **pnpm workspace와 Next.js web을 bootstrap한 단계**입니다. `apps/web`의 `/` 화면은 실행 가능하지만 NestJS, 데이터베이스, Docker, 결제와 배포 설정은 아직 생성하지 않았습니다.
+현재는 Next.js Web, NestJS API, PostgreSQL 기반 Cart·Order·Payment Demo가 연결된 단계입니다. Web과 API의 배포 환경변수 및 PostgreSQL 운영 위치는 배포 대상에 맞게 설정해야 합니다.
 
 ```bash
 pnpm install
